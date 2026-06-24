@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+
+# Build outputs
+build/
+dist/
+*.egg-info/
+
+# Local artifacts
+runtime/
+*.tar.gz
+*.zip
+
+# OS/editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# Secrets
+.env
+.env.*
+*.pem
+credentials.json
