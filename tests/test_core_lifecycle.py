@@ -13,6 +13,7 @@ from evorig.diagnostics import run_doctor
 from evorig.environment import connect_environment, render_environment_status
 from evorig.errors import EvoRigError
 from evorig.evidence import add_evidence, list_evidence
+from evorig.onboarding import render_onboarding_json, render_onboarding_markdown
 from evorig.packaging import package_unit
 from evorig.runs import add_artifact, finish_run, start_run
 from evorig.state import mark_active, mark_stopped, mark_waiting, read_state, render_state_markdown
@@ -344,6 +345,21 @@ class CoreLifecycleTests(unittest.TestCase):
             run_root = start_run(unit, task="Generate a task artifact", attempt_id="attempt-0001")
             run_record = read_yaml(run_root / "run.yaml")
             self.assertEqual(run_record["attempt_id"], "attempt-0001")
+
+    def test_agent_onboarding_collects_minimal_context(self) -> None:
+        data = render_onboarding_json()
+        markdown = render_onboarding_markdown()
+
+        self.assertLessEqual(data["question_limit"], 5)
+        question_ids = {item["id"] for item in data["questions"]}
+        self.assertIn("harness_goal", question_ids)
+        self.assertIn("proof_artifacts", question_ids)
+        self.assertIn("environment_status", question_ids)
+        self.assertIn("What is the harness goal", markdown)
+        self.assertIn("What artifacts prove success or failure", markdown)
+        self.assertIn("evorig target set", markdown)
+        self.assertIn("evorig environment connect", markdown)
+        self.assertIn("--interaction-mode mcp", markdown)
 
 
 if __name__ == "__main__":

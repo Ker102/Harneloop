@@ -6,6 +6,22 @@ EvoRig is a framework for agent-built, artifact-aware harness units.
 
 This repository is in the first core prototype stage. Keep changes small, tested, and generic. Do not let Blender-specific assumptions leak into the framework core.
 
+## First Onboarding Step
+
+When starting a new harness unit, run:
+
+```powershell
+evorig onboard
+```
+
+If EvoRig is not installed yet, use:
+
+```powershell
+python -m evorig onboard
+```
+
+Use the five onboarding questions to collect only the minimum context needed for the first baseline attempt: harness goal, success/failure criteria, proof artifacts, environment status, and constraints. Then map those answers into `target set`, `environment connect`, and `attempt plan`.
+
 ## Product Principles
 
 - The framework process is protected. Unit evolution is sandboxed.

@@ -18,6 +18,7 @@ class RepoStructureTests(unittest.TestCase):
             "CONTRIBUTING.md",
             "README.md",
             "SECURITY.md",
+            "docs/agent-onboarding.md",
             "docs/architecture/core-lifecycle.md",
             "docs/development.md",
             "pyproject.toml",

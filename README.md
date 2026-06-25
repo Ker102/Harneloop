@@ -45,6 +45,20 @@ python3 -m venv .venv
 
 You can also run without installing by setting `PYTHONPATH=src` or using your agent's equivalent environment setup.
 
+If you are an agent starting a new harness, run the onboarding checklist first:
+
+```powershell
+evorig onboard
+```
+
+Before editable install:
+
+```powershell
+python -m evorig onboard
+```
+
+The onboarding flow asks five setup questions, lists the context being collected, and maps the answers into `target`, `environment`, `attempt`, run/artifact, and evidence records. See [docs/agent-onboarding.md](docs/agent-onboarding.md).
+
 ```powershell
 python -m evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit"
 python -m evorig candidate create .\demo-unit --summary "Add first task principle"

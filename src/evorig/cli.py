@@ -12,6 +12,7 @@ from .errors import EvoRigError
 from .evidence import add_evidence
 from .adapters import SUPPORTED_ADAPTERS, export_unit
 from .attempts import add_attempt_observation, create_attempt_plan
+from .onboarding import render_onboarding_json, render_onboarding_markdown
 from .packaging import package_unit
 from .runs import add_artifact, finish_run, start_run
 from .state import mark_active, mark_stopped, mark_waiting, read_state
@@ -26,6 +27,9 @@ from .versioning import promote_candidate, rollback_unit
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="evorig", description="EvoRig harness-unit lifecycle engine")
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    onboard_parser = subparsers.add_parser("onboard", help="Print the new-harness onboarding checklist")
+    onboard_parser.add_argument("--format", choices=["markdown", "json"], default="markdown")
 
     init_parser = subparsers.add_parser("init-unit", help="Create a new harness unit")
     init_parser.add_argument("path", type=Path)
@@ -184,6 +188,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
+        if args.command == "onboard":
+            if args.format == "json":
+                print(json.dumps(render_onboarding_json(), indent=2))
+            else:
+                print(render_onboarding_markdown(), end="")
+            return 0
+
         if args.command == "init-unit":
             path = init_unit(args.path, args.id, args.name, args.template)
             print(f"Created unit: {path}")
