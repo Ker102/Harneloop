@@ -51,10 +51,16 @@ python -m evorig candidate create .\demo-unit --summary "Add first task principl
 python -m evorig status .\demo-unit
 ```
 
+List available templates:
+
+```powershell
+evorig template list
+```
+
 ## Local Lifecycle Smoke Test
 
 ```powershell
-evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit"
+evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit" --template artifact-review
 evorig candidate create .\demo-unit --summary "Add first task principle"
 New-Item -ItemType Directory -Force .\demo-unit\candidates\cand-0001\changes\agent-facing
 Set-Content .\demo-unit\candidates\cand-0001\changes\agent-facing\principles.md "Inspect real artifacts before promotion."
@@ -73,6 +79,8 @@ evorig status .\demo-unit
 
 The generated unit will include `.evolve/allowed-edits.yaml`, `CURRENT_STATE.md`, and `NEXT_ACTION.md` so a coding agent can see the current lifecycle phase and edit boundaries.
 Run records and copied artifacts live under `runtime/`, which is intentionally excluded from portable packages by default.
+
+For a fuller first local demo, see [docs/demo-first-test.md](docs/demo-first-test.md).
 
 Run tests:
 

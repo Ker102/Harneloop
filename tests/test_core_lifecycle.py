@@ -13,7 +13,8 @@ from evorig.errors import EvoRigError
 from evorig.evidence import add_evidence, list_evidence
 from evorig.packaging import package_unit
 from evorig.runs import add_artifact, finish_run, start_run
-from evorig.state import mark_active, mark_stopped, mark_waiting, read_state
+from evorig.state import mark_active, mark_stopped, mark_waiting, read_state, render_state_markdown
+from evorig.templates import list_templates
 from evorig.unit import init_unit
 from evorig.versioning import promote_candidate, rollback_unit
 from evorig.yamlio import read_yaml
@@ -101,6 +102,28 @@ class CoreLifecycleTests(unittest.TestCase):
             unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
             data = json.loads((unit / ".evolve" / "state.json").read_text(encoding="utf-8"))
             self.assertEqual(data["unit_id"], "demo")
+
+    def test_artifact_review_template_seeds_unit_contracts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit", template="artifact-review")
+
+            self.assertIn("artifact-review", list_templates())
+            self.assertTrue((unit / "agent-facing" / "principles.md").exists())
+            self.assertTrue((unit / "observers" / "contracts.yaml").exists())
+            self.assertTrue((unit / "validators" / "contracts.yaml").exists())
+            self.assertTrue((unit / "regression-cases" / "artifact-smoke.yaml").exists())
+            principles = (unit / "agent-facing" / "principles.md").read_text(encoding="utf-8")
+            self.assertIn("Inspect real artifacts", principles)
+
+    def test_state_markdown_is_agent_readable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            state = read_state(unit)
+            markdown = render_state_markdown(state)
+
+            self.assertIn("# Current State", markdown)
+            self.assertIn("State:", markdown)
+            self.assertIn("Next Action", markdown)
 
     def test_allowed_edits_contract_tracks_active_candidate(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

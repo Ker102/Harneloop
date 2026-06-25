@@ -13,6 +13,8 @@ from .adapters import SUPPORTED_ADAPTERS, export_unit
 from .packaging import package_unit
 from .runs import add_artifact, finish_run, start_run
 from .state import mark_active, mark_stopped, mark_waiting, read_state
+from .state import render_state_markdown
+from .templates import list_templates
 from .unit import init_unit
 from .validation import validate_unit
 from .versioning import promote_candidate, rollback_unit
@@ -26,6 +28,11 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("path", type=Path)
     init_parser.add_argument("--id", required=True)
     init_parser.add_argument("--name", required=True)
+    init_parser.add_argument("--template", default="blank", choices=list_templates())
+
+    template_parser = subparsers.add_parser("template", help="Inspect available unit templates")
+    template_subparsers = template_parser.add_subparsers(dest="template_command", required=True)
+    template_subparsers.add_parser("list", help="List available unit templates")
 
     candidate_parser = subparsers.add_parser("candidate", help="Manage candidates")
     candidate_subparsers = candidate_parser.add_subparsers(dest="candidate_command", required=True)
@@ -72,6 +79,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     status_parser = subparsers.add_parser("status", help="Print unit lifecycle state")
     status_parser.add_argument("unit", type=Path)
+    status_parser.add_argument("--format", choices=["json", "markdown"], default="json")
 
     doctor_parser = subparsers.add_parser("doctor", help="Check local EvoRig runtime prerequisites")
     doctor_parser.add_argument("--json", action="store_true", dest="json_output")
@@ -130,8 +138,13 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.command == "init-unit":
-            path = init_unit(args.path, args.id, args.name)
+            path = init_unit(args.path, args.id, args.name, args.template)
             print(f"Created unit: {path}")
+            return 0
+
+        if args.command == "template" and args.template_command == "list":
+            for template in list_templates():
+                print(template)
             return 0
 
         if args.command == "candidate" and args.candidate_command == "create":
@@ -190,7 +203,11 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.command == "status":
-            print(json.dumps(read_state(args.unit), indent=2))
+            state = read_state(args.unit)
+            if args.format == "markdown":
+                print(render_state_markdown(state), end="")
+            else:
+                print(json.dumps(state, indent=2))
             return 0
 
         if args.command == "doctor":

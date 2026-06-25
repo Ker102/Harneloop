@@ -56,27 +56,39 @@ def update_state(unit_root: Path, **updates: Any) -> dict[str, Any]:
 def write_state_markdown(unit_root: Path, state: dict[str, Any]) -> None:
     current = state_dir(unit_root) / "CURRENT_STATE.md"
     next_action = state_dir(unit_root) / "NEXT_ACTION.md"
+    current.write_text(render_state_markdown(state), encoding="utf-8", newline="\n")
+    next_action.write_text(render_next_action_markdown(state), encoding="utf-8", newline="\n")
+
+
+def render_state_markdown(state: dict[str, Any]) -> str:
     lines = [
         "# Current State",
         "",
         f"- State: `{state.get('state', 'unknown')}`",
         f"- Current version: `{state.get('current_version') or 'none'}`",
         f"- Active candidate: `{state.get('active_candidate') or 'none'}`",
+        f"- Active run: `{state.get('active_run') or 'none'}`",
         f"- Reason: {state.get('reason') or 'none'}",
         f"- Updated at: `{state.get('updated_at') or 'unknown'}`",
+        "",
+        "## Next Action",
+        "",
+        state.get("next_action") or "Inspect the unit state and choose the next lifecycle action.",
     ]
     if state.get("resume_after"):
         lines.append(f"- Resume after: `{state['resume_after']}`")
     if state.get("resume_condition"):
         lines.append(f"- Resume condition: `{state['resume_condition']}`")
-    current.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+    return "\n".join(lines) + "\n"
 
+
+def render_next_action_markdown(state: dict[str, Any]) -> str:
     next_lines = [
         "# Next Action",
         "",
         state.get("next_action") or "Inspect the unit state and choose the next lifecycle action.",
     ]
-    next_action.write_text("\n".join(next_lines) + "\n", encoding="utf-8", newline="\n")
+    return "\n".join(next_lines) + "\n"
 
 
 def write_allowed_edits(unit_root: Path, state: dict[str, Any]) -> None:

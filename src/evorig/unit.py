@@ -4,6 +4,7 @@ from pathlib import Path
 
 from .errors import EvoRigError
 from .state import now_iso, write_state
+from .templates import apply_template
 from .yamlio import write_yaml
 
 
@@ -24,7 +25,7 @@ RECOMMENDED_DIRS = [
 ]
 
 
-def init_unit(path: Path, unit_id: str, name: str) -> Path:
+def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> Path:
     unit_root = path.resolve()
     if unit_root.exists() and any(unit_root.iterdir()):
         raise EvoRigError(f"Unit path is not empty: {unit_root}")
@@ -41,6 +42,7 @@ def init_unit(path: Path, unit_id: str, name: str) -> Path:
             "name": name,
             "working_product_name": "EvoRig",
             "name_status": "temporary",
+            "template": template,
             "created_at": now_iso(),
             "current_version": None,
         },
@@ -72,6 +74,8 @@ def init_unit(path: Path, unit_id: str, name: str) -> Path:
         encoding="utf-8",
         newline="\n",
     )
+
+    apply_template(unit_root, template)
 
     write_state(
         unit_root,
