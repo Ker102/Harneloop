@@ -10,6 +10,8 @@ The framework should first help the agent understand:
 - what failure patterns matter;
 - whether a testing environment already exists.
 
+After that, the agent creates an attempt plan. An attempt plan is not a deterministic test command. It is an agent-authored workflow for producing and inspecting something relevant to the target task.
+
 ## Setup Modes
 
 ### Existing
@@ -42,6 +44,54 @@ The agent should propose the smallest missing setup required to run a baseline t
 Use this when EvoRig or the agent should create more of the environment from scratch.
 
 Every infrastructure change should be explicit and evidence-backed. Managed setup is useful later, but it should not be the default for user projects that already work.
+
+## Attempt Plans
+
+Many harness tasks cannot be reduced to `run this command`.
+
+The target agent may need to:
+
+- use MCP tools;
+- edit files;
+- create scenes;
+- build UI;
+- run a browser;
+- ask a model to generate an artifact;
+- visually inspect output;
+- export structured summaries;
+- decide what follow-up evidence matters.
+
+EvoRig records this as an attempt plan:
+
+```powershell
+evorig attempt plan .\unit `
+  --goal "Build a Blender scene with a cube on a table." `
+  --method "Use Blender MCP tools to create objects, render, and export scene summary." `
+  --action "Create table, cube, camera, and light." `
+  --action "Render and capture screenshot." `
+  --expected-artifact render `
+  --expected-artifact scene_summary `
+  --success-check "Cube rests on table." `
+  --success-check "Objects are visible to camera."
+```
+
+Then a run can reference that attempt:
+
+```powershell
+evorig run start .\unit --task "Baseline Blender spatial scene" --attempt-id attempt-0001
+```
+
+After artifacts are captured, observations are added:
+
+```powershell
+evorig attempt observe .\unit attempt-0001 `
+  --run-id run-0001 `
+  --outcome failed `
+  --summary "Render exists but cube floats above the table." `
+  --finding "Likely z-coordinate placement issue."
+```
+
+Those observations can then become candidate evidence or regression cases.
 
 ## Agent Questions
 

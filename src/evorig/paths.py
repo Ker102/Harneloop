@@ -10,7 +10,9 @@ EXCLUDED_DIRS = {
     ".pytest_cache",
     ".mypy_cache",
     ".ruff_cache",
+    "attempts",
     "candidates",
+    "experiments",
     "runtime",
     "versions",
 }

@@ -63,6 +63,7 @@ evorig template list
 evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit" --template artifact-review
 evorig target set .\demo-unit --task "Create and capture a simple text artifact" --success "The artifact is captured and usable as evidence." --artifact-kind text --risk "artifact is not captured"
 evorig environment connect .\demo-unit --name "Local text artifact environment" --mode existing --description "Uses local shell commands for the demo." --run-command "Set-Content artifact.txt artifact output" --artifact-path artifact.txt
+evorig attempt plan .\demo-unit --goal "Create and capture a text artifact" --method "Use local tools to generate the artifact and record it." --expected-artifact text --success-check "Artifact is captured in runtime artifacts."
 evorig candidate create .\demo-unit --summary "Add first task principle"
 New-Item -ItemType Directory -Force .\demo-unit\candidates\cand-0001\changes\agent-facing
 Set-Content .\demo-unit\candidates\cand-0001\changes\agent-facing\principles.md "Inspect real artifacts before promotion."
@@ -85,6 +86,7 @@ Run records and copied artifacts live under `runtime/`, which is intentionally e
 For a fuller first local demo, see [docs/demo-first-test.md](docs/demo-first-test.md).
 
 For existing tool-driven environments such as a Blender MCP server, use `evorig environment connect --interaction-mode mcp` and declare the tools/artifact paths instead of forcing a single run command.
+For custom work, use `evorig attempt plan` to record how the agent will use its own capabilities and tools to produce relevant artifacts.
 
 Run tests:
 

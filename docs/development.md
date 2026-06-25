@@ -31,7 +31,7 @@ The repository should maintain:
 
 ## Runtime Data
 
-Runtime traces, copied artifacts, and run records are local working data. They live under unit-local `runtime/` directories and should not be promoted into portable packages unless a later packaging profile explicitly includes them.
+Runtime traces, copied artifacts, run records, attempt plans, and experiments are local working data. They should not be promoted into thin portable packages unless a later packaging profile explicitly includes them.
 
 ## PR Review Note
 

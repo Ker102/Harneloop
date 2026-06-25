@@ -13,6 +13,7 @@
     "finished_at": { "type": ["string", "null"] },
     "harness_version": { "type": ["string", "null"] },
     "candidate_id": { "type": ["string", "null"] },
+    "attempt_id": { "type": ["string", "null"] },
     "summary": { "type": ["string", "null"] },
     "artifacts": {
       "type": "array",

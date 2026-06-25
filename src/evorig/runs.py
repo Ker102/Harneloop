@@ -54,7 +54,12 @@ def write_run(unit_root: Path, run_id: str, data: dict[str, Any]) -> dict[str, A
     return data
 
 
-def start_run(unit_root: Path, task: str, candidate_id: str | None = None) -> Path:
+def start_run(
+    unit_root: Path,
+    task: str,
+    candidate_id: str | None = None,
+    attempt_id: str | None = None,
+) -> Path:
     unit_root = unit_root.resolve()
     ensure_unit(unit_root)
     unit_meta = read_yaml(unit_root / "unit.yaml")
@@ -74,6 +79,7 @@ def start_run(unit_root: Path, task: str, candidate_id: str | None = None) -> Pa
             "finished_at": None,
             "harness_version": unit_meta.get("current_version"),
             "candidate_id": candidate_id,
+            "attempt_id": attempt_id,
             "summary": None,
             "artifacts": [],
         },

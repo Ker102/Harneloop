@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from evorig.adapters import export_unit
+from evorig.attempts import add_attempt_observation, create_attempt_plan
 from evorig.candidate import create_candidate
 from evorig.diagnostics import run_doctor
 from evorig.environment import connect_environment, render_environment_status
@@ -26,6 +27,11 @@ class CoreLifecycleTests(unittest.TestCase):
     def test_create_candidate_promote_snapshot_and_package(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            create_attempt_plan(
+                unit,
+                goal="Create a first task artifact",
+                method="Use agent capabilities to produce an artifact.",
+            )
             candidate = create_candidate(unit, "Add first task principle")
             change = candidate / "changes" / "agent-facing" / "principles.md"
             change.parent.mkdir(parents=True, exist_ok=True)
@@ -44,6 +50,7 @@ class CoreLifecycleTests(unittest.TestCase):
                 names = archive.getnames()
             self.assertTrue(any(name.endswith("EVORIG_PACKAGE.json") for name in names))
             self.assertTrue(any(name.endswith("agent-facing/principles.md") for name in names))
+            self.assertFalse(any("/attempts/" in name for name in names))
 
     def test_candidate_cannot_modify_protected_unit_yaml(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -291,6 +298,52 @@ class CoreLifecycleTests(unittest.TestCase):
             getting_started = (unit / "environment" / "GETTING_STARTED.md").read_text(encoding="utf-8")
             self.assertIn("render_scene", getting_started)
             self.assertIn("baseline run", getting_started)
+
+    def test_agent_attempt_plan_records_custom_workflow(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            attempt = create_attempt_plan(
+                unit,
+                goal="Build a Blender scene with a cube on a table and a visible camera view.",
+                method="Use the existing Blender MCP tools to create objects, render, and export a scene summary.",
+                action=[
+                    "Create table, cube, camera, and light with MCP tools.",
+                    "Render the scene and capture a screenshot.",
+                    "Export object transforms and camera visibility summary.",
+                ],
+                expected_artifact=["render", "screenshot", "scene_summary"],
+                success_check=["Cube rests on table", "All required objects are visible to camera"],
+                note=["There is no single test command; the agent performs this workflow through tools."],
+            )
+
+            self.assertEqual(attempt["id"], "attempt-0001")
+            self.assertIn("render", attempt["expected_artifacts"])
+            self.assertTrue((unit / "attempts" / "attempt-0001" / "attempt.yaml").exists())
+
+            observation = add_attempt_observation(
+                unit,
+                "attempt-0001",
+                summary="Render exists but cube is floating above the table.",
+                outcome="failed",
+                run_id="run-0001",
+                finding=["Likely z-coordinate placement issue"],
+            )
+            self.assertEqual(observation["outcome"], "failed")
+            observations = (unit / "attempts" / "attempt-0001" / "OBSERVATIONS.md").read_text(encoding="utf-8")
+            self.assertIn("floating above the table", observations)
+
+    def test_run_can_link_to_agent_attempt_plan(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            create_attempt_plan(
+                unit,
+                goal="Generate a task artifact",
+                method="Use agent tools to create the artifact.",
+            )
+
+            run_root = start_run(unit, task="Generate a task artifact", attempt_id="attempt-0001")
+            run_record = read_yaml(run_root / "run.yaml")
+            self.assertEqual(run_record["attempt_id"], "attempt-0001")
 
 
 if __name__ == "__main__":

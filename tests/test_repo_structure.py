@@ -21,6 +21,7 @@ class RepoStructureTests(unittest.TestCase):
             "docs/architecture/core-lifecycle.md",
             "docs/development.md",
             "pyproject.toml",
+            "schemas/attempt-plan.schema.json",
             "schemas/artifact-manifest.schema.json",
             "schemas/candidate-evidence.schema.json",
             "schemas/run-record.schema.json",

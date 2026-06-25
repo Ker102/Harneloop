@@ -11,6 +11,7 @@ from .environment import ENVIRONMENT_MODES, INTERACTION_MODES, connect_environme
 from .errors import EvoRigError
 from .evidence import add_evidence
 from .adapters import SUPPORTED_ADAPTERS, export_unit
+from .attempts import add_attempt_observation, create_attempt_plan
 from .packaging import package_unit
 from .runs import add_artifact, finish_run, start_run
 from .state import mark_active, mark_stopped, mark_waiting, read_state
@@ -59,6 +60,25 @@ def build_parser() -> argparse.ArgumentParser:
     environment_connect.add_argument("--note", action="append", default=[])
     environment_status = environment_subparsers.add_parser("status", help="Print the environment contract")
     environment_status.add_argument("unit", type=Path)
+
+    attempt_parser = subparsers.add_parser("attempt", help="Plan and observe agent attempts")
+    attempt_subparsers = attempt_parser.add_subparsers(dest="attempt_command", required=True)
+    attempt_plan = attempt_subparsers.add_parser("plan", help="Create an agent-authored attempt plan")
+    attempt_plan.add_argument("unit", type=Path)
+    attempt_plan.add_argument("--goal", required=True)
+    attempt_plan.add_argument("--method", required=True)
+    attempt_plan.add_argument("--action", action="append", default=[])
+    attempt_plan.add_argument("--expected-artifact", action="append", default=[])
+    attempt_plan.add_argument("--success-check", action="append", default=[])
+    attempt_plan.add_argument("--note", action="append", default=[])
+
+    attempt_observe = attempt_subparsers.add_parser("observe", help="Add an observation to an attempt")
+    attempt_observe.add_argument("unit", type=Path)
+    attempt_observe.add_argument("attempt_id")
+    attempt_observe.add_argument("--summary", required=True)
+    attempt_observe.add_argument("--outcome", default="unknown")
+    attempt_observe.add_argument("--run-id")
+    attempt_observe.add_argument("--finding", action="append", default=[])
 
     candidate_parser = subparsers.add_parser("candidate", help="Manage candidates")
     candidate_subparsers = candidate_parser.add_subparsers(dest="candidate_command", required=True)
@@ -118,6 +138,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_start.add_argument("unit", type=Path)
     run_start.add_argument("--task", required=True)
     run_start.add_argument("--candidate-id")
+    run_start.add_argument("--attempt-id")
 
     run_finish = run_subparsers.add_parser("finish", help="Finish a run record")
     run_finish.add_argument("unit", type=Path)
@@ -208,6 +229,31 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Created candidate: {path.name}")
             return 0
 
+        if args.command == "attempt":
+            if args.attempt_command == "plan":
+                attempt = create_attempt_plan(
+                    args.unit,
+                    goal=args.goal,
+                    method=args.method,
+                    action=args.action,
+                    expected_artifact=args.expected_artifact,
+                    success_check=args.success_check,
+                    note=args.note,
+                )
+                print(json.dumps(attempt, indent=2))
+                return 0
+            if args.attempt_command == "observe":
+                observation = add_attempt_observation(
+                    args.unit,
+                    args.attempt_id,
+                    summary=args.summary,
+                    outcome=args.outcome,
+                    run_id=args.run_id,
+                    finding=args.finding,
+                )
+                print(json.dumps(observation, indent=2))
+                return 0
+
         if args.command == "candidate" and args.candidate_command == "evidence":
             if args.evidence_command == "add":
                 record = add_evidence(
@@ -278,7 +324,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "run":
             if args.run_command == "start":
-                path = start_run(args.unit, args.task, args.candidate_id)
+                path = start_run(args.unit, args.task, args.candidate_id, args.attempt_id)
                 print(f"Started run: {path.name}")
                 return 0
             if args.run_command == "finish":
