@@ -65,6 +65,7 @@ evorig run start .\demo-unit --task "Create and inspect first artifact"
 Set-Content .\artifact.txt "artifact output"
 evorig artifact add .\demo-unit run-0001 .\artifact.txt --kind text --description "Smoke-test artifact"
 evorig run finish .\demo-unit run-0001 --status succeeded --summary "Artifact captured"
+evorig export .\demo-unit --adapter codex
 evorig state wait .\demo-unit --reason delayed_artifact --next-action inspect_artifact --resume-condition "artifact exists"
 evorig package .\demo-unit --output .\demo-unit-0.1.0.tar.gz
 evorig status .\demo-unit

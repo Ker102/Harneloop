@@ -9,6 +9,7 @@ from .candidate import create_candidate
 from .diagnostics import run_doctor
 from .errors import EvoRigError
 from .evidence import add_evidence
+from .adapters import SUPPORTED_ADAPTERS, export_unit
 from .packaging import package_unit
 from .runs import add_artifact, finish_run, start_run
 from .state import mark_active, mark_stopped, mark_waiting, read_state
@@ -60,6 +61,11 @@ def build_parser() -> argparse.ArgumentParser:
     package_parser.add_argument("--output", type=Path, required=True)
     package_parser.add_argument("--profile", default="thin")
     package_parser.add_argument("--version")
+
+    export_parser = subparsers.add_parser("export", help="Export a harness unit for a target agent")
+    export_parser.add_argument("unit", type=Path)
+    export_parser.add_argument("--adapter", required=True, choices=sorted(SUPPORTED_ADAPTERS))
+    export_parser.add_argument("--output", type=Path)
 
     validate_parser = subparsers.add_parser("validate", help="Validate a harness unit")
     validate_parser.add_argument("unit", type=Path)
@@ -167,6 +173,11 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "package":
             output = package_unit(args.unit, args.output, args.profile, args.version)
             print(f"Created package: {output}")
+            return 0
+
+        if args.command == "export":
+            output = export_unit(args.unit, args.adapter, args.output)
+            print(f"Created {args.adapter} export: {output}")
             return 0
 
         if args.command == "validate":

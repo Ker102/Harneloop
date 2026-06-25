@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from evorig.adapters import export_unit
 from evorig.candidate import create_candidate
 from evorig.diagnostics import run_doctor
 from evorig.errors import EvoRigError
@@ -186,6 +187,25 @@ class CoreLifecycleTests(unittest.TestCase):
 
             version_root = promote_candidate(unit, "cand-0001", "0.1.0", require_evidence=False)
             self.assertTrue(version_root.exists())
+
+    def test_export_adapters_write_agent_instructions(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            candidate = create_candidate(unit, "Add exported guidance")
+            change = candidate / "changes" / "agent-facing" / "principles.md"
+            change.parent.mkdir(parents=True, exist_ok=True)
+            change.write_text("# Principles\n\nUse evidence gates.\n", encoding="utf-8")
+            add_evidence(unit, "cand-0001", kind="manual_review", summary="Export evidence")
+            promote_candidate(unit, "cand-0001", "0.1.0")
+
+            codex_export = export_unit(unit, adapter="codex")
+            generic_export = export_unit(unit, adapter="generic")
+            cursor_export = export_unit(unit, adapter="cursor")
+
+            self.assertTrue((codex_export / "AGENTS.md").exists())
+            self.assertTrue((generic_export / "UNIT_AGENT.md").exists())
+            self.assertTrue((cursor_export / "evorig-unit.mdc").exists())
+            self.assertIn("Use evidence gates.", (codex_export / "AGENTS.md").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
