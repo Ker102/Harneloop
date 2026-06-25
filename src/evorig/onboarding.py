@@ -6,27 +6,38 @@ from typing import Any
 ONBOARDING_QUESTIONS: list[dict[str, str]] = [
     {
         "id": "harness_goal",
-        "question": "What is the harness goal, and where will the harness be used?",
+        "question": "What should this harness help an agent get better at?",
         "records": "target.task",
     },
     {
-        "id": "success_and_failures",
-        "question": "What should a good result look like, and what failure patterns matter most?",
-        "records": "target.success, target.risks",
+        "id": "usage_context",
+        "question": "Where will the harness be used, such as a coding-agent workflow, an app agent, research, or internal automation?",
+        "records": "target.context, environment.notes",
     },
     {
-        "id": "proof_artifacts",
-        "question": "What artifacts prove success or failure, such as renders, screenshots, files, traces, logs, or summaries?",
-        "records": "target.artifact_kinds, runs.artifacts",
+        "id": "success_strategy",
+        "question": "How should success criteria be handled?",
+        "records": "target.success",
+        "suggested_answers": "let the agent propose criteria, provide exact success criteria, or decide after the first baseline attempt",
+    },
+    {
+        "id": "validation_preference",
+        "question": "How should results be validated?",
+        "records": "target.artifact_kinds, preferences.validation.mode, runs.artifacts",
+        "suggested_answers": "best validation quality, visual/artifact-first, balanced, resource-efficient, or let the agent decide",
     },
     {
         "id": "environment_status",
-        "question": "Does a testing environment already exist, should the agent connect to one, or should the harness help build it?",
+        "question": "Does a testing environment already exist, partly exist, need to be built, or is that not clear yet?",
         "records": "environment.mode, environment.interaction_mode",
     },
+]
+
+
+OPTIONAL_ONBOARDING_FOLLOW_UPS: list[dict[str, str]] = [
     {
         "id": "constraints_and_gates",
-        "question": "What constraints, protected areas, human review points, or cost/time limits must the harness obey?",
+        "question": "Are there constraints, protected areas, human review points, or cost/time limits the harness must obey?",
         "records": "environment.notes, promotion.policy, unit constraints",
     },
 ]
@@ -76,10 +87,12 @@ def render_onboarding_json() -> dict[str, Any]:
         "purpose": "Start a new EvoRig harness without relying on chat history.",
         "question_limit": len(ONBOARDING_QUESTIONS),
         "questions": ONBOARDING_QUESTIONS,
+        "optional_follow_ups": OPTIONAL_ONBOARDING_FOLLOW_UPS,
         "context_fields": CONTEXT_FIELDS,
         "first_actions": FIRST_ACTIONS,
         "agent_rules": [
             "Ask only the minimal questions needed before the first baseline attempt.",
+            "Treat success criteria and artifact choices as guided options; the user does not need to design validation up front.",
             "If the environment is tool-driven, declare the tools instead of forcing a single run command.",
             "Do not promote harness changes without concrete evidence or an explicit override.",
             "Use wait and stop states when artifacts, human feedback, or external systems are delayed.",
@@ -101,6 +114,13 @@ def render_onboarding_markdown() -> str:
     for index, item in enumerate(data["questions"], start=1):
         lines.append(f"{index}. {item['question']}")
         lines.append(f"   Records: `{item['records']}`")
+        if item.get("suggested_answers"):
+            lines.append(f"   Suggested answers: {item['suggested_answers']}")
+
+    lines.extend(["", "## Optional Follow-Ups", ""])
+    for item in data["optional_follow_ups"]:
+        lines.append(f"- {item['question']}")
+        lines.append(f"  Records: `{item['records']}`")
 
     lines.extend(["", "## Context Being Collected", ""])
     for item in data["context_fields"]:

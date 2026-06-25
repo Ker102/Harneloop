@@ -2,7 +2,13 @@
 
 EvoRig should be understandable to an agent that has only the repository and the user's target task. The first step is not to write a validator or assume a test command exists. The first step is to collect enough context to create a baseline attempt.
 
-Run:
+For a human-friendly guided setup, run:
+
+```powershell
+evorig setup
+```
+
+For an agent-readable checklist, run:
 
 ```powershell
 evorig onboard
@@ -24,21 +30,41 @@ evorig onboard --format json
 
 Ask these before creating the first harness unit:
 
-1. What is the harness goal, and where will the harness be used?
-2. What should a good result look like, and what failure patterns matter most?
-3. What artifacts prove success or failure, such as renders, screenshots, files, traces, logs, or summaries?
-4. Does a testing environment already exist, should the agent connect to one, or should the harness help build it?
-5. What constraints, protected areas, human review points, or cost/time limits must the harness obey?
+1. What should this harness help an agent get better at?
+2. Where will the harness be used, such as a coding-agent workflow, an app agent, research, or internal automation?
+3. How should success criteria be handled?
+4. How should results be validated?
+5. Does a testing environment already exist, partly exist, need to be built, or is that not clear yet?
 
-Do not turn onboarding into a long intake form. If an answer is missing but not blocking, record an assumption and create the first baseline attempt.
+Do not turn onboarding into a long intake form. Success criteria and artifact choices are guided options, not required expertise from the user. If an answer is missing but not blocking, record an assumption and create the first baseline attempt.
+
+Suggested success answers:
+
+- Let the agent propose success criteria.
+- I know the exact successful result.
+- Decide after the first baseline attempt.
+
+Suggested validation answers:
+
+- Best validation quality.
+- Visual or artifact-first validation.
+- Balanced validation.
+- Resource-efficient validation.
+- Let the agent decide per task.
+
+Optional follow-up:
+
+- Are there constraints, protected areas, human review points, or cost/time limits the harness must obey?
 
 ## How Answers Map Into EvoRig
 
-- Goal and success criteria become a target brief: `evorig target set`.
+- Goal, success strategy, validation preference, and suggested artifacts become a target brief: `evorig target set`.
 - Existing commands, MCP servers, manual steps, or custom tools become an environment contract: `evorig environment connect`.
 - The first real workflow becomes an attempt plan: `evorig attempt plan`.
 - Produced outputs become run artifacts: `evorig run start`, `evorig artifact add`, `evorig run finish`.
 - Harness changes become candidates and require evidence before promotion.
+- User defaults can be managed with `evorig settings`.
+- Local units can be listed or registered with `evorig units`.
 
 ## Important Behavior
 

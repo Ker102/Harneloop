@@ -20,6 +20,9 @@ dist/
 runtime/
 *.tar.gz
 *.zip
+units/
+.evorig/
+.evorig-*/
 
 # OS/editor
 .DS_Store

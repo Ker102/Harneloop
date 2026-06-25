@@ -14,6 +14,13 @@ from .adapters import SUPPORTED_ADAPTERS, export_unit
 from .attempts import add_attempt_observation, create_attempt_plan
 from .onboarding import render_onboarding_json, render_onboarding_markdown
 from .packaging import package_unit
+from .preferences import (
+    list_registered_units,
+    load_preferences,
+    register_unit,
+    remove_registered_unit,
+    update_preference,
+)
 from .runs import add_artifact, finish_run, start_run
 from .state import mark_active, mark_stopped, mark_waiting, read_state
 from .state import render_state_markdown
@@ -26,10 +33,33 @@ from .versioning import promote_candidate, rollback_unit
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="evorig", description="EvoRig harness-unit lifecycle engine")
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="command")
 
     onboard_parser = subparsers.add_parser("onboard", help="Print the new-harness onboarding checklist")
     onboard_parser.add_argument("--format", choices=["markdown", "json"], default="markdown")
+
+    setup_parser = subparsers.add_parser("setup", help="Open the guided interactive setup flow")
+    setup_parser.add_argument("--home", type=Path)
+
+    units_parser = subparsers.add_parser("units", help="List and manage registered harness units")
+    units_subparsers = units_parser.add_subparsers(dest="units_command", required=True)
+    units_list = units_subparsers.add_parser("list", help="List registered harness units")
+    units_list.add_argument("--home", type=Path)
+    units_register = units_subparsers.add_parser("register", help="Register an existing harness unit")
+    units_register.add_argument("unit", type=Path)
+    units_register.add_argument("--home", type=Path)
+    units_remove = units_subparsers.add_parser("remove", help="Remove a unit from the local registry")
+    units_remove.add_argument("unit_id_or_path")
+    units_remove.add_argument("--home", type=Path)
+
+    settings_parser = subparsers.add_parser("settings", help="View and update EvoRig preferences")
+    settings_subparsers = settings_parser.add_subparsers(dest="settings_command", required=True)
+    settings_show = settings_subparsers.add_parser("show", help="Show current preferences")
+    settings_show.add_argument("--home", type=Path)
+    settings_set = settings_subparsers.add_parser("set", help="Set a preference value")
+    settings_set.add_argument("key")
+    settings_set.add_argument("value")
+    settings_set.add_argument("--home", type=Path)
 
     init_parser = subparsers.add_parser("init-unit", help="Create a new harness unit")
     init_parser.add_argument("path", type=Path)
@@ -183,17 +213,71 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def coerce_cli_value(value: str) -> object:
+    lowered = value.strip().lower()
+    if lowered == "true":
+        return True
+    if lowered == "false":
+        return False
+    return value
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
     try:
+        if args.command is None:
+            if not sys.stdin.isatty():
+                parser.print_help()
+                return 2
+            from .interactive import run_interactive_menu
+
+            return run_interactive_menu()
+
         if args.command == "onboard":
             if args.format == "json":
                 print(json.dumps(render_onboarding_json(), indent=2))
             else:
                 print(render_onboarding_markdown(), end="")
             return 0
+
+        if args.command == "setup":
+            if not sys.stdin.isatty():
+                print("error: `evorig setup` requires an interactive terminal", file=sys.stderr)
+                return 2
+            from .interactive import run_interactive_setup
+
+            return run_interactive_setup(args.home)
+
+        if args.command == "settings":
+            if args.settings_command == "show":
+                print(json.dumps(load_preferences(args.home), indent=2))
+                return 0
+            if args.settings_command == "set":
+                updated = update_preference(args.home, args.key, coerce_cli_value(args.value))
+                print(json.dumps(updated, indent=2))
+                return 0
+
+        if args.command == "units":
+            if args.units_command == "list":
+                units = list_registered_units(args.home)
+                if not units:
+                    print("No registered units.")
+                    return 0
+                for unit in units:
+                    print(f"{unit.get('id')}\t{unit.get('name')}\t{unit.get('path')}")
+                return 0
+            if args.units_command == "register":
+                if not (args.unit / "unit.yaml").exists():
+                    raise EvoRigError(f"Not an EvoRig unit: {args.unit}")
+                record = register_unit(args.home, args.unit)
+                print(f"Registered unit: {record['name']} ({record['id']})")
+                return 0
+            if args.units_command == "remove":
+                removed = remove_registered_unit(args.home, args.unit_id_or_path)
+                print("Removed unit." if removed else "No matching unit found.")
+                return 0
 
         if args.command == "init-unit":
             path = init_unit(args.path, args.id, args.name, args.template)

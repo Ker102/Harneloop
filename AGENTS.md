@@ -20,7 +20,15 @@ If EvoRig is not installed yet, use:
 python -m evorig onboard
 ```
 
-Use the five onboarding questions to collect only the minimum context needed for the first baseline attempt: harness goal, success/failure criteria, proof artifacts, environment status, and constraints. Then map those answers into `target set`, `environment connect`, and `attempt plan`.
+Use the five onboarding questions to collect only the minimum context needed for the first baseline attempt: harness goal, usage context, success strategy, validation preference, and environment status. Treat success criteria and artifact choices as guided options. The user does not need to know validation design up front.
+
+For human-guided setup, use:
+
+```powershell
+evorig setup
+```
+
+For manual unit and preference management, use `evorig units` and `evorig settings`.
 
 ## Product Principles
 
