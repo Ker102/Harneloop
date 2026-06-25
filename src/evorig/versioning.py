@@ -94,7 +94,23 @@ def write_manifest(unit_root: Path, snapshot_root: Path, version: str) -> dict[s
     return manifest
 
 
-def promote_candidate(unit_root: Path, candidate_id: str, version: str, summary: str | None = None) -> Path:
+def require_candidate_evidence(unit_root: Path, candidate_id: str) -> None:
+    from .evidence import has_promotion_evidence
+
+    if not has_promotion_evidence(unit_root, candidate_id):
+        raise EvoRigError(
+            "Candidate promotion requires evidence. Add evidence with "
+            "`evorig candidate evidence add` or pass --allow-missing-evidence for development-only promotion."
+        )
+
+
+def promote_candidate(
+    unit_root: Path,
+    candidate_id: str,
+    version: str,
+    summary: str | None = None,
+    require_evidence: bool = True,
+) -> Path:
     unit_root = unit_root.resolve()
     ensure_unit(unit_root)
     candidate = candidate_root(unit_root, candidate_id)
@@ -102,6 +118,8 @@ def promote_candidate(unit_root: Path, candidate_id: str, version: str, summary:
     candidate_meta = read_yaml(candidate_meta_path)
     if candidate_meta.get("status") == "promoted":
         raise EvoRigError(f"Candidate is already promoted: {candidate_id}")
+    if require_evidence:
+        require_candidate_evidence(unit_root, candidate_id)
 
     version_root = unit_root / "versions" / version
     if version_root.exists():

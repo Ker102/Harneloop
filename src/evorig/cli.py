@@ -8,6 +8,7 @@ from pathlib import Path
 from .candidate import create_candidate
 from .diagnostics import run_doctor
 from .errors import EvoRigError
+from .evidence import add_evidence
 from .packaging import package_unit
 from .runs import add_artifact, finish_run, start_run
 from .state import mark_active, mark_stopped, mark_waiting, read_state
@@ -31,12 +32,24 @@ def build_parser() -> argparse.ArgumentParser:
     candidate_create.add_argument("unit", type=Path)
     candidate_create.add_argument("--summary", required=True)
     candidate_create.add_argument("--kind", default="mixed")
+    candidate_evidence = candidate_subparsers.add_parser("evidence", help="Manage candidate evidence")
+    candidate_evidence_subparsers = candidate_evidence.add_subparsers(dest="evidence_command", required=True)
+    candidate_evidence_add = candidate_evidence_subparsers.add_parser("add", help="Add evidence to a candidate")
+    candidate_evidence_add.add_argument("unit", type=Path)
+    candidate_evidence_add.add_argument("candidate_id")
+    candidate_evidence_add.add_argument("--kind", required=True)
+    candidate_evidence_add.add_argument("--summary", required=True)
+    candidate_evidence_add.add_argument("--outcome", default="supports")
+    candidate_evidence_add.add_argument("--run-id")
+    candidate_evidence_add.add_argument("--artifact-id")
+    candidate_evidence_add.add_argument("--path", type=Path)
 
     promote_parser = subparsers.add_parser("promote", help="Promote a candidate into a version snapshot")
     promote_parser.add_argument("unit", type=Path)
     promote_parser.add_argument("candidate_id")
     promote_parser.add_argument("--version", required=True)
     promote_parser.add_argument("--summary")
+    promote_parser.add_argument("--allow-missing-evidence", action="store_true")
 
     rollback_parser = subparsers.add_parser("rollback", help="Restore a promoted version snapshot")
     rollback_parser.add_argument("unit", type=Path)
@@ -120,8 +133,29 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Created candidate: {path.name}")
             return 0
 
+        if args.command == "candidate" and args.candidate_command == "evidence":
+            if args.evidence_command == "add":
+                record = add_evidence(
+                    args.unit,
+                    args.candidate_id,
+                    kind=args.kind,
+                    summary=args.summary,
+                    outcome=args.outcome,
+                    run_id=args.run_id,
+                    artifact_id=args.artifact_id,
+                    path=args.path,
+                )
+                print(json.dumps(record, indent=2))
+                return 0
+
         if args.command == "promote":
-            path = promote_candidate(args.unit, args.candidate_id, args.version, args.summary)
+            path = promote_candidate(
+                args.unit,
+                args.candidate_id,
+                args.version,
+                args.summary,
+                require_evidence=not args.allow_missing_evidence,
+            )
             print(f"Promoted {args.candidate_id} to {path.name}")
             return 0
 

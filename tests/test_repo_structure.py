@@ -22,6 +22,7 @@ class RepoStructureTests(unittest.TestCase):
             "docs/development.md",
             "pyproject.toml",
             "schemas/artifact-manifest.schema.json",
+            "schemas/candidate-evidence.schema.json",
             "schemas/run-record.schema.json",
         ]
         missing = [path for path in required_paths if not (REPO_ROOT / path).exists()]

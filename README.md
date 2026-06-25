@@ -59,6 +59,7 @@ evorig candidate create .\demo-unit --summary "Add first task principle"
 New-Item -ItemType Directory -Force .\demo-unit\candidates\cand-0001\changes\agent-facing
 Set-Content .\demo-unit\candidates\cand-0001\changes\agent-facing\principles.md "Inspect real artifacts before promotion."
 evorig validate .\demo-unit
+evorig candidate evidence add .\demo-unit cand-0001 --kind manual_review --summary "Initial smoke evidence supports promotion."
 evorig promote .\demo-unit cand-0001 --version 0.1.0
 evorig run start .\demo-unit --task "Create and inspect first artifact"
 Set-Content .\artifact.txt "artifact output"

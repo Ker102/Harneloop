@@ -9,6 +9,7 @@ from pathlib import Path
 from evorig.candidate import create_candidate
 from evorig.diagnostics import run_doctor
 from evorig.errors import EvoRigError
+from evorig.evidence import add_evidence, list_evidence
 from evorig.packaging import package_unit
 from evorig.runs import add_artifact, finish_run, start_run
 from evorig.state import mark_active, mark_stopped, mark_waiting, read_state
@@ -25,6 +26,7 @@ class CoreLifecycleTests(unittest.TestCase):
             change = candidate / "changes" / "agent-facing" / "principles.md"
             change.parent.mkdir(parents=True, exist_ok=True)
             change.write_text("# Principles\n\nCheck real artifacts before promotion.\n", encoding="utf-8")
+            add_evidence(unit, "cand-0001", kind="manual_review", summary="Smoke-test evidence")
 
             version_root = promote_candidate(unit, "cand-0001", "0.1.0")
 
@@ -44,6 +46,7 @@ class CoreLifecycleTests(unittest.TestCase):
             unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
             candidate = create_candidate(unit, "Attempt protected edit")
             (candidate / "changes" / "unit.yaml").write_text("id: changed\n", encoding="utf-8")
+            add_evidence(unit, "cand-0001", kind="manual_review", summary="Protected edit test evidence")
 
             with self.assertRaises(EvoRigError):
                 promote_candidate(unit, "cand-0001", "0.1.0")
@@ -55,12 +58,14 @@ class CoreLifecycleTests(unittest.TestCase):
             first_change = first / "changes" / "agent-facing" / "principles.md"
             first_change.parent.mkdir(parents=True, exist_ok=True)
             first_change.write_text("original\n", encoding="utf-8")
+            add_evidence(unit, "cand-0001", kind="manual_review", summary="Original principle evidence")
             promote_candidate(unit, "cand-0001", "0.1.0")
 
             second = create_candidate(unit, "Revise principle")
             second_change = second / "changes" / "agent-facing" / "principles.md"
             second_change.parent.mkdir(parents=True, exist_ok=True)
             second_change.write_text("revised\n", encoding="utf-8")
+            add_evidence(unit, "cand-0002", kind="manual_review", summary="Revised principle evidence")
             promote_candidate(unit, "cand-0002", "0.2.0")
 
             rollback_unit(unit, "0.1.0")
@@ -146,6 +151,41 @@ class CoreLifecycleTests(unittest.TestCase):
             finished = finish_run(unit, "run-0001", status="succeeded", summary="Artifact captured")
             self.assertEqual(finished["status"], "succeeded")
             self.assertEqual(finished["summary"], "Artifact captured")
+
+    def test_candidate_evidence_records_are_created(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            create_candidate(unit, "Add evidence-backed change")
+
+            evidence = add_evidence(
+                unit,
+                "cand-0001",
+                kind="artifact_review",
+                summary="Rendered artifact matches the task.",
+                run_id="run-0001",
+                artifact_id="artifact-0001",
+                outcome="supports",
+            )
+
+            self.assertEqual(evidence["id"], "evidence-0001")
+            self.assertEqual(evidence["outcome"], "supports")
+            records = list_evidence(unit, "cand-0001")
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0]["summary"], "Rendered artifact matches the task.")
+
+    def test_promotion_requires_evidence_by_default(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            candidate = create_candidate(unit, "Try unevidenced change")
+            change = candidate / "changes" / "agent-facing" / "principles.md"
+            change.parent.mkdir(parents=True, exist_ok=True)
+            change.write_text("needs evidence\n", encoding="utf-8")
+
+            with self.assertRaises(EvoRigError):
+                promote_candidate(unit, "cand-0001", "0.1.0")
+
+            version_root = promote_candidate(unit, "cand-0001", "0.1.0", require_evidence=False)
+            self.assertTrue(version_root.exists())
 
 
 if __name__ == "__main__":

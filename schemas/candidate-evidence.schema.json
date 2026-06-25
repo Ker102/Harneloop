@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evorig.local/schemas/candidate-evidence.schema.json",
+  "title": "EvoRig Candidate Evidence",
+  "type": "object",
+  "required": ["id", "candidate_id", "kind", "summary", "outcome", "created_at"],
+  "properties": {
+    "id": { "type": "string" },
+    "candidate_id": { "type": "string" },
+    "kind": { "type": "string" },
+    "summary": { "type": "string", "minLength": 1 },
+    "outcome": { "type": "string", "enum": ["supports", "mixed", "neutral", "opposes"] },
+    "run_id": { "type": ["string", "null"] },
+    "artifact_id": { "type": ["string", "null"] },
+    "path": { "type": ["string", "null"] },
+    "created_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}
