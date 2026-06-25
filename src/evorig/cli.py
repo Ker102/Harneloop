@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .candidate import create_candidate
 from .diagnostics import run_doctor
+from .environment import ENVIRONMENT_MODES, connect_environment, render_environment_status
 from .errors import EvoRigError
 from .evidence import add_evidence
 from .adapters import SUPPORTED_ADAPTERS, export_unit
@@ -14,6 +15,7 @@ from .packaging import package_unit
 from .runs import add_artifact, finish_run, start_run
 from .state import mark_active, mark_stopped, mark_waiting, read_state
 from .state import render_state_markdown
+from .target import set_target_brief
 from .templates import list_templates
 from .unit import init_unit
 from .validation import validate_unit
@@ -33,6 +35,28 @@ def build_parser() -> argparse.ArgumentParser:
     template_parser = subparsers.add_parser("template", help="Inspect available unit templates")
     template_subparsers = template_parser.add_subparsers(dest="template_command", required=True)
     template_subparsers.add_parser("list", help="List available unit templates")
+
+    target_parser = subparsers.add_parser("target", help="Describe the target task for a harness unit")
+    target_subparsers = target_parser.add_subparsers(dest="target_command", required=True)
+    target_set = target_subparsers.add_parser("set", help="Set the target task brief")
+    target_set.add_argument("unit", type=Path)
+    target_set.add_argument("--task", required=True)
+    target_set.add_argument("--success", required=True)
+    target_set.add_argument("--artifact-kind", action="append", default=[])
+    target_set.add_argument("--risk", action="append", default=[])
+
+    environment_parser = subparsers.add_parser("environment", help="Connect a unit to a testing environment")
+    environment_subparsers = environment_parser.add_subparsers(dest="environment_command", required=True)
+    environment_connect = environment_subparsers.add_parser("connect", help="Create an environment contract")
+    environment_connect.add_argument("unit", type=Path)
+    environment_connect.add_argument("--name", required=True)
+    environment_connect.add_argument("--mode", choices=sorted(ENVIRONMENT_MODES), required=True)
+    environment_connect.add_argument("--description", required=True)
+    environment_connect.add_argument("--run-command")
+    environment_connect.add_argument("--artifact-path")
+    environment_connect.add_argument("--note", action="append", default=[])
+    environment_status = environment_subparsers.add_parser("status", help="Print the environment contract")
+    environment_status.add_argument("unit", type=Path)
 
     candidate_parser = subparsers.add_parser("candidate", help="Manage candidates")
     candidate_subparsers = candidate_parser.add_subparsers(dest="candidate_command", required=True)
@@ -146,6 +170,34 @@ def main(argv: list[str] | None = None) -> int:
             for template in list_templates():
                 print(template)
             return 0
+
+        if args.command == "target" and args.target_command == "set":
+            brief = set_target_brief(
+                args.unit,
+                task=args.task,
+                success=args.success,
+                artifact_kind=args.artifact_kind,
+                risk=args.risk,
+            )
+            print(json.dumps(brief, indent=2))
+            return 0
+
+        if args.command == "environment":
+            if args.environment_command == "connect":
+                contract = connect_environment(
+                    args.unit,
+                    name=args.name,
+                    mode=args.mode,
+                    description=args.description,
+                    run_command=args.run_command,
+                    artifact_path=args.artifact_path,
+                    notes=args.note,
+                )
+                print(json.dumps(contract, indent=2))
+                return 0
+            if args.environment_command == "status":
+                print(render_environment_status(args.unit), end="")
+                return 0
 
         if args.command == "candidate" and args.candidate_command == "create":
             path = create_candidate(args.unit, args.summary, args.kind)

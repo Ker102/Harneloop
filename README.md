@@ -61,6 +61,8 @@ evorig template list
 
 ```powershell
 evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit" --template artifact-review
+evorig target set .\demo-unit --task "Create and capture a simple text artifact" --success "The artifact is captured and usable as evidence." --artifact-kind text --risk "artifact is not captured"
+evorig environment connect .\demo-unit --name "Local text artifact environment" --mode existing --description "Uses local shell commands for the demo." --run-command "Set-Content artifact.txt artifact output" --artifact-path artifact.txt
 evorig candidate create .\demo-unit --summary "Add first task principle"
 New-Item -ItemType Directory -Force .\demo-unit\candidates\cand-0001\changes\agent-facing
 Set-Content .\demo-unit\candidates\cand-0001\changes\agent-facing\principles.md "Inspect real artifacts before promotion."

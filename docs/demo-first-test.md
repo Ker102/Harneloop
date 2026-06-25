@@ -17,6 +17,8 @@ $unit = Join-Path $PWD "demo-artifact-unit"
 $artifact = Join-Path $PWD "demo-artifact.txt"
 
 .\.venv\Scripts\evorig init-unit $unit --id demo-artifact --name "Demo Artifact Unit" --template artifact-review
+.\.venv\Scripts\evorig target set $unit --task "Create and capture a simple text artifact" --success "The artifact exists, is copied into runtime artifacts, and can be used as promotion evidence." --artifact-kind text --risk "artifact is not captured"
+.\.venv\Scripts\evorig environment connect $unit --name "Local text artifact smoke environment" --mode existing --description "Uses local PowerShell commands to create a text artifact." --run-command "Set-Content demo-artifact.txt artifact output" --artifact-path "demo-artifact.txt" --note "This demo uses an existing local shell environment."
 .\.venv\Scripts\evorig run start $unit --task "Create and capture a simple text artifact"
 Set-Content -Path $artifact -Value "artifact output"
 .\.venv\Scripts\evorig artifact add $unit run-0001 $artifact --kind text --description "Demo text artifact"
@@ -35,6 +37,8 @@ Set-Content -Path (Join-Path $unit "candidates\cand-0001\changes\agent-facing\de
 Expected result:
 
 - the unit contains seeded artifact-review principles and contracts;
+- `target/brief.yaml` describes what the harness is for;
+- `environment/contract.yaml` declares how the test environment is connected;
 - `runtime/runs/run-0001/run.yaml` records the run;
 - `runtime/artifacts/run-0001/` stores the copied artifact;
 - promotion succeeds only after evidence is added;

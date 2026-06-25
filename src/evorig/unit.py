@@ -21,6 +21,8 @@ RECOMMENDED_DIRS = [
     "tools",
     "memory",
     "experiments",
+    "target",
+    "environment",
     "runtime/artifacts",
 ]
 

@@ -9,11 +9,13 @@ from pathlib import Path
 from evorig.adapters import export_unit
 from evorig.candidate import create_candidate
 from evorig.diagnostics import run_doctor
+from evorig.environment import connect_environment, render_environment_status
 from evorig.errors import EvoRigError
 from evorig.evidence import add_evidence, list_evidence
 from evorig.packaging import package_unit
 from evorig.runs import add_artifact, finish_run, start_run
 from evorig.state import mark_active, mark_stopped, mark_waiting, read_state, render_state_markdown
+from evorig.target import set_target_brief
 from evorig.templates import list_templates
 from evorig.unit import init_unit
 from evorig.versioning import promote_candidate, rollback_unit
@@ -229,6 +231,42 @@ class CoreLifecycleTests(unittest.TestCase):
             self.assertTrue((generic_export / "UNIT_AGENT.md").exists())
             self.assertTrue((cursor_export / "evorig-unit.mdc").exists())
             self.assertIn("Use evidence gates.", (codex_export / "AGENTS.md").read_text(encoding="utf-8"))
+
+    def test_target_brief_generates_starter_test_suggestions(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            brief = set_target_brief(
+                unit,
+                task="Improve a Blender agent's spatial scene construction.",
+                success="Objects are placed correctly and visible to the camera.",
+                artifact_kind=["render", "scene_summary"],
+                risk=["wrong coordinate assumptions", "objects outside camera view"],
+            )
+
+            self.assertEqual(brief["task"], "Improve a Blender agent's spatial scene construction.")
+            self.assertTrue((unit / "target" / "brief.yaml").exists())
+            suggestions = (unit / "target" / "TEST_SUGGESTIONS.md").read_text(encoding="utf-8")
+            self.assertIn("render", suggestions)
+            self.assertIn("objects outside camera view", suggestions)
+
+    def test_existing_environment_contract_is_agent_readable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            contract = connect_environment(
+                unit,
+                name="Existing Blender project harness",
+                mode="existing",
+                description="Project already has Blender execution and screenshot capture.",
+                run_command="python run_blender_test.py",
+                artifact_path="outputs/render.png",
+                notes=["Do not rebuild the environment unless checks fail."],
+            )
+
+            self.assertEqual(contract["mode"], "existing")
+            self.assertTrue((unit / "environment" / "contract.yaml").exists())
+            markdown = render_environment_status(unit)
+            self.assertIn("Existing Blender project harness", markdown)
+            self.assertIn("Connect to the existing environment", markdown)
 
 
 if __name__ == "__main__":
