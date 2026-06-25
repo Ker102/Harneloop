@@ -9,9 +9,29 @@ description = "Protocol-first framework for self-evolving agent harness units."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["PyYAML"]
+authors = [{ name = "Kristofer Jussmann" }]
+keywords = ["agents", "harness", "artifacts", "evaluation", "automation"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Testing",
+]
 
 [project.scripts]
 evorig = "evorig.cli:main"
 
+[project.optional-dependencies]
+dev = []
+
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.coverage.run]
+branch = true
+source = ["evorig"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

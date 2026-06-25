@@ -27,11 +27,50 @@ Private prototype. API and file formats are expected to change.
 
 ## Quick Start
 
+From this repository:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python -m pip install -e .
+.\.venv\Scripts\evorig doctor
+```
+
+On macOS or Linux:
+
+```bash
+python3 -m venv .venv
+./.venv/bin/python -m pip install -e .
+./.venv/bin/evorig doctor
+```
+
+You can also run without installing by setting `PYTHONPATH=src` or using your agent's equivalent environment setup.
+
 ```powershell
 python -m evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit"
 python -m evorig candidate create .\demo-unit --summary "Add first task principle"
 python -m evorig status .\demo-unit
 ```
+
+## Local Lifecycle Smoke Test
+
+```powershell
+evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit"
+evorig candidate create .\demo-unit --summary "Add first task principle"
+New-Item -ItemType Directory -Force .\demo-unit\candidates\cand-0001\changes\agent-facing
+Set-Content .\demo-unit\candidates\cand-0001\changes\agent-facing\principles.md "Inspect real artifacts before promotion."
+evorig validate .\demo-unit
+evorig promote .\demo-unit cand-0001 --version 0.1.0
+evorig run start .\demo-unit --task "Create and inspect first artifact"
+Set-Content .\artifact.txt "artifact output"
+evorig artifact add .\demo-unit run-0001 .\artifact.txt --kind text --description "Smoke-test artifact"
+evorig run finish .\demo-unit run-0001 --status succeeded --summary "Artifact captured"
+evorig state wait .\demo-unit --reason delayed_artifact --next-action inspect_artifact --resume-condition "artifact exists"
+evorig package .\demo-unit --output .\demo-unit-0.1.0.tar.gz
+evorig status .\demo-unit
+```
+
+The generated unit will include `.evolve/allowed-edits.yaml`, `CURRENT_STATE.md`, and `NEXT_ACTION.md` so a coding agent can see the current lifecycle phase and edit boundaries.
+Run records and copied artifacts live under `runtime/`, which is intentionally excluded from portable packages by default.
 
 Run tests:
 

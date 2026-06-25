@@ -12,7 +12,14 @@ class ValidationIssue:
     message: str
 
 
-REQUIRED_PATHS = ["unit.yaml", "UNIT_AGENT.md", "candidates", "versions", "provenance"]
+REQUIRED_PATHS = [
+    "unit.yaml",
+    "UNIT_AGENT.md",
+    "candidates",
+    "versions",
+    "provenance",
+    ".evolve/allowed-edits.yaml",
+]
 
 
 def validate_unit(unit_root: Path) -> list[ValidationIssue]:

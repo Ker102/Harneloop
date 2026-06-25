@@ -6,8 +6,10 @@ import sys
 from pathlib import Path
 
 from .candidate import create_candidate
+from .diagnostics import run_doctor
 from .errors import EvoRigError
 from .packaging import package_unit
+from .runs import add_artifact, finish_run, start_run
 from .state import mark_active, mark_stopped, mark_waiting, read_state
 from .unit import init_unit
 from .validation import validate_unit
@@ -51,6 +53,34 @@ def build_parser() -> argparse.ArgumentParser:
 
     status_parser = subparsers.add_parser("status", help="Print unit lifecycle state")
     status_parser.add_argument("unit", type=Path)
+
+    doctor_parser = subparsers.add_parser("doctor", help="Check local EvoRig runtime prerequisites")
+    doctor_parser.add_argument("--json", action="store_true", dest="json_output")
+    doctor_parser.add_argument("--cwd", type=Path, default=Path.cwd())
+
+    run_parser = subparsers.add_parser("run", help="Manage runtime run records")
+    run_subparsers = run_parser.add_subparsers(dest="run_command", required=True)
+
+    run_start = run_subparsers.add_parser("start", help="Start a run record")
+    run_start.add_argument("unit", type=Path)
+    run_start.add_argument("--task", required=True)
+    run_start.add_argument("--candidate-id")
+
+    run_finish = run_subparsers.add_parser("finish", help="Finish a run record")
+    run_finish.add_argument("unit", type=Path)
+    run_finish.add_argument("run_id")
+    run_finish.add_argument("--status", required=True, choices=["succeeded", "failed", "stopped"])
+    run_finish.add_argument("--summary")
+
+    artifact_parser = subparsers.add_parser("artifact", help="Manage run artifacts")
+    artifact_subparsers = artifact_parser.add_subparsers(dest="artifact_command", required=True)
+    artifact_add = artifact_subparsers.add_parser("add", help="Attach an artifact to a run")
+    artifact_add.add_argument("unit", type=Path)
+    artifact_add.add_argument("run_id")
+    artifact_add.add_argument("source", type=Path)
+    artifact_add.add_argument("--kind", required=True)
+    artifact_add.add_argument("--description", default="")
+    artifact_add.add_argument("--name")
 
     state_parser = subparsers.add_parser("state", help="Manage wait, stop, and resume states")
     state_subparsers = state_parser.add_subparsers(dest="state_command", required=True)
@@ -116,6 +146,38 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "status":
             print(json.dumps(read_state(args.unit), indent=2))
+            return 0
+
+        if args.command == "doctor":
+            checks = run_doctor(args.cwd)
+            if args.json_output:
+                print(json.dumps([check.to_dict() for check in checks], indent=2))
+            else:
+                for check in checks:
+                    label = "OK" if check.ok else "FAIL"
+                    print(f"{label} {check.name}: {check.detail}")
+            return 0 if all(check.ok for check in checks) else 1
+
+        if args.command == "run":
+            if args.run_command == "start":
+                path = start_run(args.unit, args.task, args.candidate_id)
+                print(f"Started run: {path.name}")
+                return 0
+            if args.run_command == "finish":
+                record = finish_run(args.unit, args.run_id, args.status, args.summary)
+                print(json.dumps(record, indent=2))
+                return 0
+
+        if args.command == "artifact" and args.artifact_command == "add":
+            record = add_artifact(
+                args.unit,
+                args.run_id,
+                args.source,
+                kind=args.kind,
+                description=args.description,
+                name=args.name,
+            )
+            print(json.dumps(record, indent=2))
             return 0
 
         if args.command == "state":

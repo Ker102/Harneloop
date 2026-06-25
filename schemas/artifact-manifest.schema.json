@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evorig.local/schemas/artifact-manifest.schema.json",
+  "title": "EvoRig Artifact Manifest",
+  "type": "object",
+  "required": ["id", "kind", "source_path", "stored_path", "sha256", "size", "created_at"],
+  "properties": {
+    "id": { "type": "string" },
+    "kind": { "type": "string" },
+    "description": { "type": "string" },
+    "source_path": { "type": "string" },
+    "stored_path": { "type": "string" },
+    "sha256": { "type": "string" },
+    "size": { "type": "integer", "minimum": 0 },
+    "created_at": { "type": "string" }
+  },
+  "additionalProperties": true
+}

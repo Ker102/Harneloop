@@ -5,6 +5,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from .yamlio import write_yaml
+
 
 def now_iso() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -16,6 +18,10 @@ def state_dir(unit_root: Path) -> Path:
 
 def state_path(unit_root: Path) -> Path:
     return state_dir(unit_root) / "state.json"
+
+
+def allowed_edits_path(unit_root: Path) -> Path:
+    return state_dir(unit_root) / "allowed-edits.yaml"
 
 
 def read_state(unit_root: Path) -> dict[str, Any]:
@@ -37,6 +43,7 @@ def write_state(unit_root: Path, state: dict[str, Any]) -> dict[str, Any]:
         json.dump(state, handle, indent=2)
         handle.write("\n")
     write_state_markdown(unit_root, state)
+    write_allowed_edits(unit_root, state)
     return state
 
 
@@ -70,6 +77,42 @@ def write_state_markdown(unit_root: Path, state: dict[str, Any]) -> None:
         state.get("next_action") or "Inspect the unit state and choose the next lifecycle action.",
     ]
     next_action.write_text("\n".join(next_lines) + "\n", encoding="utf-8", newline="\n")
+
+
+def write_allowed_edits(unit_root: Path, state: dict[str, Any]) -> None:
+    active_candidate = state.get("active_candidate")
+    allowed_paths = [
+        "experiments/**",
+        "tools/**",
+        "memory/**",
+        "agent-facing/drafts/**",
+        "observers/drafts/**",
+        "validators/drafts/**",
+    ]
+    if active_candidate:
+        allowed_paths.insert(0, f"candidates/{active_candidate}/**")
+
+    write_yaml(
+        allowed_edits_path(unit_root),
+        {
+            "mode": "advisory",
+            "active_candidate": active_candidate,
+            "allowed_paths": allowed_paths,
+            "protected_paths": [
+                "unit.yaml",
+                "versions/**",
+                "provenance/**",
+                ".evolve/**",
+                "runtime/**",
+                "candidates/** except the active candidate path",
+            ],
+            "notes": [
+                "Use framework commands for candidate creation, promotion, rollback, packaging, wait, stop, and resume.",
+                "Develop harness changes inside the active candidate before promotion.",
+                "Do not edit framework-owned state, promoted versions, provenance, or unit identity by hand.",
+            ],
+        },
+    )
 
 
 def mark_waiting(

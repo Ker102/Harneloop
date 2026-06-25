@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evorig.local/schemas/run-record.schema.json",
+  "title": "EvoRig Run Record",
+  "type": "object",
+  "required": ["schema_version", "id", "task", "status", "created_at", "harness_version", "artifacts"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "id": { "type": "string" },
+    "task": { "type": "string" },
+    "status": { "type": "string", "enum": ["running", "succeeded", "failed", "stopped"] },
+    "created_at": { "type": "string" },
+    "finished_at": { "type": ["string", "null"] },
+    "harness_version": { "type": ["string", "null"] },
+    "candidate_id": { "type": ["string", "null"] },
+    "summary": { "type": ["string", "null"] },
+    "artifacts": {
+      "type": "array",
+      "items": { "$ref": "artifact-manifest.schema.json" }
+    }
+  },
+  "additionalProperties": true
+}
