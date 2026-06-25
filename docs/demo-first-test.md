@@ -44,6 +44,28 @@ Expected result:
 - promotion succeeds only after evidence is added;
 - `exports/codex/AGENTS.md` contains the promoted harness instructions.
 
+## Tool-Driven Environment Example
+
+Some environments do not have a single run command. For example, a Blender agent may interact with Blender through an MCP server and addon tools.
+
+Use `--interaction-mode mcp` and declare the tools:
+
+```powershell
+.\.venv\Scripts\evorig environment connect $unit `
+  --name "Existing Blender MCP environment" `
+  --mode existing `
+  --interaction-mode mcp `
+  --description "Agent interacts with Blender through an MCP server and addon tools." `
+  --tool create_object `
+  --tool render_scene `
+  --tool capture_screenshot `
+  --tool export_scene_summary `
+  --artifact-path "outputs/renders/*.png" `
+  --note "Use MCP tools instead of looking for a single run command."
+```
+
+This generates `environment/GETTING_STARTED.md`, which tells the agent to run a baseline through the tool surface and capture artifacts into EvoRig.
+
 ## Clean Up
 
 ```powershell

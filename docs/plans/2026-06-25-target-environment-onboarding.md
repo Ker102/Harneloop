@@ -1,6 +1,6 @@
 # Target And Environment Onboarding Implementation Plan
 
-Status: implemented, not yet committed.
+Status: implemented and extended with MCP/tool-driven environments.
 
 > **For Agent:** Use executing-plans skill to implement this plan task-by-task.
 

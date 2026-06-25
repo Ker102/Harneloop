@@ -268,6 +268,30 @@ class CoreLifecycleTests(unittest.TestCase):
             self.assertIn("Existing Blender project harness", markdown)
             self.assertIn("Connect to the existing environment", markdown)
 
+    def test_mcp_tool_environment_contract_does_not_require_run_command(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            contract = connect_environment(
+                unit,
+                name="Existing Blender MCP environment",
+                mode="existing",
+                description="Agent interacts with Blender through an MCP server and addon tools.",
+                interaction_mode="mcp",
+                tool=["create_object", "render_scene", "capture_screenshot", "export_scene_summary"],
+                artifact_path="outputs/renders/*.png",
+                notes=["The agent should use MCP tools instead of looking for a single run command."],
+            )
+
+            self.assertIsNone(contract["run_command"])
+            self.assertEqual(contract["interaction_mode"], "mcp")
+            self.assertIn("render_scene", contract["tools"])
+            markdown = render_environment_status(unit)
+            self.assertIn("Tool interface: `mcp`", markdown)
+            self.assertIn("Use the declared tools", markdown)
+            getting_started = (unit / "environment" / "GETTING_STARTED.md").read_text(encoding="utf-8")
+            self.assertIn("render_scene", getting_started)
+            self.assertIn("baseline run", getting_started)
+
 
 if __name__ == "__main__":
     unittest.main()

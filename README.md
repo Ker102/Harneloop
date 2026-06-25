@@ -84,6 +84,8 @@ Run records and copied artifacts live under `runtime/`, which is intentionally e
 
 For a fuller first local demo, see [docs/demo-first-test.md](docs/demo-first-test.md).
 
+For existing tool-driven environments such as a Blender MCP server, use `evorig environment connect --interaction-mode mcp` and declare the tools/artifact paths instead of forcing a single run command.
+
 Run tests:
 
 ```powershell

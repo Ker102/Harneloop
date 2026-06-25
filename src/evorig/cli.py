@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .candidate import create_candidate
 from .diagnostics import run_doctor
-from .environment import ENVIRONMENT_MODES, connect_environment, render_environment_status
+from .environment import ENVIRONMENT_MODES, INTERACTION_MODES, connect_environment, render_environment_status
 from .errors import EvoRigError
 from .evidence import add_evidence
 from .adapters import SUPPORTED_ADAPTERS, export_unit
@@ -54,6 +54,8 @@ def build_parser() -> argparse.ArgumentParser:
     environment_connect.add_argument("--description", required=True)
     environment_connect.add_argument("--run-command")
     environment_connect.add_argument("--artifact-path")
+    environment_connect.add_argument("--interaction-mode", choices=sorted(INTERACTION_MODES), default="command")
+    environment_connect.add_argument("--tool", action="append", default=[])
     environment_connect.add_argument("--note", action="append", default=[])
     environment_status = environment_subparsers.add_parser("status", help="Print the environment contract")
     environment_status.add_argument("unit", type=Path)
@@ -191,6 +193,8 @@ def main(argv: list[str] | None = None) -> int:
                     description=args.description,
                     run_command=args.run_command,
                     artifact_path=args.artifact_path,
+                    interaction_mode=args.interaction_mode,
+                    tool=args.tool,
                     notes=args.note,
                 )
                 print(json.dumps(contract, indent=2))
