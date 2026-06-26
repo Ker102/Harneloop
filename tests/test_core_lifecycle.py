@@ -299,6 +299,7 @@ class CoreLifecycleTests(unittest.TestCase):
             getting_started = (unit / "environment" / "GETTING_STARTED.md").read_text(encoding="utf-8")
             self.assertIn("render_scene", getting_started)
             self.assertIn("baseline run", getting_started)
+            self.assertIn("EvoRig records the mapping", getting_started)
 
     def test_agent_attempt_plan_records_custom_workflow(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -362,6 +363,7 @@ class CoreLifecycleTests(unittest.TestCase):
         self.assertIn("evorig target set", markdown)
         self.assertIn("evorig environment connect", markdown)
         self.assertIn("--interaction-mode mcp", markdown)
+        self.assertIn("does not discover environment endpoints", markdown)
 
 
 if __name__ == "__main__":

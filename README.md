@@ -72,6 +72,8 @@ python -m evorig onboard
 
 The onboarding flow asks five setup questions, lists the context being collected, and maps the answers into `target`, `environment`, `attempt`, run/artifact, and evidence records. Success criteria and artifact choices are guided options; the user does not need to design validation up front. See [docs/agent-onboarding.md](docs/agent-onboarding.md).
 
+EvoRig records environment mappings; it does not discover test endpoints, MCP tools, commands, screenshot locations, render outputs, or artifact paths by itself. The onboarding agent must inspect the real project/environment and write that mapping into the harness.
+
 ```powershell
 python -m evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit"
 python -m evorig candidate create .\demo-unit --summary "Add first task principle"

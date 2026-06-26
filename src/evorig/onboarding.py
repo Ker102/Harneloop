@@ -93,6 +93,7 @@ def render_onboarding_json() -> dict[str, Any]:
         "agent_rules": [
             "Ask only the minimal questions needed before the first baseline attempt.",
             "Treat success criteria and artifact choices as guided options; the user does not need to design validation up front.",
+            "EvoRig does not discover environment endpoints, tools, commands, or artifact paths by itself; the onboarding agent must inspect the workspace and record that mapping.",
             "If the environment is tool-driven, declare the tools instead of forcing a single run command.",
             "Do not promote harness changes without concrete evidence or an explicit override.",
             "Use wait and stop states when artifacts, human feedback, or external systems are delayed.",

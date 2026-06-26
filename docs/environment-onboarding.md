@@ -2,6 +2,8 @@
 
 EvoRig should not assume it owns the user's test environment.
 
+It also should not imply that the CLI can discover the environment automatically. EvoRig stores the mapping. The onboarding agent must inspect the real workspace, tools, MCP servers, scripts, app endpoints, output folders, and artifact paths, then write that mapping into the unit.
+
 The framework should first help the agent understand:
 
 - what task the harness is being built for;

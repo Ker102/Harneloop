@@ -38,6 +38,8 @@ Ask these before creating the first harness unit:
 
 Do not turn onboarding into a long intake form. Success criteria and artifact choices are guided options, not required expertise from the user. If an answer is missing but not blocking, record an assumption and create the first baseline attempt.
 
+EvoRig records the environment mapping. It does not discover test endpoints, MCP tools, run commands, screenshot locations, render outputs, or artifact paths by itself. The onboarding agent must inspect the actual project/environment, determine how artifacts are produced, and write that mapping into the harness.
+
 Suggested success answers:
 
 - Let the agent propose success criteria.

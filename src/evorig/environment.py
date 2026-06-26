@@ -144,6 +144,10 @@ def render_getting_started(contract: dict[str, Any]) -> str:
         "3. Perform a baseline run before changing the harness.",
         "4. Capture artifacts with `evorig artifact add`.",
         "5. Add candidate evidence before promotion.",
+        "",
+        "## Responsibility Boundary",
+        "",
+        "EvoRig records the mapping between the target task, environment interface, and produced artifacts. It does not discover tools, endpoints, commands, or artifact paths by itself. The onboarding agent must inspect the real workspace, identify how the test environment works, and update this contract when the mapping is incomplete.",
     ]
     if interaction_mode == "mcp":
         tools = contract.get("tools") or []

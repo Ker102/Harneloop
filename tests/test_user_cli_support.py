@@ -52,6 +52,7 @@ class UserCliSupportTests(unittest.TestCase):
         self.assertEqual(plan["environment_mode"], "assisted")
         self.assertEqual(plan["interaction_mode"], "custom")
         self.assertIn("Ask before installing browser tooling.", plan["environment_notes"])
+        self.assertIn("does not discover endpoints", plan["environment_description"])
 
     def test_artifact_suggestions_follow_validation_preference(self) -> None:
         visual = suggest_artifact_kinds("Improve Blender spatial scene placement", "best_quality")
