@@ -40,6 +40,10 @@ Do not turn onboarding into a long intake form. Success criteria and artifact ch
 
 EvoRig records the environment mapping. It does not discover test endpoints, MCP tools, run commands, screenshot locations, render outputs, or artifact paths by itself. The onboarding agent must inspect the actual project/environment, determine how artifacts are produced, and write that mapping into the harness.
 
+Every new harness unit has `operational-map.md`. Use it as current orientation: what this unit is trying to improve, what systems and tools it interacts with, which artifacts or evidence are currently useful, how the environment can usually run or reset, known constraints, fragile spots, open questions, assumptions to re-check, and where prior runs or evidence live. Update it when the workflow, evidence needs, environment assumptions, or automation strategy change.
+
+This map is context and navigation, not a rigid procedure. The agent should still reason from the task, inspect available evidence, and choose the appropriate test or evaluation strategy for the current attempt.
+
 Suggested success answers:
 
 - Let the agent propose success criteria.
@@ -61,6 +65,7 @@ Optional follow-up:
 ## How Answers Map Into EvoRig
 
 - Goal, success strategy, validation preference, and suggested artifacts become a target brief: `evorig target set`.
+- The current working map of the unit is captured and revised in `operational-map.md`.
 - Existing commands, MCP servers, manual steps, or custom tools become an environment contract: `evorig environment connect`.
 - The first real workflow becomes an attempt plan: `evorig attempt plan`.
 - Produced outputs become run artifacts: `evorig run start`, `evorig artifact add`, `evorig run finish`.
@@ -71,5 +76,7 @@ Optional follow-up:
 ## Important Behavior
 
 EvoRig does not require every task to have a direct test command. For a tool-driven setup, such as a Blender MCP server or an agent-controlled SVG rendering workflow, declare the tools and artifacts in the environment contract. The agent then writes an attempt plan for how it will use those tools, produce artifacts, inspect them, and turn observations into evidence.
+
+The agent should aim to run repeated testing and improvement loops without requiring the user to manually restart apps, reinstall addons, reset services, or collect files. If environment automation is reasonable, implement or document it. If it is risky, unclear, or too expensive/time-consuming, ask the user before proceeding.
 
 If a required artifact or human judgment is delayed, use `evorig state wait`. If the unit appears to hit a capability limit, use `evorig state stop` with a concrete reason and next action.

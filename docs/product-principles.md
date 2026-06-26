@@ -11,6 +11,7 @@ The framework should help agents:
 - run task attempts;
 - inspect real artifacts;
 - trace failures back to runs;
+- maintain a unit-local operational map of workflow, evidence, environment assumptions, and open questions;
 - propose candidate harness patches;
 - test candidate patches;
 - promote only evidence-backed improvements;
@@ -33,3 +34,5 @@ The system is built for generative AI models, so it must leave room for reasonin
 The rule:
 
 > Agents can explore freely inside candidates. The engine controls promotion.
+
+`operational-map.md` exists to preserve the agent's current working understanding of a harness unit without turning that understanding into a fixed script. The agent should use it to orient itself, update it as evidence changes, and still reason from the current task and artifacts.

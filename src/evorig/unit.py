@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .errors import EvoRigError
+from .operational_map import write_initial_operational_map
 from .state import now_iso, write_state
 from .templates import apply_template
 from .yamlio import write_yaml
@@ -57,9 +58,12 @@ def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> P
                 f"# {name}",
                 "",
                 "This harness unit is an agent sandbox with a strict lifecycle.",
+                "Use `operational-map.md` as the current orientation for how this unit is tested, what evidence matters, and what the agent currently believes about the environment.",
+                "Update the map when the workflow, artifact paths, evidence needs, environment assumptions, or automation strategy change.",
                 "",
                 "Rules:",
                 "",
+                "- Read `operational-map.md` before planning the first baseline attempt.",
                 "- Create candidate patches before changing promoted harness material.",
                 "- Put exploratory work inside candidate, experiment, tool, memory, or research folders.",
                 "- Do not edit framework-owned state, promoted versions, or provenance by hand.",
@@ -71,6 +75,8 @@ def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> P
         encoding="utf-8",
         newline="\n",
     )
+
+    write_initial_operational_map(unit_root, unit_id, name)
 
     (unit_root / "provenance" / "changelog.md").write_text(
         f"# Changelog\n\n- {now_iso()}: Created harness unit `{unit_id}`.\n",

@@ -15,6 +15,7 @@ class ValidationIssue:
 REQUIRED_PATHS = [
     "unit.yaml",
     "UNIT_AGENT.md",
+    "operational-map.md",
     "candidates",
     "versions",
     "provenance",

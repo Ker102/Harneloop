@@ -74,6 +74,8 @@ The onboarding flow asks five setup questions, lists the context being collected
 
 EvoRig records environment mappings; it does not discover test endpoints, MCP tools, commands, screenshot locations, render outputs, or artifact paths by itself. The onboarding agent must inspect the real project/environment and write that mapping into the harness.
 
+Every new harness unit includes `operational-map.md`. This file is the agent's current orientation for the unit: what is being improved, which tools and systems are involved, which artifacts or evidence are useful, how the environment can usually be run or reset, what is fragile, which assumptions need re-checking, and where prior evidence lives. It should be updated as the agent learns. It is not a fixed checklist.
+
 ```powershell
 python -m evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit"
 python -m evorig candidate create .\demo-unit --summary "Add first task principle"
@@ -109,7 +111,7 @@ evorig package .\demo-unit --output .\demo-unit-0.1.0.tar.gz
 evorig status .\demo-unit
 ```
 
-The generated harness unit will include `.evolve/allowed-edits.yaml`, `CURRENT_STATE.md`, and `NEXT_ACTION.md` so a coding agent can see the current lifecycle phase and edit boundaries.
+The generated harness unit will include `operational-map.md`, `.evolve/allowed-edits.yaml`, `CURRENT_STATE.md`, and `NEXT_ACTION.md` so a coding agent can see the current unit orientation, lifecycle phase, and edit boundaries.
 Run records and copied artifacts live under `runtime/`, which is intentionally excluded from portable packages by default.
 
 For a fuller first local demo, see [docs/demo-first-test.md](docs/demo-first-test.md).

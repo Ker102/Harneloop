@@ -24,6 +24,10 @@ Use the five onboarding questions to collect only the minimum context needed for
 
 EvoRig records environment mappings; it does not magically discover test endpoints, MCP tools, run commands, screenshot locations, render outputs, or artifact paths. The onboarding agent must inspect the actual project/environment, determine how artifacts are produced, and write that mapping into the harness via `environment connect`, `attempt plan`, run records, and artifact records.
 
+Every new harness unit includes `operational-map.md`. Treat it as the current orientation for this specific unit: what it is trying to improve, which systems and tools it touches, what artifacts or evidence are useful, how the environment can usually be run or reset, fragile spots, assumptions, open questions, and where prior evidence lives. It is context and navigation, not a rigid procedure. Update it when the workflow, evidence needs, artifact paths, environment assumptions, or automation strategy change.
+
+Agents should aim to run repeated testing and improvement loops without requiring the user to manually restart apps, reinstall addons, reset services, or collect files. If automating the environment is reasonable, implement or document it. If automation is risky, unclear, or too expensive/time-consuming, ask the user before proceeding.
+
 For human-guided setup, use:
 
 ```powershell

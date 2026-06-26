@@ -20,6 +20,7 @@ from evorig.state import mark_active, mark_stopped, mark_waiting, read_state, re
 from evorig.target import set_target_brief
 from evorig.templates import list_templates
 from evorig.unit import init_unit
+from evorig.validation import validate_unit
 from evorig.versioning import promote_candidate, rollback_unit
 from evorig.yamlio import read_yaml
 
@@ -50,6 +51,7 @@ class CoreLifecycleTests(unittest.TestCase):
             with tarfile.open(package_path, "r:gz") as archive:
                 names = archive.getnames()
             self.assertTrue(any(name.endswith("EVORIG_PACKAGE.json") for name in names))
+            self.assertTrue(any(name.endswith("operational-map.md") for name in names))
             self.assertTrue(any(name.endswith("agent-facing/principles.md") for name in names))
             self.assertFalse(any("/attempts/" in name for name in names))
 
@@ -112,6 +114,34 @@ class CoreLifecycleTests(unittest.TestCase):
             unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
             data = json.loads((unit / ".evolve" / "state.json").read_text(encoding="utf-8"))
             self.assertEqual(data["unit_id"], "demo")
+
+    def test_init_unit_creates_operational_map_for_agent_navigation(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            map_path = unit / "operational-map.md"
+
+            self.assertTrue(map_path.exists())
+            content = map_path.read_text(encoding="utf-8")
+            self.assertIn("Use this map as current orientation.", content)
+            self.assertIn("This is context and navigation, not a rigid procedure.", content)
+            self.assertIn("What This Harness Unit Is Trying To Improve", content)
+            self.assertIn("Systems, Tools, And Environment", content)
+            self.assertIn("Useful Artifacts And Evidence", content)
+            self.assertIn("Running And Resetting The Environment", content)
+            self.assertIn("Automation And Autonomy", content)
+            self.assertIn("Known Constraints, Fragile Spots, And Open Questions", content)
+            self.assertIn("Current Assumptions To Re-Check", content)
+            self.assertIn("Prior Runs, Evidence, And Decisions", content)
+            self.assertFalse(validate_unit(unit))
+
+            forbidden_phrases = [
+                "Always evaluate success by these exact criteria",
+                "The loop must be run in this exact order",
+                "A harness change helped only if X/Y/Z",
+                "Use these artifacts for every task",
+            ]
+            for phrase in forbidden_phrases:
+                self.assertNotIn(phrase, content)
 
     def test_artifact_review_template_seeds_unit_contracts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -364,6 +394,8 @@ class CoreLifecycleTests(unittest.TestCase):
         self.assertIn("evorig environment connect", markdown)
         self.assertIn("--interaction-mode mcp", markdown)
         self.assertIn("does not discover environment endpoints", markdown)
+        self.assertIn("operational-map.md", markdown)
+        self.assertIn("automating the environment is reasonable", markdown)
 
 
 if __name__ == "__main__":

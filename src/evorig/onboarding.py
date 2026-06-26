@@ -45,6 +45,11 @@ OPTIONAL_ONBOARDING_FOLLOW_UPS: list[dict[str, str]] = [
 
 CONTEXT_FIELDS: list[dict[str, str]] = [
     {
+        "name": "Operational map",
+        "captures": "the current working understanding of workflow, artifacts, evidence, environment assumptions, reset paths, constraints, and open questions",
+        "command": "update operational-map.md after inspecting the real workspace and whenever the unit workflow changes",
+    },
+    {
         "name": "Target brief",
         "captures": "task, success criteria, artifact kinds, and known risks",
         "command": "evorig target set <harness-unit> --task ... --success ... --artifact-kind ... --risk ...",
@@ -75,6 +80,7 @@ CONTEXT_FIELDS: list[dict[str, str]] = [
 FIRST_ACTIONS: list[str] = [
     "Run `evorig doctor` to confirm the local runtime is usable.",
     "Create a harness unit with `evorig init-unit <path> --id <id> --name <name> --template artifact-review` unless a blank harness unit is intentional.",
+    "Read `operational-map.md` and update it as the current orientation for this harness unit.",
     "Convert the user's answers into a target brief with `evorig target set`.",
     "Connect or describe the execution environment with `evorig environment connect`.",
     "Create the first baseline attempt with `evorig attempt plan` before changing the harness.",
@@ -93,8 +99,11 @@ def render_onboarding_json() -> dict[str, Any]:
         "agent_rules": [
             "Ask only the minimal questions needed before the first baseline attempt.",
             "Treat success criteria and artifact choices as guided options; the user does not need to design validation up front.",
+            "Use `operational-map.md` as context and navigation, not as a rigid procedure; update it when workflow, evidence needs, or environment assumptions change.",
             "EvoRig does not discover environment endpoints, tools, commands, or artifact paths by itself; the onboarding agent must inspect the workspace and record that mapping.",
             "If the environment is tool-driven, declare the tools instead of forcing a single run command.",
+            "Aim to run repeated testing/improvement loops without requiring the user to restart apps, reinstall addons, reset services, or collect files; if automating the environment is reasonable, implement or document it.",
+            "Ask the user before environment automation when the automation is risky, unclear, or too expensive/time-consuming.",
             "Do not promote harness changes without concrete evidence or an explicit override.",
             "Use wait and stop states when artifacts, human feedback, or external systems are delayed.",
         ],

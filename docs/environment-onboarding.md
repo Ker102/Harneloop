@@ -4,6 +4,8 @@ EvoRig should not assume it owns the user's test environment.
 
 It also should not imply that the CLI can discover the environment automatically. EvoRig stores the mapping. The onboarding agent must inspect the real workspace, tools, MCP servers, scripts, app endpoints, output folders, and artifact paths, then write that mapping into the harness unit.
 
+The first place for that working understanding is `operational-map.md`. Keep it current with what the harness unit is trying to improve, how the environment is usually run or reset, what artifacts are useful, which assumptions are fragile, and what still needs investigation. The map should orient the agent, not lock it into one evaluation recipe.
+
 The framework should first help the agent understand:
 
 - what task the harness is being built for;
@@ -30,6 +32,8 @@ The agent should connect to it by documenting:
 - any environment-specific notes.
 
 The agent should not rebuild the environment unless checks fail or the user asks.
+
+The agent should try to remove repeated manual work from the loop. If restarting services, resetting apps, collecting artifacts, or preparing the environment can be automated safely, implement or document that automation. If the automation path is risky, unclear, or expensive, ask the user.
 
 Existing environments can be command-driven or tool-driven.
 
