@@ -23,7 +23,7 @@ def next_candidate_id(unit_root: Path) -> str:
 def create_candidate(unit_root: Path, summary: str, kind: str = "mixed") -> Path:
     unit_root = unit_root.resolve()
     if not (unit_root / "unit.yaml").exists():
-        raise EvoRigError(f"Not an EvoRig unit: {unit_root}")
+        raise EvoRigError(f"Not an EvoRig harness unit: {unit_root}")
 
     candidate_id = next_candidate_id(unit_root)
     candidate_root = unit_root / "candidates" / candidate_id

@@ -12,13 +12,13 @@ HUMAN_MAIN_MENU: list[dict[str, str]] = [
     },
     {
         "id": "manage_units",
-        "label": "List and manage units",
-        "description": "View registered units, register existing units, or remove registry entries.",
+        "label": "List and manage harness units",
+        "description": "View registered harness units, register existing harness units, or remove registry entries.",
     },
     {
         "id": "continue_unit",
-        "label": "Continue an active unit",
-        "description": "Open the current state and next action for an existing unit.",
+        "label": "Continue an active harness unit",
+        "description": "Open the current state and next action for an existing harness unit.",
     },
     {
         "id": "review_unit",
@@ -32,7 +32,7 @@ HUMAN_MAIN_MENU: list[dict[str, str]] = [
     },
     {
         "id": "package_export",
-        "label": "Package or export a unit",
+        "label": "Package or export a harness unit",
         "description": "Create portable packages or target-agent exports.",
     },
     {

@@ -26,6 +26,7 @@ from evorig.unit import init_unit
 class UserCliSupportTests(unittest.TestCase):
     def test_human_main_menu_covers_unit_settings_and_help_workflows(self) -> None:
         ids = {item["id"] for item in HUMAN_MAIN_MENU}
+        labels = {item["label"] for item in HUMAN_MAIN_MENU}
 
         self.assertIn("create_unit", ids)
         self.assertIn("manage_units", ids)
@@ -33,6 +34,8 @@ class UserCliSupportTests(unittest.TestCase):
         self.assertIn("review_unit", ids)
         self.assertIn("manage_settings", ids)
         self.assertIn("help", ids)
+        self.assertIn("List and manage harness units", labels)
+        self.assertIn("Continue an active harness unit", labels)
 
     def test_guided_setup_defaults_make_success_and_artifacts_optional(self) -> None:
         plan = build_guided_setup_plan(

@@ -48,7 +48,7 @@ def build_parser() -> argparse.ArgumentParser:
     units_register = units_subparsers.add_parser("register", help="Register an existing harness unit")
     units_register.add_argument("unit", type=Path)
     units_register.add_argument("--home", type=Path)
-    units_remove = units_subparsers.add_parser("remove", help="Remove a unit from the local registry")
+    units_remove = units_subparsers.add_parser("remove", help="Remove a harness unit from the local registry")
     units_remove.add_argument("unit_id_or_path")
     units_remove.add_argument("--home", type=Path)
 
@@ -157,7 +157,7 @@ def build_parser() -> argparse.ArgumentParser:
     validate_parser = subparsers.add_parser("validate", help="Validate a harness unit")
     validate_parser.add_argument("unit", type=Path)
 
-    status_parser = subparsers.add_parser("status", help="Print unit lifecycle state")
+    status_parser = subparsers.add_parser("status", help="Print harness unit lifecycle state")
     status_parser.add_argument("unit", type=Path)
     status_parser.add_argument("--format", choices=["json", "markdown"], default="json")
 
@@ -263,25 +263,25 @@ def main(argv: list[str] | None = None) -> int:
             if args.units_command == "list":
                 units = list_registered_units(args.home)
                 if not units:
-                    print("No registered units.")
+                    print("No registered harness units.")
                     return 0
                 for unit in units:
                     print(f"{unit.get('id')}\t{unit.get('name')}\t{unit.get('path')}")
                 return 0
             if args.units_command == "register":
                 if not (args.unit / "unit.yaml").exists():
-                    raise EvoRigError(f"Not an EvoRig unit: {args.unit}")
+                    raise EvoRigError(f"Not an EvoRig harness unit: {args.unit}")
                 record = register_unit(args.home, args.unit)
-                print(f"Registered unit: {record['name']} ({record['id']})")
+                print(f"Registered harness unit: {record['name']} ({record['id']})")
                 return 0
             if args.units_command == "remove":
                 removed = remove_registered_unit(args.home, args.unit_id_or_path)
-                print("Removed unit." if removed else "No matching unit found.")
+                print("Removed harness unit registry entry." if removed else "No matching harness unit found.")
                 return 0
 
         if args.command == "init-unit":
             path = init_unit(args.path, args.id, args.name, args.template)
-            print(f"Created unit: {path}")
+            print(f"Created harness unit: {path}")
             return 0
 
         if args.command == "template" and args.template_command == "list":

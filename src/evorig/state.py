@@ -73,7 +73,7 @@ def render_state_markdown(state: dict[str, Any]) -> str:
         "",
         "## Next Action",
         "",
-        state.get("next_action") or "Inspect the unit state and choose the next lifecycle action.",
+        state.get("next_action") or "Inspect the harness unit state and choose the next lifecycle action.",
     ]
     if state.get("resume_after"):
         lines.append(f"- Resume after: `{state['resume_after']}`")
@@ -86,7 +86,7 @@ def render_next_action_markdown(state: dict[str, Any]) -> str:
     next_lines = [
         "# Next Action",
         "",
-        state.get("next_action") or "Inspect the unit state and choose the next lifecycle action.",
+        state.get("next_action") or "Inspect the harness unit state and choose the next lifecycle action.",
     ]
     return "\n".join(next_lines) + "\n"
 

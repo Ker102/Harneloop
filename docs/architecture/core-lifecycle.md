@@ -1,6 +1,6 @@
 # Core Lifecycle
 
-## Unit
+## Harness Unit
 
 A harness unit is a portable directory that contains reusable harness material and framework control files.
 
@@ -47,7 +47,7 @@ Candidate changes are applied through the framework. Candidate overlays cannot e
 
 ## Promotion
 
-Promotion applies a candidate overlay to the unit, creates a restorable snapshot under `versions/`, updates provenance, and clears the active candidate.
+Promotion applies a candidate overlay to the harness unit, creates a restorable snapshot under `versions/`, updates provenance, and clears the active candidate.
 
 ## Rollback
 

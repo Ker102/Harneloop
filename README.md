@@ -51,7 +51,7 @@ For the guided human-facing CLI:
 evorig setup
 ```
 
-For unit and preference management:
+For harness unit and preference management:
 
 ```powershell
 evorig units list
@@ -109,7 +109,7 @@ evorig package .\demo-unit --output .\demo-unit-0.1.0.tar.gz
 evorig status .\demo-unit
 ```
 
-The generated unit will include `.evolve/allowed-edits.yaml`, `CURRENT_STATE.md`, and `NEXT_ACTION.md` so a coding agent can see the current lifecycle phase and edit boundaries.
+The generated harness unit will include `.evolve/allowed-edits.yaml`, `CURRENT_STATE.md`, and `NEXT_ACTION.md` so a coding agent can see the current lifecycle phase and edit boundaries.
 Run records and copied artifacts live under `runtime/`, which is intentionally excluded from portable packages by default.
 
 For a fuller first local demo, see [docs/demo-first-test.md](docs/demo-first-test.md).

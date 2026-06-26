@@ -124,7 +124,7 @@ def _unit_metadata(unit_path: Path) -> dict[str, Any]:
 def register_unit(base_dir: Path | None, unit_path: Path) -> dict[str, Any]:
     resolved = unit_path.resolve()
     if not (resolved / "unit.yaml").exists():
-        raise EvoRigError(f"Not an EvoRig unit: {resolved}")
+        raise EvoRigError(f"Not an EvoRig harness unit: {resolved}")
     metadata = _unit_metadata(resolved)
     record = {
         "id": metadata["id"],

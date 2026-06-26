@@ -21,7 +21,7 @@ def hash_file(path: Path) -> str:
 
 def ensure_unit(unit_root: Path) -> None:
     if not (unit_root / "unit.yaml").exists():
-        raise EvoRigError(f"Not an EvoRig unit: {unit_root}")
+        raise EvoRigError(f"Not an EvoRig harness unit: {unit_root}")
 
 
 def candidate_root(unit_root: Path, candidate_id: str) -> Path:
@@ -168,7 +168,7 @@ def promote_candidate(
         current_version=version,
         active_candidate=None,
         reason="candidate_promoted",
-        next_action="Create another candidate, package the unit, or stop if evidence is sufficient.",
+        next_action="Create another candidate, package the harness unit, or stop if evidence is sufficient.",
     )
     return version_root
 
@@ -202,6 +202,6 @@ def rollback_unit(unit_root: Path, version: str) -> Path:
         current_version=version,
         active_candidate=None,
         reason="rollback",
-        next_action="Inspect restored unit state before creating another candidate.",
+        next_action="Inspect restored harness unit state before creating another candidate.",
     )
     return version_root

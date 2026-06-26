@@ -31,7 +31,7 @@ RECOMMENDED_DIRS = [
 def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> Path:
     unit_root = path.resolve()
     if unit_root.exists() and any(unit_root.iterdir()):
-        raise EvoRigError(f"Unit path is not empty: {unit_root}")
+        raise EvoRigError(f"Harness unit path is not empty: {unit_root}")
 
     unit_root.mkdir(parents=True, exist_ok=True)
     for directory in RECOMMENDED_DIRS:
@@ -73,7 +73,7 @@ def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> P
     )
 
     (unit_root / "provenance" / "changelog.md").write_text(
-        f"# Changelog\n\n- {now_iso()}: Created unit `{unit_id}`.\n",
+        f"# Changelog\n\n- {now_iso()}: Created harness unit `{unit_id}`.\n",
         encoding="utf-8",
         newline="\n",
     )

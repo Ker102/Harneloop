@@ -79,7 +79,7 @@ def _render_preferences(console: Console, home: Path | None) -> None:
 def _render_units(console: Console, home: Path | None) -> list[dict[str, object]]:
     units = list_registered_units(home)
     if not units:
-        console.print("[yellow]No registered units yet.[/yellow]")
+        console.print("[yellow]No registered harness units yet.[/yellow]")
         return units
     table = Table(title="Registered Harness Units", box=box.SIMPLE_HEAVY, show_header=True, header_style="bold cyan")
     table.add_column("#", justify="right", style="cyan")
@@ -102,13 +102,13 @@ def _render_units(console: Console, home: Path | None) -> list[dict[str, object]
 def _select_unit(console: Console, home: Path | None) -> Path | None:
     units = _render_units(console, home)
     if not units:
-        if not Confirm.ask("Enter a unit path manually?", default=True):
+        if not Confirm.ask("Enter a harness unit path manually?", default=True):
             return None
-        return Path(_prompt_non_empty("Unit path")).expanduser()
+        return Path(_prompt_non_empty("Harness unit path")).expanduser()
     choices = [str(index) for index in range(1, len(units) + 1)] + ["m"]
     choice = Prompt.ask("Choose a unit number, or 'm' for manual path", choices=choices, default="1")
     if choice == "m":
-        return Path(_prompt_non_empty("Unit path")).expanduser()
+        return Path(_prompt_non_empty("Harness unit path")).expanduser()
     return Path(str(units[int(choice) - 1]["path"]))
 
 
@@ -157,7 +157,7 @@ def run_interactive_setup(home: Path | None = None, console: Console | None = No
     console = console or Console()
     console.print(Panel.fit("[bold cyan]Create a New EvoRig Harness Unit[/bold cyan]", border_style="cyan"))
 
-    unit_name = _prompt_non_empty("Unit name", default="New Harness Unit")
+    unit_name = _prompt_non_empty("Harness unit name", default="New Harness Unit")
     goal = _prompt_non_empty("What should this harness help an agent get better at?")
     usage_context = _mapping_menu(console, "Where will it be used?", USAGE_CONTEXTS, "coding_agent")
     success_strategy = _mapping_menu(console, "How should success criteria be handled?", SUCCESS_STRATEGIES, "agent_proposes")
@@ -186,12 +186,12 @@ def run_interactive_setup(home: Path | None = None, console: Console | None = No
         interaction_mode=interaction_mode,
     )
     default_path = Path.cwd() / "units" / str(plan["unit_id"])
-    unit_path = Path(Prompt.ask("Where should the unit directory live?", default=str(default_path))).expanduser()
+    unit_path = Path(Prompt.ask("Where should the harness unit directory live?", default=str(default_path))).expanduser()
 
     summary = Table(title="Setup Summary", box=box.SIMPLE_HEAVY, show_header=False)
     summary.add_column("Field", style="cyan")
     summary.add_column("Value")
-    summary.add_row("Unit", f"{plan['unit_name']} ({plan['unit_id']})")
+    summary.add_row("Harness unit", f"{plan['unit_name']} ({plan['unit_id']})")
     summary.add_row("Path", str(unit_path))
     summary.add_row("Success", str(plan["success"]))
     summary.add_row("Validation", VALIDATION_PREFERENCES[str(plan["validation_preference"])])
@@ -210,11 +210,11 @@ def _manage_units(console: Console, home: Path | None) -> None:
     while True:
         choice = _menu(
             console,
-            "Unit Management",
+            "Harness Unit Management",
             [
-                {"id": "list", "label": "List registered units", "description": "Show the local unit registry."},
-                {"id": "register", "label": "Register existing unit", "description": "Add a unit path to the registry."},
-                {"id": "remove", "label": "Remove registry entry", "description": "Forget a unit without deleting files."},
+                {"id": "list", "label": "List registered harness units", "description": "Show the local harness unit registry."},
+                {"id": "register", "label": "Register existing harness unit", "description": "Add a harness unit path to the registry."},
+                {"id": "remove", "label": "Remove registry entry", "description": "Forget a harness unit without deleting files."},
                 {"id": "back", "label": "Back", "description": "Return to the main menu."},
             ],
         )
@@ -223,14 +223,14 @@ def _manage_units(console: Console, home: Path | None) -> None:
         if choice == "list":
             _render_units(console, home)
         elif choice == "register":
-            path = Path(_prompt_non_empty("Unit path")).expanduser()
+            path = Path(_prompt_non_empty("Harness unit path")).expanduser()
             try:
                 record = register_unit(home, path)
                 console.print(f"[green]Registered[/green] {record['name']} ({record['id']})")
             except Exception as exc:
                 console.print(f"[red]Could not register unit:[/red] {exc}")
         elif choice == "remove":
-            identifier = _prompt_non_empty("Unit ID or full path")
+            identifier = _prompt_non_empty("Harness unit ID or full path")
             console.print("[green]Removed.[/green]" if remove_registered_unit(home, identifier) else "[yellow]No match.[/yellow]")
 
 

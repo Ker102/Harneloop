@@ -38,7 +38,7 @@ Set-Content -Path (Join-Path $unit "candidates\cand-0001\changes\agent-facing\de
 
 Expected result:
 
-- the unit contains seeded artifact-review principles and contracts;
+- the harness unit contains seeded artifact-review principles and contracts;
 - `target/brief.yaml` describes what the harness is for;
 - `environment/contract.yaml` declares how the test environment is connected;
 - `attempts/attempt-0001/attempt.yaml` records the agent-authored workflow;

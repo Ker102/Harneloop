@@ -16,7 +16,7 @@ def package_unit(unit_root: Path, output: Path, profile: str = "thin", version: 
     unit_meta = read_yaml(unit_root / "unit.yaml")
     selected_version = version or unit_meta.get("current_version")
     if not selected_version:
-        raise EvoRigError("Cannot package a unit before a version has been promoted")
+        raise EvoRigError("Cannot package a harness unit before a version has been promoted")
 
     version_root = unit_root / "versions" / str(selected_version)
     snapshot_root = version_root / "snapshot"

@@ -30,16 +30,16 @@ For human-guided setup, use:
 evorig setup
 ```
 
-For manual unit and preference management, use `evorig units` and `evorig settings`.
+For manual harness unit and preference management, use `evorig units` and `evorig settings`.
 
 ## Product Principles
 
-- The framework process is protected. Unit evolution is sandboxed.
+- The framework process is protected. Harness unit evolution is sandboxed.
 - Agents can explore freely inside candidates. The engine controls promotion.
 - A candidate patch is a real object with rationale, changes, validation, and evidence.
 - Promotion requires a restorable version snapshot.
 - Stop, wait, and resume are normal lifecycle states, not error cases.
-- Portable units should exclude raw traces, caches, secrets, and unpromoted experiments by default.
+- Portable harness units should exclude raw traces, caches, secrets, and unpromoted experiments by default.
 
 ## Engineering Defaults
 

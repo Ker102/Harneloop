@@ -1,35 +1,19 @@
-# Naming Notes
+# Naming
 
-## Current Term
+## Selected Term
 
-The current portable harness object is called a **harness unit** in docs and commands.
+The portable harness object is called a **harness unit**.
 
-This name is serviceable for the prototype because it is neutral, generic, and accurate: it describes one self-contained harness workspace with control files, agent-facing instructions, candidates, versions, environment contracts, runtime records, and exports.
+A harness unit is one self-contained EvoRig workspace with control files, agent-facing instructions, candidates, versions, environment contracts, runtime records, and exports.
 
-## Concern
+## Why This Name
 
-`unit` is also bland and not very memorable. It works as an internal technical term, but it may not be the best user-facing product noun if EvoRig becomes public.
+`Harness unit` is clearer than `unit` because it keeps the purpose visible wherever the term appears. It is also framework-neutral across visual, code, research, automation, and application-agent workflows.
 
-## Candidate Direction
+## Usage
 
-Use this distinction unless we decide to rename:
+Use **harness unit** in user-facing text, docs, menus, prompts, and agent instructions.
 
-- **Harness unit**: precise internal/framework term.
-- **Rig**: possible user-facing term, especially if the project name remains EvoRig.
+Use existing command names such as `evorig init-unit` and `evorig units` for now to avoid churn. Those commands manage harness units.
 
-Example:
-
-- User-facing: "Create a rig", "list rigs", "export this rig".
-- Internal/docs: "A rig is stored as a harness unit directory."
-
-## Tradeoffs
-
-`Rig` has stronger identity and matches EvoRig, but it can sound Blender-specific because rigging is common in 3D workflows. That is the main reason not to rename immediately.
-
-`Harness` is clearer and less branded, but more generic.
-
-`Unit` is stable and neutral, but less marketable.
-
-## Recommendation
-
-Keep `unit` in the code for now. During real testing, listen for whether users naturally say "unit", "harness", or "rig". If EvoRig remains the product name, consider changing the human CLI labels to "rig" first while keeping `unit` as a backward-compatible command alias.
+Avoid using bare `unit` in user-facing language unless the surrounding phrase already makes the meaning obvious.

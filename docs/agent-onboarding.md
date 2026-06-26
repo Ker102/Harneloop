@@ -66,7 +66,7 @@ Optional follow-up:
 - Produced outputs become run artifacts: `evorig run start`, `evorig artifact add`, `evorig run finish`.
 - Harness changes become candidates and require evidence before promotion.
 - User defaults can be managed with `evorig settings`.
-- Local units can be listed or registered with `evorig units`.
+- Local harness units can be listed or registered with `evorig units`.
 
 ## Important Behavior
 
