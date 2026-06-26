@@ -40,6 +40,7 @@ For manual harness unit and preference management, use `evorig units` and `evori
 - Promotion requires a restorable version snapshot.
 - Stop, wait, and resume are normal lifecycle states, not error cases.
 - Portable harness units should exclude raw traces, caches, secrets, and unpromoted experiments by default.
+- Commands that allocate IDs or update shared control files must use EvoRig locks and atomic writes.
 
 ## Engineering Defaults
 

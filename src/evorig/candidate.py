@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .errors import EvoRigError
+from .locking import file_lock, harness_lock_path
 from .state import now_iso, update_state
 from .yamlio import read_yaml, write_yaml
 
@@ -25,30 +26,31 @@ def create_candidate(unit_root: Path, summary: str, kind: str = "mixed") -> Path
     if not (unit_root / "unit.yaml").exists():
         raise EvoRigError(f"Not an EvoRig harness unit: {unit_root}")
 
-    candidate_id = next_candidate_id(unit_root)
-    candidate_root = unit_root / "candidates" / candidate_id
-    candidate_root.mkdir(parents=True, exist_ok=False)
-    for directory in ["changes", "validation", "evidence"]:
-        (candidate_root / directory).mkdir(parents=True, exist_ok=True)
+    with file_lock(harness_lock_path(unit_root, "candidates")):
+        candidate_id = next_candidate_id(unit_root)
+        candidate_root = unit_root / "candidates" / candidate_id
+        candidate_root.mkdir(parents=True, exist_ok=False)
+        for directory in ["changes", "validation", "evidence"]:
+            (candidate_root / directory).mkdir(parents=True, exist_ok=True)
 
-    unit_meta = read_yaml(unit_root / "unit.yaml")
-    write_yaml(
-        candidate_root / "candidate.yaml",
-        {
-            "id": candidate_id,
-            "base_version": unit_meta.get("current_version"),
-            "kind": kind,
-            "status": "draft",
-            "summary": summary,
-            "created_at": now_iso(),
-            "changes": {"mode": "overlay", "path": "changes/"},
-            "evidence_required": ["rationale", "validation_notes"],
-        },
-    )
-    (candidate_root / "rationale.md").write_text(
-        f"# Rationale\n\n{summary}\n", encoding="utf-8", newline="\n"
-    )
-    (candidate_root / "notes.md").write_text("# Notes\n", encoding="utf-8", newline="\n")
+        unit_meta = read_yaml(unit_root / "unit.yaml")
+        write_yaml(
+            candidate_root / "candidate.yaml",
+            {
+                "id": candidate_id,
+                "base_version": unit_meta.get("current_version"),
+                "kind": kind,
+                "status": "draft",
+                "summary": summary,
+                "created_at": now_iso(),
+                "changes": {"mode": "overlay", "path": "changes/"},
+                "evidence_required": ["rationale", "validation_notes"],
+            },
+        )
+        (candidate_root / "rationale.md").write_text(
+            f"# Rationale\n\n{summary}\n", encoding="utf-8", newline="\n"
+        )
+        (candidate_root / "notes.md").write_text("# Notes\n", encoding="utf-8", newline="\n")
 
     update_state(
         unit_root,

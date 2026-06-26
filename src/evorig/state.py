@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from .locking import file_lock, harness_lock_path
 from .yamlio import write_yaml
 
 
@@ -39,18 +42,37 @@ def write_state(unit_root: Path, state: dict[str, Any]) -> dict[str, Any]:
     state = dict(state)
     state["updated_at"] = now_iso()
     state_dir(unit_root).mkdir(parents=True, exist_ok=True)
-    with state_path(unit_root).open("w", encoding="utf-8", newline="\n") as handle:
-        json.dump(state, handle, indent=2)
-        handle.write("\n")
+    temp_path: str | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            newline="\n",
+            dir=state_dir(unit_root),
+            prefix=".state.json.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temp_path = handle.name
+            json.dump(state, handle, indent=2)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temp_path, state_path(unit_root))
+    finally:
+        if temp_path and Path(temp_path).exists():
+            Path(temp_path).unlink()
     write_state_markdown(unit_root, state)
     write_allowed_edits(unit_root, state)
     return state
 
 
 def update_state(unit_root: Path, **updates: Any) -> dict[str, Any]:
-    state = read_state(unit_root)
-    state.update(updates)
-    return write_state(unit_root, state)
+    unit_root = unit_root.resolve()
+    with file_lock(harness_lock_path(unit_root, "state")):
+        state = read_state(unit_root)
+        state.update(updates)
+        return write_state(unit_root, state)
 
 
 def write_state_markdown(unit_root: Path, state: dict[str, Any]) -> None:

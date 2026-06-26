@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from .errors import EvoRigError
+from .locking import file_lock, harness_lock_path
 from .state import now_iso, update_state
 from .versioning import ensure_unit
 from .yamlio import read_yaml, write_yaml
@@ -63,22 +64,23 @@ def create_attempt_plan(
     if not method.strip():
         raise EvoRigError("Attempt method cannot be empty")
 
-    attempt_id = next_attempt_id(unit_root)
-    root = attempts_root(unit_root) / attempt_id
-    root.mkdir(parents=True, exist_ok=False)
-    data: dict[str, Any] = {
-        "schema_version": "0.1",
-        "id": attempt_id,
-        "goal": goal,
-        "method": method,
-        "actions": normalize_list(action),
-        "expected_artifacts": normalize_list(expected_artifact),
-        "success_checks": normalize_list(success_check),
-        "notes": normalize_list(note),
-        "observations": [],
-        "created_at": now_iso(),
-    }
-    write_attempt(unit_root, attempt_id, data)
+    with file_lock(harness_lock_path(unit_root, "attempts")):
+        attempt_id = next_attempt_id(unit_root)
+        root = attempts_root(unit_root) / attempt_id
+        root.mkdir(parents=True, exist_ok=False)
+        data: dict[str, Any] = {
+            "schema_version": "0.1",
+            "id": attempt_id,
+            "goal": goal,
+            "method": method,
+            "actions": normalize_list(action),
+            "expected_artifacts": normalize_list(expected_artifact),
+            "success_checks": normalize_list(success_check),
+            "notes": normalize_list(note),
+            "observations": [],
+            "created_at": now_iso(),
+        }
+        write_attempt(unit_root, attempt_id, data)
     update_state(
         unit_root,
         reason="attempt_plan_created",
@@ -97,18 +99,20 @@ def add_attempt_observation(
 ) -> dict[str, Any]:
     if not summary.strip():
         raise EvoRigError("Observation summary cannot be empty")
-    data = read_attempt(unit_root.resolve(), attempt_id)
-    observations = data.get("observations") or []
-    observation = {
-        "id": f"observation-{len(observations) + 1:04d}",
-        "summary": summary,
-        "outcome": outcome,
-        "run_id": run_id,
-        "findings": normalize_list(finding),
-        "created_at": now_iso(),
-    }
-    data["observations"] = [*observations, observation]
-    write_attempt(unit_root, attempt_id, data)
+    unit_root = unit_root.resolve()
+    with file_lock(harness_lock_path(unit_root, f"attempt-{attempt_id}")):
+        data = read_attempt(unit_root, attempt_id)
+        observations = data.get("observations") or []
+        observation = {
+            "id": f"observation-{len(observations) + 1:04d}",
+            "summary": summary,
+            "outcome": outcome,
+            "run_id": run_id,
+            "findings": normalize_list(finding),
+            "created_at": now_iso(),
+        }
+        data["observations"] = [*observations, observation]
+        write_attempt(unit_root, attempt_id, data)
     update_state(
         unit_root,
         reason="attempt_observation_added",

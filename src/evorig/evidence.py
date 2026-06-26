@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from .errors import EvoRigError
+from .locking import file_lock, harness_lock_path
 from .state import now_iso
 from .versioning import candidate_root, ensure_unit
 from .yamlio import read_yaml, write_yaml
@@ -46,20 +47,22 @@ def add_evidence(
     if not summary.strip():
         raise EvoRigError("Evidence summary cannot be empty")
 
-    evidence_id = next_evidence_id(unit_root, candidate_id)
-    record: dict[str, Any] = {
-        "id": evidence_id,
-        "candidate_id": candidate_id,
-        "kind": kind,
-        "summary": summary,
-        "outcome": outcome,
-        "run_id": run_id,
-        "artifact_id": artifact_id,
-        "path": str(path) if path else None,
-        "created_at": now_iso(),
-    }
-    write_yaml(evidence_root(unit_root, candidate_id) / f"{evidence_id}.yaml", record)
-    return record
+    unit_root = unit_root.resolve()
+    with file_lock(harness_lock_path(unit_root, f"candidate-{candidate_id}-evidence")):
+        evidence_id = next_evidence_id(unit_root, candidate_id)
+        record: dict[str, Any] = {
+            "id": evidence_id,
+            "candidate_id": candidate_id,
+            "kind": kind,
+            "summary": summary,
+            "outcome": outcome,
+            "run_id": run_id,
+            "artifact_id": artifact_id,
+            "path": str(path) if path else None,
+            "created_at": now_iso(),
+        }
+        write_yaml(evidence_root(unit_root, candidate_id) / f"{evidence_id}.yaml", record)
+        return record
 
 
 def has_promotion_evidence(unit_root: Path, candidate_id: str) -> bool:
