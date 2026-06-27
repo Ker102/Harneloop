@@ -129,6 +129,13 @@ class CoreLifecycleTests(unittest.TestCase):
             self.assertIn("Useful Artifacts And Evidence", content)
             self.assertIn("Running And Resetting The Environment", content)
             self.assertIn("Automation And Autonomy", content)
+            self.assertIn("Capability Gaps", content)
+            self.assertIn("Operating-agent capabilities currently available", content)
+            self.assertIn("Missing operating-agent capabilities", content)
+            self.assertIn("Unit or target-agent tools", content)
+            self.assertIn("Requested or enabled tools", content)
+            self.assertIn("Fallbacks if the user declines", content)
+            self.assertIn("Capability additions should be justified", content)
             self.assertIn("Known Constraints, Fragile Spots, And Open Questions", content)
             self.assertIn("Current Assumptions To Re-Check", content)
             self.assertIn("Prior Runs, Evidence, And Decisions", content)
@@ -396,6 +403,9 @@ class CoreLifecycleTests(unittest.TestCase):
         self.assertIn("does not discover environment endpoints", markdown)
         self.assertIn("operational-map.md", markdown)
         self.assertIn("automating the environment is reasonable", markdown)
+        self.assertIn("Operating-agent capabilities", markdown)
+        self.assertIn("Unit/target-agent tools", markdown)
+        self.assertIn("Capability additions should be justified", markdown)
 
 
 if __name__ == "__main__":

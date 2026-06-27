@@ -76,6 +76,8 @@ EvoRig records environment mappings; it does not discover test endpoints, MCP to
 
 Every new harness unit includes `operational-map.md`. This file is the agent's current orientation for the unit: what is being improved, which tools and systems are involved, which artifacts or evidence are useful, how the environment can usually be run or reset, what is fragile, which assumptions need re-checking, and where prior evidence lives. It should be updated as the agent learns. It is not a fixed checklist.
 
+The map also tracks capability gaps. EvoRig separates operating-agent capabilities, such as terminal, filesystem, browser, MCPs, package managers, visual inspection, and database access, from unit/target-agent tools designed into the harness unit. Missing capabilities should be justified by observed bottlenecks, failed attempts, missing artifacts, or clear expected improvement before adding tools or asking the user for permission.
+
 ```powershell
 python -m evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit"
 python -m evorig candidate create .\demo-unit --summary "Add first task principle"

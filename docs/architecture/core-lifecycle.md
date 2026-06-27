@@ -16,7 +16,7 @@ unit/
   provenance/
 ```
 
-`operational-map.md` is the unit-local orientation document. It records the agent's current understanding of what the harness unit improves, how the target environment is used, what artifacts or evidence are useful, how runs and resets usually happen, known fragile spots, assumptions, open questions, and where prior evidence lives. It should guide the agent without becoming a rigid procedure.
+`operational-map.md` is the unit-local orientation document. It records the agent's current understanding of what the harness unit improves, how the target environment is used, what artifacts or evidence are useful, how runs and resets usually happen, operating-agent capability gaps, unit/target-agent tools, known fragile spots, assumptions, open questions, and where prior evidence lives. It should guide the agent without becoming a rigid procedure.
 
 Common optional folders:
 

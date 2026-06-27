@@ -46,7 +46,7 @@ OPTIONAL_ONBOARDING_FOLLOW_UPS: list[dict[str, str]] = [
 CONTEXT_FIELDS: list[dict[str, str]] = [
     {
         "name": "Operational map",
-        "captures": "the current working understanding of workflow, artifacts, evidence, environment assumptions, reset paths, constraints, and open questions",
+        "captures": "the current working understanding of workflow, artifacts, evidence, environment assumptions, reset paths, capability gaps, constraints, and open questions",
         "command": "update operational-map.md after inspecting the real workspace and whenever the unit workflow changes",
     },
     {
@@ -102,6 +102,11 @@ def render_onboarding_json() -> dict[str, Any]:
             "Use `operational-map.md` as context and navigation, not as a rigid procedure; update it when workflow, evidence needs, or environment assumptions change.",
             "EvoRig does not discover environment endpoints, tools, commands, or artifact paths by itself; the onboarding agent must inspect the workspace and record that mapping.",
             "If the environment is tool-driven, declare the tools instead of forcing a single run command.",
+            "Operating-agent capabilities are what the current agent can actually use, such as terminal, filesystem, browser, MCPs, package managers, visual inspection, or database access.",
+            "Unit/target-agent tools are tools designed into the harness unit or provided to the target agent; keep them separate from the operating agent's own capabilities.",
+            "When a capability is missing, state what is missing, why it matters, what tool or dependency would help, and what risk, cost, auth, or security change it introduces.",
+            "Capability additions should be justified by observed bottlenecks, failed attempts, missing artifacts, or clear expected improvement, not added speculatively.",
+            "Low-risk local capabilities can be installed, enabled, or built when the environment allows it; larger dependencies, auth, secrets, external access, paid services, or security-impacting changes should be proposed first.",
             "Aim to run repeated testing/improvement loops without requiring the user to restart apps, reinstall addons, reset services, or collect files; if automating the environment is reasonable, implement or document it.",
             "Ask the user before environment automation when the automation is risky, unclear, or too expensive/time-consuming.",
             "Do not promote harness changes without concrete evidence or an explicit override.",

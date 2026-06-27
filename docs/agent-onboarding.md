@@ -44,6 +44,21 @@ Every new harness unit has `operational-map.md`. Use it as current orientation: 
 
 This map is context and navigation, not a rigid procedure. The agent should still reason from the task, inspect available evidence, and choose the appropriate test or evaluation strategy for the current attempt.
 
+## Capability Gaps
+
+Do not assume every operating agent has Codex-level powers. A custom Hermes, OpenClaw, app agent, or restricted automation worker may lack terminal access, filesystem access, browser access, package managers, MCP servers, visual inspection, database access, or other capabilities needed to build the harness unit well.
+
+Separate two layers:
+
+- Operating-agent capabilities: what the current agent can actually use while building the unit.
+- Unit/target-agent tools: tools designed into the harness unit or provided to the target agent through the environment contract.
+
+If the operating agent is missing a useful capability, record the gap in `operational-map.md`: what is missing, why it matters, what tool or dependency would help, what risk/cost/auth/security change it introduces, and what fallback exists if the user declines.
+
+Low-risk local capabilities can be installed, enabled, or built when the environment allows it. Larger dependencies, credentials, paid APIs, user-owned accounts, external access, network expansion, or security-impacting changes should be proposed first.
+
+Capability additions should be justified by observed bottlenecks, failed attempts, missing artifacts, or clear expected improvement, not added speculatively.
+
 Suggested success answers:
 
 - Let the agent propose success criteria.

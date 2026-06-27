@@ -26,6 +26,10 @@ EvoRig records environment mappings; it does not magically discover test endpoin
 
 Every new harness unit includes `operational-map.md`. Treat it as the current orientation for this specific unit: what it is trying to improve, which systems and tools it touches, what artifacts or evidence are useful, how the environment can usually be run or reset, fragile spots, assumptions, open questions, and where prior evidence lives. It is context and navigation, not a rigid procedure. Update it when the workflow, evidence needs, artifact paths, environment assumptions, or automation strategy change.
 
+Track capability gaps in `operational-map.md`. Operating-agent capabilities are what the current agent can actually use while building the unit, such as terminal, filesystem, browser, MCPs, package managers, visual inspection, database access, or custom tools. Unit/target-agent tools are the tools designed into the harness unit or provided to the target agent. Keep those layers separate.
+
+If the operating agent is missing a useful capability, state what is missing, why it matters, what tool or dependency would help, and what risk, cost, auth, or security change it introduces. Low-risk local capabilities can be installed, enabled, or built when the environment allows it. Larger dependencies, credentials, external access, paid services, or security-impacting changes should be proposed first. Capability additions should be justified by observed bottlenecks, failed attempts, missing artifacts, or clear expected improvement.
+
 Agents should aim to run repeated testing and improvement loops without requiring the user to manually restart apps, reinstall addons, reset services, or collect files. If automating the environment is reasonable, implement or document it. If automation is risky, unclear, or too expensive/time-consuming, ask the user before proceeding.
 
 For human-guided setup, use:

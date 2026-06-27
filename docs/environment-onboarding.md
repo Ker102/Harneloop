@@ -6,6 +6,8 @@ It also should not imply that the CLI can discover the environment automatically
 
 The first place for that working understanding is `operational-map.md`. Keep it current with what the harness unit is trying to improve, how the environment is usually run or reset, what artifacts are useful, which assumptions are fragile, and what still needs investigation. The map should orient the agent, not lock it into one evaluation recipe.
 
+Also keep capability gaps in the map. The tools available to the operating agent are separate from the tools designed into the harness unit or target-agent environment. A restricted agent may not have terminal, browser, filesystem, MCP, package-manager, visual-inspection, database, or network capabilities. If a missing operating capability blocks or weakens the harness-building loop, record what is missing, why it matters, which tool or dependency would help, and what fallback exists.
+
 The framework should first help the agent understand:
 
 - what task the harness is being built for;
@@ -34,6 +36,8 @@ The agent should connect to it by documenting:
 The agent should not rebuild the environment unless checks fail or the user asks.
 
 The agent should try to remove repeated manual work from the loop. If restarting services, resetting apps, collecting artifacts, or preparing the environment can be automated safely, implement or document that automation. If the automation path is risky, unclear, or expensive, ask the user.
+
+Capability additions should be evidence-backed. Low-risk local tooling can be installed, enabled, or built when the environment allows it. Larger dependencies, credentials, paid APIs, external access, user-owned accounts, network expansion, or security-impacting changes should be proposed first.
 
 Existing environments can be command-driven or tool-driven.
 
