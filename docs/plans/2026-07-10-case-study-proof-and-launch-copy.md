@@ -7,10 +7,10 @@ Add concise measured proof to the README and preserve accurate first-user launch
 ## README Approach
 
 - Shorten the opening while preserving the trial, trace, candidate, evidence, and promotion loop.
-- State that agents remain open-ended inside candidate workspaces while EvoRig protects lifecycle boundaries.
+- State that agents remain open-ended inside candidate workspaces while Harneloop protects lifecycle boundaries.
 - Add a minimal ViperMesh proof block immediately after the lifecycle image.
 - Keep speed, visual-quality, and token claims scoped exactly to the published benchmark.
-- Explain that EvoRig developed the harness and evidence loop; it did not directly generate scenes.
+- Explain that Harneloop developed the harness and evidence loop; it did not directly generate scenes.
 
 ## Marketing Approach
 

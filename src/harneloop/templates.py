@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .yamlio import write_yaml
 
 
@@ -98,5 +98,5 @@ def apply_template(unit_root: Path, template: str) -> None:
         applier = TEMPLATES[template]
     except KeyError as exc:
         supported = ", ".join(list_templates())
-        raise EvoRigError(f"Unknown template `{template}`. Expected one of: {supported}") from exc
+        raise HarneloopError(f"Unknown template `{template}`. Expected one of: {supported}") from exc
     applier(unit_root)

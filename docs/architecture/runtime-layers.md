@@ -4,7 +4,7 @@
 
 Use Python for the first reference implementation.
 
-Prefer Rust over Go later if EvoRig needs a native protected runtime.
+Prefer Rust over Go later if Harneloop needs a native protected runtime.
 
 ## Why Rust Later
 
@@ -41,4 +41,4 @@ The rule remains:
 
 ## Where Go Could Still Fit
 
-Go remains a good candidate for future hosted services, remote worker coordination, or registry infrastructure if EvoRig grows in that direction.
+Go remains a good candidate for future hosted services, remote worker coordination, or registry infrastructure if Harneloop grows in that direction.

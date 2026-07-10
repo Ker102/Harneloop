@@ -4,7 +4,7 @@ Status: implemented.
 
 ## Goal
 
-EvoRig should not assume the agent building a harness unit has full Codex-like capabilities.
+Harneloop should not assume the agent building a harness unit has full Codex-like capabilities.
 
 Some operating agents may lack terminal access, filesystem access, browser access, package managers, MCP servers, visual inspection, database access, network access, or custom project tools. Missing capabilities can reduce harness-building quality, especially for artifact-aware tasks.
 
@@ -35,4 +35,4 @@ Capability additions should be justified by observed bottlenecks, failed attempt
 ## Validation
 
 - Add tests that generated operational maps include capability-gap tracking.
-- Add tests that `evorig onboard` explains operating-agent capabilities, unit/target-agent tools, and evidence-backed capability additions.
+- Add tests that `harneloop onboard` explains operating-agent capabilities, unit/target-agent tools, and evidence-backed capability additions.

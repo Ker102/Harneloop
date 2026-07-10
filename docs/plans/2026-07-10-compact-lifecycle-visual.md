@@ -2,7 +2,7 @@
 
 ## Goal
 
-Provide a small EvoRig lifecycle diagram that stays readable in GitHub Markdown and can be formatted into a roughly 4:3 image without tangled connector lines.
+Provide a small Harneloop lifecycle diagram that stays readable in GitHub Markdown and can be formatted into a roughly 4:3 image without tangled connector lines.
 
 ## Layout
 

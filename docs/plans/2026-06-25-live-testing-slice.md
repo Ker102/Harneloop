@@ -4,7 +4,7 @@ Status: implemented, not yet committed.
 
 > **For Agent:** Use executing-plans skill to implement this plan task-by-task.
 
-**Goal:** Make the current EvoRig prototype easier for a user or coding agent to test live on a local machine.
+**Goal:** Make the current Harneloop prototype easier for a user or coding agent to test live on a local machine.
 
 **Architecture:** Keep the protocol-first Python core. Add agent-readable edit boundaries, local environment diagnostics, and clearer install/test instructions without adding Blender-specific behavior.
 
@@ -15,8 +15,8 @@ Status: implemented, not yet committed.
 ## Task 1: Allowed Edit Contract
 
 **Files:**
-- Modify: `src/evorig/state.py`
-- Modify: `src/evorig/validation.py`
+- Modify: `src/harneloop/state.py`
+- Modify: `src/harneloop/validation.py`
 - Modify: `tests/test_core_lifecycle.py`
 
 **Steps:**
@@ -30,15 +30,15 @@ Status: implemented, not yet committed.
 ## Task 2: Doctor Command
 
 **Files:**
-- Create: `src/evorig/diagnostics.py`
-- Modify: `src/evorig/cli.py`
+- Create: `src/harneloop/diagnostics.py`
+- Modify: `src/harneloop/cli.py`
 - Modify: `tests/test_core_lifecycle.py`
 
 **Steps:**
 
 1. Write a failing test for diagnostic checks.
 2. Implement core checks for Python version, PyYAML import, git availability, and writable working directory.
-3. Add `evorig doctor` with normal text output and `--json`.
+3. Add `harneloop doctor` with normal text output and `--json`.
 4. Run `python -m unittest discover -s tests`.
 
 ## Task 3: Local Testing Docs
@@ -50,7 +50,7 @@ Status: implemented, not yet committed.
 
 1. Add editable-install commands.
 2. Add a complete lifecycle smoke test a user can run.
-3. Explain that `EvoRig` is temporary.
+3. Explain the selected Harneloop identity and current alpha status.
 4. Run `python -m unittest discover -s tests`.
 
 ## Task 4: DevOps And Repo Structure
@@ -73,16 +73,16 @@ Status: implemented, not yet committed.
 ## Task 5: Run Records And Artifact Manifests
 
 **Files:**
-- Create: `src/evorig/runs.py`
+- Create: `src/harneloop/runs.py`
 - Create: `schemas/run-record.schema.json`
 - Create: `schemas/artifact-manifest.schema.json`
-- Modify: `src/evorig/cli.py`
+- Modify: `src/harneloop/cli.py`
 - Modify: `tests/test_core_lifecycle.py`
 
 **Implemented:**
 
-1. Added `evorig run start`.
-2. Added `evorig artifact add`.
-3. Added `evorig run finish`.
+1. Added `harneloop run start`.
+2. Added `harneloop artifact add`.
+3. Added `harneloop run finish`.
 4. Stored runtime records under `runtime/`.
 5. Added tests for run records and artifact metadata.

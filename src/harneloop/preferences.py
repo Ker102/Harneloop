@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .state import now_iso
 from .yamlio import read_yaml, write_yaml
 
@@ -33,21 +33,21 @@ DEFAULT_PREFERENCES: dict[str, Any] = {
 }
 
 
-def evorig_home(base_dir: Path | None = None) -> Path:
+def harneloop_home(base_dir: Path | None = None) -> Path:
     if base_dir is not None:
         return base_dir.resolve()
-    configured = os.environ.get("EVORIG_HOME")
+    configured = os.environ.get("HARNELOOP_HOME")
     if configured:
         return Path(configured).expanduser().resolve()
-    return (Path.home() / ".evorig").resolve()
+    return (Path.home() / ".harneloop").resolve()
 
 
 def preferences_path(base_dir: Path | None = None) -> Path:
-    return evorig_home(base_dir) / "preferences.yaml"
+    return harneloop_home(base_dir) / "preferences.yaml"
 
 
 def registry_path(base_dir: Path | None = None) -> Path:
-    return evorig_home(base_dir) / "units.yaml"
+    return harneloop_home(base_dir) / "units.yaml"
 
 
 def _deep_merge(defaults: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
@@ -124,7 +124,7 @@ def _unit_metadata(unit_path: Path) -> dict[str, Any]:
 def register_unit(base_dir: Path | None, unit_path: Path) -> dict[str, Any]:
     resolved = unit_path.resolve()
     if not (resolved / "unit.yaml").exists():
-        raise EvoRigError(f"Not an EvoRig harness unit: {resolved}")
+        raise HarneloopError(f"Not a Harneloop harness unit: {resolved}")
     metadata = _unit_metadata(resolved)
     record = {
         "id": metadata["id"],

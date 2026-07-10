@@ -3,7 +3,7 @@
 ## Repository Layout
 
 ```text
-src/evorig/      Python reference implementation
+src/harneloop/      Python reference implementation
 tests/           Unit and behavior tests
 docs/            Architecture and development notes
 schemas/         Language-neutral data contracts
@@ -15,7 +15,7 @@ schemas/         Language-neutral data contracts
 ```powershell
 .\.venv\Scripts\python -m compileall src tests
 .\.venv\Scripts\python -m unittest discover -s tests
-.\.venv\Scripts\evorig doctor
+.\.venv\Scripts\harneloop doctor
 ```
 
 ## DevOps Baseline

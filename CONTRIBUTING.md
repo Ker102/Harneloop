@@ -1,6 +1,6 @@
 # Contributing
 
-EvoRig is currently a private prototype. The contribution process is intentionally lightweight until the public API stabilizes.
+Harneloop is currently a private prototype. The contribution process is intentionally lightweight until the public API stabilizes.
 
 ## Development Setup
 
@@ -27,7 +27,7 @@ For now, do not request automated CodeRabbit review. If a PR is created while Co
 ## Standards
 
 - Keep the framework core task-family-neutral.
-- Do not add Blender-specific assumptions to `src/evorig`.
+- Do not add Blender-specific assumptions to `src/harneloop`.
 - Add or update tests for lifecycle behavior.
 - Keep agent-facing files readable in Markdown, YAML, or JSON.
 - Do not commit secrets, local runtime artifacts, virtual environments, or generated packages.

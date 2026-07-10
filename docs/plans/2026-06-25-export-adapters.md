@@ -15,13 +15,13 @@ Status: implemented, not yet committed.
 ## Task 1: Generic And Codex Exports
 
 **Files:**
-- Create: `src/evorig/adapters.py`
-- Modify: `src/evorig/cli.py`
+- Create: `src/harneloop/adapters.py`
+- Modify: `src/harneloop/cli.py`
 - Modify: `tests/test_core_lifecycle.py`
 
 **Steps:**
 
 1. Write failing tests for generic and Codex exports.
 2. Implement `export_unit` for `generic`, `codex`, and `cursor`.
-3. Add `evorig export`.
+3. Add `harneloop export`.
 4. Run tests and CLI smoke flow.

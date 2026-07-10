@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://evorig.local/schemas/artifact-manifest.schema.json",
-  "title": "EvoRig Artifact Manifest",
+  "$id": "https://harneloop.local/schemas/artifact-manifest.schema.json",
+  "title": "Harneloop Artifact Manifest",
   "type": "object",
   "required": ["id", "kind", "source_path", "stored_path", "sha256", "size", "created_at"],
   "properties": {

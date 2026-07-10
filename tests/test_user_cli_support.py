@@ -6,21 +6,21 @@ from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
 
-from evorig.cli import main
-from evorig.preferences import (
+from harneloop.cli import main
+from harneloop.preferences import (
     DEFAULT_PREFERENCES,
     list_registered_units,
     load_preferences,
     register_unit,
     update_preference,
 )
-from evorig.setup_flow import (
+from harneloop.setup_flow import (
     HUMAN_MAIN_MENU,
     build_guided_setup_plan,
     suggest_artifact_kinds,
     unit_id_from_name,
 )
-from evorig.unit import init_unit
+from harneloop.unit import init_unit
 
 
 class UserCliSupportTests(unittest.TestCase):
@@ -89,8 +89,8 @@ class UserCliSupportTests(unittest.TestCase):
             root = Path(temp_dir)
             unit = init_unit(root / "demo-unit", "demo-unit", "Demo Unit")
 
-            record = register_unit(root / "evorig-home", unit)
-            units = list_registered_units(root / "evorig-home")
+            record = register_unit(root / "harneloop-home", unit)
+            units = list_registered_units(root / "harneloop-home")
 
             self.assertEqual(record["id"], "demo-unit")
             self.assertEqual(record["name"], "Demo Unit")
@@ -99,7 +99,7 @@ class UserCliSupportTests(unittest.TestCase):
 
     def test_settings_commands_show_and_update_preferences(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            home = str(Path(temp_dir) / "evorig-home")
+            home = str(Path(temp_dir) / "harneloop-home")
 
             output = StringIO()
             with redirect_stdout(output):
@@ -116,7 +116,7 @@ class UserCliSupportTests(unittest.TestCase):
     def test_unit_commands_register_and_list_units(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
-            home = str(root / "evorig-home")
+            home = str(root / "harneloop-home")
             unit = init_unit(root / "demo-unit", "demo-unit", "Demo Unit")
 
             output = StringIO()

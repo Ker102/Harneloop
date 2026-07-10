@@ -1,6 +1,6 @@
 # Security
 
-EvoRig is a local-first framework for agent-built harness units. Security boundaries matter because agents may create tools, run commands, and package reusable units.
+Harneloop is a local-first framework for agent-built harness units. Security boundaries matter because agents may create tools, run commands, and package reusable units.
 
 ## Current Status
 

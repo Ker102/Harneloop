@@ -15,23 +15,23 @@ Status: implemented, not yet committed.
 ## Task 1: Candidate Evidence Records
 
 **Files:**
-- Create: `src/evorig/evidence.py`
+- Create: `src/harneloop/evidence.py`
 - Create: `schemas/candidate-evidence.schema.json`
-- Modify: `src/evorig/cli.py`
+- Modify: `src/harneloop/cli.py`
 - Modify: `tests/test_core_lifecycle.py`
 
 **Steps:**
 
 1. Write failing tests for adding evidence to a candidate.
 2. Implement evidence IDs and YAML records under `candidates/<id>/evidence/`.
-3. Add `evorig candidate evidence add`.
+3. Add `harneloop candidate evidence add`.
 4. Run tests.
 
 ## Task 2: Promotion Gate
 
 **Files:**
-- Modify: `src/evorig/versioning.py`
-- Modify: `src/evorig/cli.py`
+- Modify: `src/harneloop/versioning.py`
+- Modify: `src/harneloop/cli.py`
 - Modify: `tests/test_core_lifecycle.py`
 
 **Steps:**

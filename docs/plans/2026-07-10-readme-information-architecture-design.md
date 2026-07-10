@@ -2,13 +2,13 @@
 
 ## Goal
 
-Make EvoRig understandable to non-technical users, useful as an operating guide for agents, and easy to navigate for technical readers.
+Make Harneloop understandable to non-technical users, useful as an operating guide for agents, and easy to navigate for technical readers.
 
 ## Approach
 
 Use progressive disclosure rather than separate audience-specific READMEs:
 
-1. Define EvoRig in plain language and state what it is not.
+1. Define Harneloop in plain language and state what it is not.
 2. Provide navigation for agents, users, and technical readers.
 3. Explain the problem, harness units, and lifecycle before installation details.
 4. Give agents a direct onboarding contract and a reusable natural-language starter prompt.

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://evorig.local/schemas/run-record.schema.json",
-  "title": "EvoRig Run Record",
+  "$id": "https://harneloop.local/schemas/run-record.schema.json",
+  "title": "Harneloop Run Record",
   "type": "object",
   "required": ["schema_version", "id", "task", "status", "created_at", "harness_version", "artifacts"],
   "properties": {

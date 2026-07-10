@@ -6,8 +6,8 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from evorig.runs import add_artifact, read_run, start_run
-from evorig.unit import init_unit
+from harneloop.runs import add_artifact, read_run, start_run
+from harneloop.unit import init_unit
 
 
 class ConcurrencyTests(unittest.TestCase):

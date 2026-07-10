@@ -4,7 +4,7 @@ Status: implemented and extended with MCP/tool-driven environments.
 
 > **For Agent:** Use executing-plans skill to implement this plan task-by-task.
 
-**Goal:** Let users or agents describe what a harness is for, then connect EvoRig to an existing or managed testing environment without assuming the framework owns setup.
+**Goal:** Let users or agents describe what a harness is for, then connect Harneloop to an existing or managed testing environment without assuming the framework owns setup.
 
 **Architecture:** Store the target task brief and environment contract as unit-local YAML/Markdown. Default to connecting existing environments first. Managed setup is a declared mode, not automatic provisioning.
 
@@ -15,8 +15,8 @@ Status: implemented and extended with MCP/tool-driven environments.
 ## Task 1: Target Brief
 
 **Files:**
-- Create: `src/evorig/target.py`
-- Modify: `src/evorig/cli.py`
+- Create: `src/harneloop/target.py`
+- Modify: `src/harneloop/cli.py`
 - Modify: `tests/test_core_lifecycle.py`
 
 **Steps:**
@@ -29,9 +29,9 @@ Status: implemented and extended with MCP/tool-driven environments.
 ## Task 2: Environment Contract
 
 **Files:**
-- Create: `src/evorig/environment.py`
-- Modify: `src/evorig/unit.py`
-- Modify: `src/evorig/cli.py`
+- Create: `src/harneloop/environment.py`
+- Modify: `src/harneloop/unit.py`
+- Modify: `src/harneloop/cli.py`
 - Modify: `tests/test_core_lifecycle.py`
 
 **Steps:**

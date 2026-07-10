@@ -18,7 +18,7 @@ The map should capture:
 
 ## Architecture
 
-`operational-map.md` is generated during `evorig init-unit` and lives at the root of the harness unit beside `UNIT_AGENT.md`.
+`operational-map.md` is generated during `harneloop init-unit` and lives at the root of the harness unit beside `UNIT_AGENT.md`.
 
 The file is required for validation, packageable through promoted snapshots, and editable by the operating agent. It is not protected like `unit.yaml`, `.evolve/`, `versions/`, `provenance/`, `candidates/`, or `runtime/`.
 

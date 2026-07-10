@@ -43,11 +43,11 @@ HUMAN_MAIN_MENU: list[dict[str, str]] = [
     {
         "id": "diagnostics",
         "label": "Run diagnostics",
-        "description": "Check local EvoRig prerequisites.",
+        "description": "Check local Harneloop prerequisites.",
     },
     {
         "id": "help",
-        "label": "Help me understand EvoRig",
+        "label": "Help me understand Harneloop",
         "description": "Explain the workflow and next recommended command.",
     },
     {
@@ -217,13 +217,13 @@ def build_guided_setup_plan(
         "environment_name": f"{name} environment",
         "environment_mode": environment_mode,
         "interaction_mode": resolved_interaction_mode,
-        "environment_description": "Guided setup captured the current environment status. EvoRig records mappings but does not discover endpoints, tools, commands, or artifact paths by itself; the agent should refine this contract after inspecting the real workspace.",
+        "environment_description": "Guided setup captured the current environment status. Harneloop records mappings but does not discover endpoints, tools, commands, or artifact paths by itself; the agent should refine this contract after inspecting the real workspace.",
         "environment_notes": notes,
         "attempt_goal": clean_goal,
         "attempt_method": "Use the declared environment and validation preference to create a baseline artifact-producing attempt before changing the harness.",
         "success_checks": [
             "A baseline attempt is recorded.",
-            "Expected artifacts are captured into EvoRig.",
+            "Expected artifacts are captured into Harneloop.",
             "The agent writes observations before proposing harness changes.",
         ],
     }

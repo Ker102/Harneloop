@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://evorig.local/schemas/attempt-plan.schema.json",
-  "title": "EvoRig Attempt Plan",
+  "$id": "https://harneloop.local/schemas/attempt-plan.schema.json",
+  "title": "Harneloop Attempt Plan",
   "type": "object",
   "required": ["schema_version", "id", "goal", "method", "actions", "expected_artifacts", "success_checks", "created_at"],
   "properties": {

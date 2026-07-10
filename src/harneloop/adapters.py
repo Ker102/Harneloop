@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .state import read_state
 from .versioning import ensure_unit
 from .yamlio import read_yaml
@@ -33,7 +33,7 @@ def export_body(unit_root: Path, adapter: str) -> str:
 
     return "\n".join(
         [
-            f"# {unit_meta.get('name', unit_meta.get('id', 'EvoRig Unit'))}",
+            f"# {unit_meta.get('name', unit_meta.get('id', 'Harneloop Unit'))}",
             "",
             f"Export adapter: `{adapter}`",
             f"Unit id: `{unit_meta.get('id', 'unknown')}`",
@@ -48,7 +48,7 @@ def export_body(unit_root: Path, adapter: str) -> str:
             "",
             "- Treat these instructions as the promoted harness for this task family.",
             "- Do not edit the source harness unit directly from this export.",
-            "- Improvements should be proposed as EvoRig candidates and promoted through evidence gates.",
+            "- Improvements should be proposed as Harneloop candidates and promoted through evidence gates.",
             "- Runtime traces, raw artifacts, local caches, and secrets are not part of this export.",
         ]
     ) + "\n"
@@ -59,7 +59,7 @@ def export_unit(unit_root: Path, adapter: str, output: Path | None = None) -> Pa
     ensure_unit(unit_root)
     if adapter not in SUPPORTED_ADAPTERS:
         supported = ", ".join(sorted(SUPPORTED_ADAPTERS))
-        raise EvoRigError(f"Unsupported adapter `{adapter}`. Expected one of: {supported}")
+        raise HarneloopError(f"Unsupported adapter `{adapter}`. Expected one of: {supported}")
 
     export_root = (output or (unit_root / "exports" / adapter)).resolve()
     export_root.mkdir(parents=True, exist_ok=True)
@@ -68,8 +68,8 @@ def export_unit(unit_root: Path, adapter: str, output: Path | None = None) -> Pa
     if adapter == "codex":
         (export_root / "AGENTS.md").write_text(body, encoding="utf-8", newline="\n")
     elif adapter == "cursor":
-        cursor_body = "---\ndescription: EvoRig exported harness unit\nalwaysApply: false\n---\n\n" + body
-        (export_root / "evorig-unit.mdc").write_text(cursor_body, encoding="utf-8", newline="\n")
+        cursor_body = "---\ndescription: Harneloop exported harness unit\nalwaysApply: false\n---\n\n" + body
+        (export_root / "harneloop-unit.mdc").write_text(cursor_body, encoding="utf-8", newline="\n")
     else:
         (export_root / "UNIT_AGENT.md").write_text(body, encoding="utf-8", newline="\n")
 

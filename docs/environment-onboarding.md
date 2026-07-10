@@ -1,8 +1,8 @@
 # Target And Environment Onboarding
 
-EvoRig should not assume it owns the user's test environment.
+Harneloop should not assume it owns the user's test environment.
 
-It also should not imply that the CLI can discover the environment automatically. EvoRig stores the mapping. The onboarding agent must inspect the real workspace, tools, MCP servers, scripts, app endpoints, output folders, and artifact paths, then write that mapping into the harness unit.
+It also should not imply that the CLI can discover the environment automatically. Harneloop stores the mapping. The onboarding agent must inspect the real workspace, tools, MCP servers, scripts, app endpoints, output folders, and artifact paths, then write that mapping into the harness unit.
 
 The first place for that working understanding is `operational-map.md`. Keep it current with what the harness unit is trying to improve, how the environment is usually run or reset, what artifacts are useful, which assumptions are fragile, and what still needs investigation. The map should orient the agent, not lock it into one evaluation recipe.
 
@@ -51,7 +51,7 @@ The agent should propose the smallest missing setup required to run a baseline t
 
 ### Managed
 
-Use this when EvoRig or the agent should create more of the environment from scratch.
+Use this when Harneloop or the agent should create more of the environment from scratch.
 
 Every infrastructure change should be explicit and evidence-backed. Managed setup is useful later, but it should not be the default for user projects that already work.
 
@@ -71,10 +71,10 @@ The target agent may need to:
 - export structured summaries;
 - decide what follow-up evidence matters.
 
-EvoRig records this as an attempt plan:
+Harneloop records this as an attempt plan:
 
 ```powershell
-evorig attempt plan .\unit `
+harneloop attempt plan .\unit `
   --goal "Build a Blender scene with a cube on a table." `
   --method "Use Blender MCP tools to create objects, render, and export scene summary." `
   --action "Create table, cube, camera, and light." `
@@ -88,13 +88,13 @@ evorig attempt plan .\unit `
 Then a run can reference that attempt:
 
 ```powershell
-evorig run start .\unit --task "Baseline Blender spatial scene" --attempt-id attempt-0001
+harneloop run start .\unit --task "Baseline Blender spatial scene" --attempt-id attempt-0001
 ```
 
 After artifacts are captured, observations are added:
 
 ```powershell
-evorig attempt observe .\unit attempt-0001 `
+harneloop attempt observe .\unit attempt-0001 `
   --run-id run-0001 `
   --outcome failed `
   --summary "Render exists but cube floats above the table." `
@@ -124,7 +124,7 @@ The interaction mode may be `mcp`, not `command`.
 
 In that case there may be no direct test command. The target agent uses the Blender MCP server and addon tools to change the scene, render images, take screenshots, inspect objects, or export scene summaries.
 
-The first integration step is not to install Blender or create a new runner. It is to connect EvoRig to:
+The first integration step is not to install Blender or create a new runner. It is to connect Harneloop to:
 
 - the existing MCP/tool surface;
 - the tools the agent should use;
@@ -134,7 +134,7 @@ The first integration step is not to install Blender or create a new runner. It 
 Example:
 
 ```powershell
-evorig environment connect .\blender-unit `
+harneloop environment connect .\blender-unit `
   --name "Existing Blender MCP environment" `
   --mode existing `
   --interaction-mode mcp `
@@ -147,4 +147,4 @@ evorig environment connect .\blender-unit `
   --note "Use MCP tools instead of looking for a single run command."
 ```
 
-After this, EvoRig's role is to record runs, capture artifacts, store evidence, and promote harness changes. The Blender MCP server remains the execution interface.
+After this, Harneloop's role is to record runs, capture artifacts, store evidence, and promote harness changes. The Blender MCP server remains the execution interface.

@@ -4,7 +4,7 @@ Status: implemented, not yet committed.
 
 > **For Agent:** Use executing-plans skill to implement this plan task-by-task.
 
-**Goal:** Make EvoRig ready for first local demo testing without requiring Blender or a custom project.
+**Goal:** Make Harneloop ready for first local demo testing without requiring Blender or a custom project.
 
 **Architecture:** Add a generic artifact-aware unit template and agent-readable status output. Keep template content as framework-neutral seed material, not domain-specific automation.
 
@@ -15,9 +15,9 @@ Status: implemented, not yet committed.
 ## Task 1: Artifact Review Template
 
 **Files:**
-- Create: `src/evorig/templates.py`
-- Modify: `src/evorig/unit.py`
-- Modify: `src/evorig/cli.py`
+- Create: `src/harneloop/templates.py`
+- Modify: `src/harneloop/unit.py`
+- Modify: `src/harneloop/cli.py`
 - Modify: `tests/test_core_lifecycle.py`
 
 **Steps:**
@@ -31,8 +31,8 @@ Status: implemented, not yet committed.
 ## Task 2: Agent-Readable Status
 
 **Files:**
-- Modify: `src/evorig/cli.py`
-- Modify: `src/evorig/state.py`
+- Modify: `src/harneloop/cli.py`
+- Modify: `src/harneloop/state.py`
 - Modify: `tests/test_core_lifecycle.py`
 
 **Steps:**

@@ -70,4 +70,4 @@ Waiting covers delayed artifacts, human review, queued jobs, cooldowns, and infr
 
 Stopping covers sufficient evidence, plateau, capability frontier concerns, permission needs, or cases where the next useful step depends on a human or external system.
 
-See [How EvoRig Works](../framework-process.md) for the full artifact-aware evolution loop.
+See [How Harneloop Works](../framework-process.md) for the full artifact-aware evolution loop.

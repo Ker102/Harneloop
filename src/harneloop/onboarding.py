@@ -52,45 +52,45 @@ CONTEXT_FIELDS: list[dict[str, str]] = [
     {
         "name": "Target brief",
         "captures": "task, success criteria, artifact kinds, and known risks",
-        "command": "evorig target set <harness-unit> --task ... --success ... --artifact-kind ... --risk ...",
+        "command": "harneloop target set <harness-unit> --task ... --success ... --artifact-kind ... --risk ...",
     },
     {
         "name": "Environment contract",
         "captures": "existing, assisted, or managed setup plus command, MCP, manual, or custom interaction mode",
-        "command": "evorig environment connect <harness-unit> --mode existing --interaction-mode mcp --tool ...",
+        "command": "harneloop environment connect <harness-unit> --mode existing --interaction-mode mcp --tool ...",
     },
     {
         "name": "Attempt plan",
         "captures": "the agent-authored workflow for producing and inspecting task-relevant artifacts",
-        "command": "evorig attempt plan <harness-unit> --goal ... --method ... --expected-artifact ... --success-check ...",
+        "command": "harneloop attempt plan <harness-unit> --goal ... --method ... --expected-artifact ... --success-check ...",
     },
     {
         "name": "Run and artifact records",
         "captures": "what happened during an attempt and which concrete artifacts were inspected",
-        "command": "evorig run start <harness-unit> --task ...; then evorig artifact add <harness-unit> <run-id> <path> --kind ...",
+        "command": "harneloop run start <harness-unit> --task ...; then harneloop artifact add <harness-unit> <run-id> <path> --kind ...",
     },
     {
         "name": "Candidate evidence",
         "captures": "why a harness change should or should not be promoted",
-        "command": "evorig candidate evidence add <harness-unit> <candidate-id> --kind ... --summary ...",
+        "command": "harneloop candidate evidence add <harness-unit> <candidate-id> --kind ... --summary ...",
     },
 ]
 
 
 FIRST_ACTIONS: list[str] = [
-    "Run `evorig doctor` to confirm the local runtime is usable.",
-    "Create a harness unit with `evorig init-unit <path> --id <id> --name <name> --template artifact-review` unless a blank harness unit is intentional.",
+    "Run `harneloop doctor` to confirm the local runtime is usable.",
+    "Create a harness unit with `harneloop init-unit <path> --id <id> --name <name> --template artifact-review` unless a blank harness unit is intentional.",
     "Read `operational-map.md` and update it as the current orientation for this harness unit.",
-    "Convert the user's answers into a target brief with `evorig target set`.",
-    "Connect or describe the execution environment with `evorig environment connect`.",
-    "Create the first baseline attempt with `evorig attempt plan` before changing the harness.",
+    "Convert the user's answers into a target brief with `harneloop target set`.",
+    "Connect or describe the execution environment with `harneloop environment connect`.",
+    "Create the first baseline attempt with `harneloop attempt plan` before changing the harness.",
     "Record runs, artifacts, observations, and candidate evidence before promotion.",
 ]
 
 
 def render_onboarding_json() -> dict[str, Any]:
     return {
-        "purpose": "Start a new EvoRig harness without relying on chat history.",
+        "purpose": "Start a new Harneloop harness without relying on chat history.",
         "question_limit": len(ONBOARDING_QUESTIONS),
         "questions": ONBOARDING_QUESTIONS,
         "optional_follow_ups": OPTIONAL_ONBOARDING_FOLLOW_UPS,
@@ -100,7 +100,7 @@ def render_onboarding_json() -> dict[str, Any]:
             "Ask only the minimal questions needed before the first baseline attempt.",
             "Treat success criteria and artifact choices as guided options; the user does not need to design validation up front.",
             "Use `operational-map.md` as context and navigation, not as a rigid procedure; update it when workflow, evidence needs, or environment assumptions change.",
-            "EvoRig does not discover environment endpoints, tools, commands, or artifact paths by itself; the onboarding agent must inspect the workspace and record that mapping.",
+            "Harneloop does not discover environment endpoints, tools, commands, or artifact paths by itself; the onboarding agent must inspect the workspace and record that mapping.",
             "If the environment is tool-driven, declare the tools instead of forcing a single run command.",
             "Operating-agent capabilities are what the current agent can actually use, such as terminal, filesystem, browser, MCPs, package managers, visual inspection, or database access.",
             "Unit/target-agent tools are tools designed into the harness unit or provided to the target agent; keep them separate from the operating agent's own capabilities.",
@@ -118,7 +118,7 @@ def render_onboarding_json() -> dict[str, Any]:
 def render_onboarding_markdown() -> str:
     data = render_onboarding_json()
     lines = [
-        "# EvoRig Agent Onboarding",
+        "# Harneloop Agent Onboarding",
         "",
         "Use this checklist when starting a new harness unit. Ask only what is needed to create the first baseline attempt; collect more detail after real artifacts exist.",
         "",

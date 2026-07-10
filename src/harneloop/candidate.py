@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .locking import file_lock, harness_lock_path
 from .state import now_iso, update_state
 from .yamlio import read_yaml, write_yaml
@@ -24,7 +24,7 @@ def next_candidate_id(unit_root: Path) -> str:
 def create_candidate(unit_root: Path, summary: str, kind: str = "mixed") -> Path:
     unit_root = unit_root.resolve()
     if not (unit_root / "unit.yaml").exists():
-        raise EvoRigError(f"Not an EvoRig harness unit: {unit_root}")
+        raise HarneloopError(f"Not a Harneloop harness unit: {unit_root}")
 
     with file_lock(harness_lock_path(unit_root, "candidates")):
         candidate_id = next_candidate_id(unit_root)

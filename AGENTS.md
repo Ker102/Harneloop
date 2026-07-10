@@ -1,6 +1,6 @@
-# Agent Instructions For EvoRig
+# Agent Instructions For Harneloop
 
-EvoRig is a framework for agent-built, artifact-aware harness units.
+Harneloop is a framework for agent-built, artifact-aware harness units.
 
 ## Current Stage
 
@@ -11,18 +11,18 @@ This repository is in the first core prototype stage. Keep changes small, tested
 When starting a new harness unit, run:
 
 ```powershell
-evorig onboard
+harneloop onboard
 ```
 
-If EvoRig is not installed yet, use:
+If Harneloop is not installed yet, use:
 
 ```powershell
-python -m evorig onboard
+python -m harneloop onboard
 ```
 
 Use the five onboarding questions to collect only the minimum context needed for the first baseline attempt: harness goal, usage context, success strategy, validation preference, and environment status. Treat success criteria and artifact choices as guided options. The user does not need to know validation design up front.
 
-EvoRig records environment mappings; it does not magically discover test endpoints, MCP tools, run commands, screenshot locations, render outputs, or artifact paths. The onboarding agent must inspect the actual project/environment, determine how artifacts are produced, and write that mapping into the harness via `environment connect`, `attempt plan`, run records, and artifact records.
+Harneloop records environment mappings; it does not magically discover test endpoints, MCP tools, run commands, screenshot locations, render outputs, or artifact paths. The onboarding agent must inspect the actual project/environment, determine how artifacts are produced, and write that mapping into the harness via `environment connect`, `attempt plan`, run records, and artifact records.
 
 Every new harness unit includes `operational-map.md`. Treat it as the current orientation for this specific unit: what it is trying to improve, which systems and tools it touches, what artifacts or evidence are useful, how the environment can usually be run or reset, fragile spots, assumptions, open questions, and where prior evidence lives. It is context and navigation, not a rigid procedure. Update it when the workflow, evidence needs, artifact paths, environment assumptions, or automation strategy change.
 
@@ -35,10 +35,10 @@ Agents should aim to run repeated testing and improvement loops without requirin
 For human-guided setup, use:
 
 ```powershell
-evorig setup
+harneloop setup
 ```
 
-For manual harness unit and preference management, use `evorig units` and `evorig settings`.
+For manual harness unit and preference management, use `harneloop units` and `harneloop settings`.
 
 ## Product Principles
 
@@ -48,12 +48,12 @@ For manual harness unit and preference management, use `evorig units` and `evori
 - Promotion requires a restorable version snapshot.
 - Stop, wait, and resume are normal lifecycle states, not error cases.
 - Portable harness units should exclude raw traces, caches, secrets, and unpromoted experiments by default.
-- Commands that allocate IDs or update shared control files must use EvoRig locks and atomic writes.
+- Commands that allocate IDs or update shared control files must use Harneloop locks and atomic writes.
 
 ## Engineering Defaults
 
 - Use Python for the first reference implementation.
 - Prefer standard-library code unless a dependency removes real complexity.
 - Use tests for lifecycle behavior before changing implementation.
-- Keep public names temporary until the product and demo prove the right identity.
+- Use Harneloop consistently across the package, CLI, harness-unit metadata, documentation, and public materials.
 - Never commit secrets.

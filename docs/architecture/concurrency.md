@@ -1,6 +1,6 @@
 # Concurrency And File Safety
 
-EvoRig commands may be launched by agents in quick succession or in parallel. Any command that reads a control file, computes a sequential ID, and writes the file back must protect that whole read-modify-write section.
+Harneloop commands may be launched by agents in quick succession or in parallel. Any command that reads a control file, computes a sequential ID, and writes the file back must protect that whole read-modify-write section.
 
 ## Current Rule
 

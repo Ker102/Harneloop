@@ -2,7 +2,7 @@
 
 ## Goal
 
-Close the run-mutation and stale-evidence gaps found during the ViperMesh case study, then add a clear repo-native visual of the EvoRig process.
+Close the run-mutation and stale-evidence gaps found during the ViperMesh case study, then add a clear repo-native visual of the Harneloop process.
 
 ## Design
 
@@ -16,4 +16,4 @@ Close the run-mutation and stale-evidence gaps found during the ViperMesh case s
 
 - Add regression tests before implementation.
 - Run the full unittest suite and compile check.
-- Run `evorig doctor`, CLI smoke checks, and `git diff --check`.
+- Run `harneloop doctor`, CLI smoke checks, and `git diff --check`.

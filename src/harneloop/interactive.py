@@ -13,7 +13,7 @@ from .adapters import SUPPORTED_ADAPTERS, export_unit
 from .attempts import create_attempt_plan
 from .diagnostics import run_doctor
 from .environment import INTERACTION_MODES, connect_environment, render_environment_status
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .onboarding import render_onboarding_markdown
 from .preferences import list_registered_units, load_preferences, register_unit, remove_registered_unit, update_preference
 from .setup_flow import (
@@ -64,7 +64,7 @@ def _prompt_non_empty(message: str, default: str | None = None) -> str:
 
 def _render_preferences(console: Console, home: Path | None) -> None:
     preferences = load_preferences(home)
-    table = Table(title="EvoRig Preferences", box=box.SIMPLE_HEAVY, show_header=True, header_style="bold cyan")
+    table = Table(title="Harneloop Preferences", box=box.SIMPLE_HEAVY, show_header=True, header_style="bold cyan")
     table.add_column("Area", style="cyan")
     table.add_column("Setting", style="bold")
     table.add_column("Value")
@@ -155,7 +155,7 @@ def _create_unit_from_plan(console: Console, home: Path | None, unit_path: Path,
 
 def run_interactive_setup(home: Path | None = None, console: Console | None = None) -> int:
     console = console or Console()
-    console.print(Panel.fit("[bold cyan]Create a New EvoRig Harness Unit[/bold cyan]", border_style="cyan"))
+    console.print(Panel.fit("[bold cyan]Create a New Harneloop Harness Unit[/bold cyan]", border_style="cyan"))
 
     unit_name = _prompt_non_empty("Harness unit name", default="New Harness Unit")
     goal = _prompt_non_empty("What should this harness help an agent get better at?")
@@ -241,7 +241,7 @@ def _manage_settings(console: Console, home: Path | None) -> None:
             console,
             "Settings",
             [
-                {"id": "validation", "label": "Validation preference", "description": "How strongly EvoRig should prefer evidence quality vs resources."},
+                {"id": "validation", "label": "Validation preference", "description": "How strongly Harneloop should prefer evidence quality vs resources."},
                 {"id": "autonomy", "label": "Agent autonomy level", "description": "How independently agents should act inside harness work."},
                 {"id": "package", "label": "Default package profile", "description": "Thin, seeded, frozen, or appliance later."},
                 {"id": "export", "label": "Default export adapter", "description": "Target agent format."},
@@ -309,15 +309,15 @@ def _show_advanced_reference(console: Console) -> None:
                 [
                     "Agent/script commands:",
                     "",
-                    "evorig onboard",
-                    "evorig init-unit <path> --id <id> --name <name> --template artifact-review",
-                    "evorig target set <unit> --task ... --success ... --artifact-kind ...",
-                    "evorig environment connect <unit> --mode existing --interaction-mode mcp --tool ...",
-                    "evorig attempt plan <unit> --goal ... --method ... --expected-artifact ...",
-                    "evorig run start <unit> --task ...",
-                    "evorig artifact add <unit> <run-id> <path> --kind ...",
-                    "evorig candidate evidence add <unit> <candidate-id> --kind ... --summary ...",
-                    "evorig promote <unit> <candidate-id> --version <version>",
+                    "harneloop onboard",
+                    "harneloop init-unit <path> --id <id> --name <name> --template artifact-review",
+                    "harneloop target set <unit> --task ... --success ... --artifact-kind ...",
+                    "harneloop environment connect <unit> --mode existing --interaction-mode mcp --tool ...",
+                    "harneloop attempt plan <unit> --goal ... --method ... --expected-artifact ...",
+                    "harneloop run start <unit> --task ...",
+                    "harneloop artifact add <unit> <run-id> <path> --kind ...",
+                    "harneloop candidate evidence add <unit> <candidate-id> --kind ... --summary ...",
+                    "harneloop promote <unit> <candidate-id> --version <version>",
                 ]
             ),
             title="Advanced Command Reference",
@@ -329,8 +329,8 @@ def _show_advanced_reference(console: Console) -> None:
 def run_interactive_menu(home: Path | None = None, console: Console | None = None) -> int:
     console = console or Console()
     while True:
-        console.print(Panel.fit("[bold cyan]EvoRig[/bold cyan]\nSelf-evolving harness units for agents.", border_style="cyan"))
-        items = HUMAN_MAIN_MENU + [{"id": "quit", "label": "Quit", "description": "Close EvoRig."}]
+        console.print(Panel.fit("[bold cyan]Harneloop[/bold cyan]\nSelf-evolving harness units for agents.", border_style="cyan"))
+        items = HUMAN_MAIN_MENU + [{"id": "quit", "label": "Quit", "description": "Close Harneloop."}]
         try:
             choice = _menu(console, "What do you want to do?", items)
             if choice == "quit":
@@ -352,10 +352,10 @@ def run_interactive_menu(home: Path | None = None, console: Console | None = Non
             elif choice == "advanced":
                 _show_advanced_reference(console)
         except EOFError:
-            console.print("\n[yellow]Exiting EvoRig.[/yellow]")
+            console.print("\n[yellow]Exiting Harneloop.[/yellow]")
             return 0
         except KeyboardInterrupt:
-            console.print("\n[yellow]Exiting EvoRig.[/yellow]")
+            console.print("\n[yellow]Exiting Harneloop.[/yellow]")
             return 1
-        except EvoRigError as exc:
+        except HarneloopError as exc:
             console.print(f"[red]Error:[/red] {exc}")

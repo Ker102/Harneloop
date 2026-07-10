@@ -1,10 +1,10 @@
 # Product Principles
 
-EvoRig is the temporary working name for the prototype. The final name can change without changing the architecture.
+Harneloop is the selected product identity. The architecture remains independent from any one benchmark or task family.
 
 ## What This Is
 
-EvoRig is a framework agents use to build and improve the harness around themselves or another target agent.
+Harneloop is a framework agents use to build and improve the harness around themselves or another target agent.
 
 The framework should help agents:
 
@@ -20,7 +20,7 @@ The framework should help agents:
 
 ## What This Is Not
 
-EvoRig is not:
+Harneloop is not:
 
 - a generic eval dashboard;
 - a fixed agent graph framework;

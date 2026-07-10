@@ -46,7 +46,7 @@ def check_git() -> DiagnosticCheck:
 
 
 def check_writable_cwd(cwd: Path) -> DiagnosticCheck:
-    probe = cwd / ".evorig-doctor-write-test"
+    probe = cwd / ".harneloop-doctor-write-test"
     try:
         probe.write_text("ok\n", encoding="utf-8", newline="\n")
         probe.unlink()

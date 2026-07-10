@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .locking import file_lock, harness_lock_path
 from .state import now_iso, update_state
 from .versioning import ensure_unit, hash_file
@@ -42,7 +42,7 @@ def next_run_id(unit_root: Path) -> str:
 def run_path(unit_root: Path, run_id: str) -> Path:
     path = runs_root(unit_root) / run_id
     if not path.exists():
-        raise EvoRigError(f"Run does not exist: {run_id}")
+        raise HarneloopError(f"Run does not exist: {run_id}")
     return path
 
 
@@ -107,12 +107,12 @@ def add_artifact(
     unit_root = unit_root.resolve()
     source = source_path.resolve()
     if not source.is_file():
-        raise EvoRigError(f"Artifact source is not a file: {source}")
+        raise HarneloopError(f"Artifact source is not a file: {source}")
 
     with file_lock(harness_lock_path(unit_root, f"run-{run_id}")):
         run_record = read_run(unit_root, run_id)
         if run_record.get("status") != "running":
-            raise EvoRigError(f"Run is already finished and cannot accept artifacts: {run_id}")
+            raise HarneloopError(f"Run is already finished and cannot accept artifacts: {run_id}")
         existing_artifacts = run_record.get("artifacts") or []
         artifact_id = f"artifact-{len(existing_artifacts) + 1:04d}"
         target_name = name or source.name
@@ -140,13 +140,13 @@ def add_artifact(
 def finish_run(unit_root: Path, run_id: str, status: str, summary: str | None = None) -> dict[str, Any]:
     if status not in VALID_RUN_STATUSES - {"running"}:
         allowed = ", ".join(sorted(VALID_RUN_STATUSES - {"running"}))
-        raise EvoRigError(f"Invalid final run status `{status}`. Expected one of: {allowed}")
+        raise HarneloopError(f"Invalid final run status `{status}`. Expected one of: {allowed}")
 
     unit_root = unit_root.resolve()
     with file_lock(harness_lock_path(unit_root, f"run-{run_id}")):
         run_record = read_run(unit_root, run_id)
         if run_record.get("status") != "running":
-            raise EvoRigError(f"Run is already finished and cannot be finished again: {run_id}")
+            raise HarneloopError(f"Run is already finished and cannot be finished again: {run_id}")
         run_record["status"] = status
         run_record["summary"] = summary
         run_record["finished_at"] = now_iso()

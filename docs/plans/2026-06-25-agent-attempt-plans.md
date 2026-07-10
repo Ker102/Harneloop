@@ -14,8 +14,8 @@ Status: implemented, not yet committed.
 
 ## Implemented
 
-- Added `evorig attempt plan`.
-- Added `evorig attempt observe`.
+- Added `harneloop attempt plan`.
+- Added `harneloop attempt observe`.
 - Added `attempts/attempt-0001/attempt.yaml`.
 - Added `attempts/attempt-0001/OBSERVATIONS.md`.
 - Added `run start --attempt-id`.

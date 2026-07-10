@@ -9,7 +9,7 @@
 - [ ] Manual smoke test, if behavior changed:
 
 ```powershell
-evorig doctor
+harneloop doctor
 ```
 
 ## Review Notes

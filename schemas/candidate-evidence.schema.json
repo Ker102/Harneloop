@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://evorig.local/schemas/candidate-evidence.schema.json",
-  "title": "EvoRig Candidate Evidence",
+  "$id": "https://harneloop.local/schemas/candidate-evidence.schema.json",
+  "title": "Harneloop Candidate Evidence",
   "type": "object",
   "required": ["id", "candidate_id", "kind", "summary", "outcome", "created_at"],
   "properties": {

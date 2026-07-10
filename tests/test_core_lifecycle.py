@@ -6,23 +6,23 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from evorig.adapters import export_unit
-from evorig.attempts import add_attempt_observation, create_attempt_plan
-from evorig.candidate import create_candidate
-from evorig.diagnostics import run_doctor
-from evorig.environment import connect_environment, render_environment_status
-from evorig.errors import EvoRigError
-from evorig.evidence import add_evidence, list_evidence
-from evorig.onboarding import render_onboarding_json, render_onboarding_markdown
-from evorig.packaging import package_unit
-from evorig.runs import add_artifact, finish_run, start_run
-from evorig.state import mark_active, mark_stopped, mark_waiting, read_state, render_state_markdown
-from evorig.target import set_target_brief
-from evorig.templates import list_templates
-from evorig.unit import init_unit
-from evorig.validation import validate_unit
-from evorig.versioning import promote_candidate, rollback_unit
-from evorig.yamlio import read_yaml
+from harneloop.adapters import export_unit
+from harneloop.attempts import add_attempt_observation, create_attempt_plan
+from harneloop.candidate import create_candidate
+from harneloop.diagnostics import run_doctor
+from harneloop.environment import connect_environment, render_environment_status
+from harneloop.errors import HarneloopError
+from harneloop.evidence import add_evidence, list_evidence
+from harneloop.onboarding import render_onboarding_json, render_onboarding_markdown
+from harneloop.packaging import package_unit
+from harneloop.runs import add_artifact, finish_run, start_run
+from harneloop.state import mark_active, mark_stopped, mark_waiting, read_state, render_state_markdown
+from harneloop.target import set_target_brief
+from harneloop.templates import list_templates
+from harneloop.unit import init_unit
+from harneloop.validation import validate_unit
+from harneloop.versioning import promote_candidate, rollback_unit
+from harneloop.yamlio import read_yaml
 
 
 class CoreLifecycleTests(unittest.TestCase):
@@ -50,7 +50,7 @@ class CoreLifecycleTests(unittest.TestCase):
             self.assertTrue(package_path.exists())
             with tarfile.open(package_path, "r:gz") as archive:
                 names = archive.getnames()
-            self.assertTrue(any(name.endswith("EVORIG_PACKAGE.json") for name in names))
+            self.assertTrue(any(name.endswith("HARNELOOP_PACKAGE.json") for name in names))
             self.assertTrue(any(name.endswith("operational-map.md") for name in names))
             self.assertTrue(any(name.endswith("agent-facing/principles.md") for name in names))
             self.assertFalse(any("/attempts/" in name for name in names))
@@ -62,7 +62,7 @@ class CoreLifecycleTests(unittest.TestCase):
             (candidate / "changes" / "unit.yaml").write_text("id: changed\n", encoding="utf-8")
             add_evidence(unit, "cand-0001", kind="manual_review", summary="Protected edit test evidence")
 
-            with self.assertRaises(EvoRigError):
+            with self.assertRaises(HarneloopError):
                 promote_candidate(unit, "cand-0001", "0.1.0")
 
     def test_rollback_restores_previous_snapshot(self) -> None:
@@ -232,9 +232,9 @@ class CoreLifecycleTests(unittest.TestCase):
 
             artifact_source = root / "late-artifact.txt"
             artifact_source.write_text("late artifact\n", encoding="utf-8")
-            with self.assertRaisesRegex(EvoRigError, "already finished"):
+            with self.assertRaisesRegex(HarneloopError, "already finished"):
                 add_artifact(unit, "run-0001", artifact_source, kind="text")
-            with self.assertRaisesRegex(EvoRigError, "already finished"):
+            with self.assertRaisesRegex(HarneloopError, "already finished"):
                 finish_run(unit, "run-0001", status="failed", summary="Overwritten result")
 
             run_record = read_yaml(run_root / "run.yaml")
@@ -274,7 +274,7 @@ class CoreLifecycleTests(unittest.TestCase):
             unit = init_unit(root / "unit", "demo", "Demo Unit")
             create_candidate(unit, "Add evidence-backed change")
 
-            with self.assertRaisesRegex(EvoRigError, "Run does not exist"):
+            with self.assertRaisesRegex(HarneloopError, "Run does not exist"):
                 add_evidence(
                     unit,
                     "cand-0001",
@@ -282,7 +282,7 @@ class CoreLifecycleTests(unittest.TestCase):
                     summary="References a missing run.",
                     run_id="run-9999",
                 )
-            with self.assertRaisesRegex(EvoRigError, "requires a run_id"):
+            with self.assertRaisesRegex(HarneloopError, "requires a run_id"):
                 add_evidence(
                     unit,
                     "cand-0001",
@@ -292,7 +292,7 @@ class CoreLifecycleTests(unittest.TestCase):
                 )
 
             start_run(unit, task="Render the artifact")
-            with self.assertRaisesRegex(EvoRigError, "Artifact does not exist"):
+            with self.assertRaisesRegex(HarneloopError, "Artifact does not exist"):
                 add_evidence(
                     unit,
                     "cand-0001",
@@ -301,7 +301,7 @@ class CoreLifecycleTests(unittest.TestCase):
                     run_id="run-0001",
                     artifact_id="artifact-9999",
                 )
-            with self.assertRaisesRegex(EvoRigError, "Evidence file does not exist"):
+            with self.assertRaisesRegex(HarneloopError, "Evidence file does not exist"):
                 add_evidence(
                     unit,
                     "cand-0001",
@@ -335,7 +335,7 @@ class CoreLifecycleTests(unittest.TestCase):
             )
             (unit / artifact["stored_path"]).unlink()
 
-            with self.assertRaisesRegex(EvoRigError, "stored file does not exist"):
+            with self.assertRaisesRegex(HarneloopError, "stored file does not exist"):
                 promote_candidate(unit, "cand-0001", "0.1.0")
             self.assertFalse((unit / "versions" / "0.1.0").exists())
 
@@ -347,7 +347,7 @@ class CoreLifecycleTests(unittest.TestCase):
             change.parent.mkdir(parents=True, exist_ok=True)
             change.write_text("needs evidence\n", encoding="utf-8")
 
-            with self.assertRaises(EvoRigError):
+            with self.assertRaises(HarneloopError):
                 promote_candidate(unit, "cand-0001", "0.1.0")
 
             version_root = promote_candidate(unit, "cand-0001", "0.1.0", require_evidence=False)
@@ -369,7 +369,7 @@ class CoreLifecycleTests(unittest.TestCase):
 
             self.assertTrue((codex_export / "AGENTS.md").exists())
             self.assertTrue((generic_export / "UNIT_AGENT.md").exists())
-            self.assertTrue((cursor_export / "evorig-unit.mdc").exists())
+            self.assertTrue((cursor_export / "harneloop-unit.mdc").exists())
             self.assertIn("Use evidence gates.", (codex_export / "AGENTS.md").read_text(encoding="utf-8"))
 
     def test_target_brief_generates_starter_test_suggestions(self) -> None:
@@ -431,7 +431,7 @@ class CoreLifecycleTests(unittest.TestCase):
             getting_started = (unit / "environment" / "GETTING_STARTED.md").read_text(encoding="utf-8")
             self.assertIn("render_scene", getting_started)
             self.assertIn("baseline run", getting_started)
-            self.assertIn("EvoRig records the mapping", getting_started)
+            self.assertIn("Harneloop records the mapping", getting_started)
 
     def test_agent_attempt_plan_records_custom_workflow(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -492,8 +492,8 @@ class CoreLifecycleTests(unittest.TestCase):
         self.assertIn("What should this harness help an agent get better at", markdown)
         self.assertIn("How should results be validated", markdown)
         self.assertIn("best validation quality", markdown)
-        self.assertIn("evorig target set", markdown)
-        self.assertIn("evorig environment connect", markdown)
+        self.assertIn("harneloop target set", markdown)
+        self.assertIn("harneloop environment connect", markdown)
         self.assertIn("--interaction-mode mcp", markdown)
         self.assertIn("does not discover environment endpoints", markdown)
         self.assertIn("operational-map.md", markdown)

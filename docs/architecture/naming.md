@@ -4,7 +4,7 @@
 
 The portable harness object is called a **harness unit**.
 
-A harness unit is one self-contained EvoRig workspace with control files, agent-facing instructions, candidates, versions, environment contracts, runtime records, and exports.
+A harness unit is one self-contained Harneloop workspace with control files, agent-facing instructions, candidates, versions, environment contracts, runtime records, and exports.
 
 ## Why This Name
 
@@ -14,6 +14,6 @@ A harness unit is one self-contained EvoRig workspace with control files, agent-
 
 Use **harness unit** in user-facing text, docs, menus, prompts, and agent instructions.
 
-Use existing command names such as `evorig init-unit` and `evorig units` for now to avoid churn. Those commands manage harness units.
+Use existing command names such as `harneloop init-unit` and `harneloop units` for now to avoid churn. Those commands manage harness units.
 
 Avoid using bare `unit` in user-facing language unless the surrounding phrase already makes the meaning obvious.

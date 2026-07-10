@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .state import now_iso, update_state
 from .versioning import ensure_unit
 from .yamlio import read_yaml, write_yaml
@@ -44,10 +44,10 @@ def connect_environment(
     ensure_unit(unit_root)
     if mode not in ENVIRONMENT_MODES:
         supported = ", ".join(sorted(ENVIRONMENT_MODES))
-        raise EvoRigError(f"Unknown environment mode `{mode}`. Expected one of: {supported}")
+        raise HarneloopError(f"Unknown environment mode `{mode}`. Expected one of: {supported}")
     if interaction_mode not in INTERACTION_MODES:
         supported = ", ".join(sorted(INTERACTION_MODES))
-        raise EvoRigError(f"Unknown interaction mode `{interaction_mode}`. Expected one of: {supported}")
+        raise HarneloopError(f"Unknown interaction mode `{interaction_mode}`. Expected one of: {supported}")
 
     root = environment_root(unit_root)
     root.mkdir(parents=True, exist_ok=True)
@@ -77,7 +77,7 @@ def connect_environment(
 def read_environment_contract(unit_root: Path) -> dict[str, Any]:
     path = contract_path(unit_root)
     if not path.exists():
-        raise EvoRigError("No environment contract exists. Run `evorig environment connect` first.")
+        raise HarneloopError("No environment contract exists. Run `harneloop environment connect` first.")
     return read_yaml(path)
 
 
@@ -142,12 +142,12 @@ def render_getting_started(contract: dict[str, Any]) -> str:
         "1. Read `target/brief.yaml` and `target/TEST_SUGGESTIONS.md`.",
         "2. Read `environment/contract.yaml` and this file.",
         "3. Perform a baseline run before changing the harness.",
-        "4. Capture artifacts with `evorig artifact add`.",
+        "4. Capture artifacts with `harneloop artifact add`.",
         "5. Add candidate evidence before promotion.",
         "",
         "## Responsibility Boundary",
         "",
-        "EvoRig records the mapping between the target task, environment interface, and produced artifacts. It does not discover tools, endpoints, commands, or artifact paths by itself. The onboarding agent must inspect the real workspace, identify how the test environment works, and update this contract when the mapping is incomplete.",
+        "Harneloop records the mapping between the target task, environment interface, and produced artifacts. It does not discover tools, endpoints, commands, or artifact paths by itself. The onboarding agent must inspect the real workspace, identify how the test environment works, and update this contract when the mapping is incomplete.",
     ]
     if interaction_mode == "mcp":
         tools = contract.get("tools") or []
@@ -162,7 +162,7 @@ def render_getting_started(contract: dict[str, Any]) -> str:
                 "",
                 "1. Use the MCP tools to create or modify the artifact-producing scene/task.",
                 "2. Use the MCP tools to render, capture screenshots, or export structured summaries.",
-                "3. Add each produced artifact to the EvoRig run record.",
+                "3. Add each produced artifact to the Harneloop run record.",
                 "4. Compare the artifacts against the target success criteria.",
             ]
         )
@@ -185,7 +185,7 @@ def render_getting_started(contract: dict[str, Any]) -> str:
                 "",
                 "## Custom Workflow",
                 "",
-                "Follow the environment notes and capture artifacts into EvoRig run records.",
+                "Follow the environment notes and capture artifacts into Harneloop run records.",
             ]
         )
     return "\n".join(lines) + "\n"

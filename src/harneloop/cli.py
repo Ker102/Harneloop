@@ -8,7 +8,7 @@ from pathlib import Path
 from .candidate import create_candidate
 from .diagnostics import run_doctor
 from .environment import ENVIRONMENT_MODES, INTERACTION_MODES, connect_environment, render_environment_status
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .evidence import add_evidence
 from .adapters import SUPPORTED_ADAPTERS, export_unit
 from .attempts import add_attempt_observation, create_attempt_plan
@@ -32,7 +32,7 @@ from .versioning import promote_candidate, rollback_unit
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="evorig", description="EvoRig harness-unit lifecycle engine")
+    parser = argparse.ArgumentParser(prog="harneloop", description="Harneloop harness-unit lifecycle engine")
     subparsers = parser.add_subparsers(dest="command")
 
     onboard_parser = subparsers.add_parser("onboard", help="Print the new-harness onboarding checklist")
@@ -52,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
     units_remove.add_argument("unit_id_or_path")
     units_remove.add_argument("--home", type=Path)
 
-    settings_parser = subparsers.add_parser("settings", help="View and update EvoRig preferences")
+    settings_parser = subparsers.add_parser("settings", help="View and update Harneloop preferences")
     settings_subparsers = settings_parser.add_subparsers(dest="settings_command", required=True)
     settings_show = settings_subparsers.add_parser("show", help="Show current preferences")
     settings_show.add_argument("--home", type=Path)
@@ -161,7 +161,7 @@ def build_parser() -> argparse.ArgumentParser:
     status_parser.add_argument("unit", type=Path)
     status_parser.add_argument("--format", choices=["json", "markdown"], default="json")
 
-    doctor_parser = subparsers.add_parser("doctor", help="Check local EvoRig runtime prerequisites")
+    doctor_parser = subparsers.add_parser("doctor", help="Check local Harneloop runtime prerequisites")
     doctor_parser.add_argument("--json", action="store_true", dest="json_output")
     doctor_parser.add_argument("--cwd", type=Path, default=Path.cwd())
 
@@ -244,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "setup":
             if not sys.stdin.isatty():
-                print("error: `evorig setup` requires an interactive terminal", file=sys.stderr)
+                print("error: `harneloop setup` requires an interactive terminal", file=sys.stderr)
                 return 2
             from .interactive import run_interactive_setup
 
@@ -270,7 +270,7 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
             if args.units_command == "register":
                 if not (args.unit / "unit.yaml").exists():
-                    raise EvoRigError(f"Not an EvoRig harness unit: {args.unit}")
+                    raise HarneloopError(f"Not a Harneloop harness unit: {args.unit}")
                 record = register_unit(args.home, args.unit)
                 print(f"Registered harness unit: {record['name']} ({record['id']})")
                 return 0
@@ -457,7 +457,7 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(state, indent=2))
             return 0
 
-    except EvoRigError as exc:
+    except HarneloopError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 

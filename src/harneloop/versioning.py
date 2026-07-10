@@ -7,7 +7,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .locking import file_lock, harness_lock_path
 from .paths import is_protected_candidate_path, packageable_files, relative_posix
 from .state import now_iso, update_state
@@ -24,13 +24,13 @@ def hash_file(path: Path) -> str:
 
 def ensure_unit(unit_root: Path) -> None:
     if not (unit_root / "unit.yaml").exists():
-        raise EvoRigError(f"Not an EvoRig harness unit: {unit_root}")
+        raise HarneloopError(f"Not a Harneloop harness unit: {unit_root}")
 
 
 def candidate_root(unit_root: Path, candidate_id: str) -> Path:
     root = unit_root / "candidates" / candidate_id
     if not root.exists():
-        raise EvoRigError(f"Candidate does not exist: {candidate_id}")
+        raise HarneloopError(f"Candidate does not exist: {candidate_id}")
     return root
 
 
@@ -56,7 +56,7 @@ def apply_candidate_overlay(unit_root: Path, candidate: Path) -> list[str]:
     blocked = validate_candidate_overlay(candidate)
     if blocked:
         blocked_text = ", ".join(sorted(blocked))
-        raise EvoRigError(f"Candidate modifies protected paths: {blocked_text}")
+        raise HarneloopError(f"Candidate modifies protected paths: {blocked_text}")
 
     applied: list[str] = []
     for source in sorted(changes_root.rglob("*")):
@@ -118,9 +118,9 @@ def require_candidate_evidence(unit_root: Path, candidate_id: str) -> None:
     from .evidence import has_promotion_evidence
 
     if not has_promotion_evidence(unit_root, candidate_id):
-        raise EvoRigError(
+        raise HarneloopError(
             "Candidate promotion requires evidence. Add evidence with "
-            "`evorig candidate evidence add` or pass --allow-missing-evidence for development-only promotion."
+            "`harneloop candidate evidence add` or pass --allow-missing-evidence for development-only promotion."
         )
 
 
@@ -138,13 +138,13 @@ def promote_candidate(
         candidate_meta_path = candidate / "candidate.yaml"
         candidate_meta = read_yaml(candidate_meta_path)
         if candidate_meta.get("status") == "promoted":
-            raise EvoRigError(f"Candidate is already promoted: {candidate_id}")
+            raise HarneloopError(f"Candidate is already promoted: {candidate_id}")
         if require_evidence:
             require_candidate_evidence(unit_root, candidate_id)
 
         version_root = unit_root / "versions" / version
         if version_root.exists():
-            raise EvoRigError(f"Version already exists: {version}")
+            raise HarneloopError(f"Version already exists: {version}")
 
         applied = apply_candidate_overlay(unit_root, candidate)
 
@@ -201,7 +201,7 @@ def rollback_unit(unit_root: Path, version: str) -> Path:
         version_root = unit_root / "versions" / version
         snapshot_root = version_root / "snapshot"
         if not snapshot_root.exists():
-            raise EvoRigError(f"Version snapshot does not exist: {version}")
+            raise HarneloopError(f"Version snapshot does not exist: {version}")
 
         for path in packageable_files(unit_root):
             path.unlink()

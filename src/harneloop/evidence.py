@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .locking import file_lock, harness_lock_path
 from .runs import read_run
 from .state import now_iso
@@ -40,31 +40,31 @@ def validate_evidence_references(unit_root: Path, record: dict[str, Any]) -> Non
     evidence_path = record.get("path")
 
     if artifact_id and not run_id:
-        raise EvoRigError(f"Evidence artifact `{artifact_id}` requires a run_id")
+        raise HarneloopError(f"Evidence artifact `{artifact_id}` requires a run_id")
 
     run_record: dict[str, Any] | None = None
     if run_id:
         run_file = unit_root / "runtime" / "runs" / str(run_id) / "run.yaml"
         if not run_file.is_file():
-            raise EvoRigError(f"Run does not exist: {run_id}")
+            raise HarneloopError(f"Run does not exist: {run_id}")
         run_record = read_run(unit_root, str(run_id))
 
     if artifact_id:
         artifacts = (run_record.get("artifacts") or []) if run_record else []
         artifact = next((item for item in artifacts if item.get("id") == artifact_id), None)
         if artifact is None:
-            raise EvoRigError(f"Artifact does not exist in run `{run_id}`: {artifact_id}")
+            raise HarneloopError(f"Artifact does not exist in run `{run_id}`: {artifact_id}")
         stored_path = artifact.get("stored_path")
         stored_file = (unit_root / str(stored_path)).resolve() if stored_path else None
         if stored_file is None or not stored_file.is_file():
-            raise EvoRigError(f"Artifact stored file does not exist for `{artifact_id}` in run `{run_id}`")
+            raise HarneloopError(f"Artifact stored file does not exist for `{artifact_id}` in run `{run_id}`")
 
     if evidence_path:
         referenced_file = Path(str(evidence_path))
         if not referenced_file.is_absolute():
             referenced_file = unit_root / referenced_file
         if not referenced_file.is_file():
-            raise EvoRigError(f"Evidence file does not exist: {referenced_file}")
+            raise HarneloopError(f"Evidence file does not exist: {referenced_file}")
 
 
 def add_evidence(
@@ -79,7 +79,7 @@ def add_evidence(
 ) -> dict[str, Any]:
     ensure_unit(unit_root)
     if not summary.strip():
-        raise EvoRigError("Evidence summary cannot be empty")
+        raise HarneloopError("Evidence summary cannot be empty")
 
     unit_root = unit_root.resolve()
     with file_lock(harness_lock_path(unit_root, f"candidate-{candidate_id}-evidence")):

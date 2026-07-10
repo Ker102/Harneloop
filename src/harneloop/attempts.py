@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .locking import file_lock, harness_lock_path
 from .state import now_iso, update_state
 from .versioning import ensure_unit
@@ -34,7 +34,7 @@ def next_attempt_id(unit_root: Path) -> str:
 def attempt_path(unit_root: Path, attempt_id: str) -> Path:
     path = attempts_root(unit_root) / attempt_id
     if not path.exists():
-        raise EvoRigError(f"Attempt plan does not exist: {attempt_id}")
+        raise HarneloopError(f"Attempt plan does not exist: {attempt_id}")
     return path
 
 
@@ -60,9 +60,9 @@ def create_attempt_plan(
     unit_root = unit_root.resolve()
     ensure_unit(unit_root)
     if not goal.strip():
-        raise EvoRigError("Attempt goal cannot be empty")
+        raise HarneloopError("Attempt goal cannot be empty")
     if not method.strip():
-        raise EvoRigError("Attempt method cannot be empty")
+        raise HarneloopError("Attempt method cannot be empty")
 
     with file_lock(harness_lock_path(unit_root, "attempts")):
         attempt_id = next_attempt_id(unit_root)
@@ -98,7 +98,7 @@ def add_attempt_observation(
     finding: list[str] | tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
     if not summary.strip():
-        raise EvoRigError("Observation summary cannot be empty")
+        raise HarneloopError("Observation summary cannot be empty")
     unit_root = unit_root.resolve()
     with file_lock(harness_lock_path(unit_root, f"attempt-{attempt_id}")):
         data = read_attempt(unit_root, attempt_id)

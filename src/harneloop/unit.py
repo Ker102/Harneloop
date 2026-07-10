@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .errors import EvoRigError
+from .errors import HarneloopError
 from .operational_map import write_initial_operational_map
 from .state import now_iso, write_state
 from .templates import apply_template
@@ -32,7 +32,7 @@ RECOMMENDED_DIRS = [
 def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> Path:
     unit_root = path.resolve()
     if unit_root.exists() and any(unit_root.iterdir()):
-        raise EvoRigError(f"Harness unit path is not empty: {unit_root}")
+        raise HarneloopError(f"Harness unit path is not empty: {unit_root}")
 
     unit_root.mkdir(parents=True, exist_ok=True)
     for directory in RECOMMENDED_DIRS:
@@ -44,8 +44,8 @@ def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> P
             "schema_version": "0.1",
             "id": unit_id,
             "name": name,
-            "working_product_name": "EvoRig",
-            "name_status": "temporary",
+            "product_name": "Harneloop",
+            "name_status": "selected",
             "template": template,
             "created_at": now_iso(),
             "current_version": None,
@@ -67,7 +67,7 @@ def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> P
                 "- Create candidate patches before changing promoted harness material.",
                 "- Put exploratory work inside candidate, experiment, tool, memory, or research folders.",
                 "- Do not edit framework-owned state, promoted versions, or provenance by hand.",
-                "- Promotion must go through the EvoRig engine.",
+                "- Promotion must go through the Harneloop engine.",
                 "- Stop and wait states are normal lifecycle outcomes when evidence, time, or permissions require it.",
             ]
         )
