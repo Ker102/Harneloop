@@ -1,12 +1,16 @@
 # EvoRig
 
-EvoRig helps an AI agent improve the harness around itself for a specific kind of work.
+EvoRig is an agent-first framework for building and improving task-specific AI agent harnesses through evidence-backed trial and error.
 
-In plain language: the agent tries a real task, looks at what it actually produced, traces what went wrong, changes its instructions, tools, context, validators, or environment, and tests again. EvoRig keeps that process organized and prevents an untested change from silently becoming the new harness.
+The agent first tries its best to produce the desired result in the real environment. EvoRig records the attempt and its evidence: generated artifacts, visual outputs, files, logs, traces, structured state, and other signals that help explain what happened. The agent inspects the result, compares it with the intended outcome, and follows the recorded evidence back through the run to identify where a likely mistake was introduced.
 
-It is built for tasks where a normal pass/fail test is not enough. A Blender scene may need to be rendered and visually inspected. An SVG may need to be opened in a browser. A coding agent may need to examine runtime behavior, screenshots, traces, and generated files together.
+The agent can then propose a candidate change to its instructions, context, tools, retrieval, validators, or environment and test the task again. The active harness does not change merely because a candidate was created. EvoRig promotes the candidate only after the new evidence supports an improvement and the change passes the unit's relevant checks.
 
-> EvoRig is not another agent runtime or evaluation dashboard. It is the artifact-aware development and versioning layer used by an agent to build a better harness.
+Each task-specific development environment is called a **harness unit**. A harness unit keeps the goal, environment map, harness material, experiments, evidence, regression cases, and restorable versions together in a portable directory. It is designed to be paused, moved, continued by another compatible agent or machine, and exported into the environment where the improved harness will be used.
+
+EvoRig is optimized for setup and operation by AI agents. Give a capable agent the repository link and describe what you want the harness to improve. The agent can install EvoRig, onboard itself, inspect or build the testing environment, and create the first harness unit. It may ask a few questions when important context or permission is missing. A guided manual setup and full CLI are also available.
+
+> EvoRig is not another agent runtime or evaluation dashboard. It is the artifact-aware development and versioning layer an agent uses to build a better harness without replacing the working version before an improvement is proven.
 
 **Project status:** private alpha. The core lifecycle works, but commands and file formats may still change before the first public release.
 
@@ -41,9 +45,7 @@ The agent is free to reason and experiment inside the harness workspace. EvoRig 
 
 ## What Is A Harness Unit?
 
-A **harness unit** is a portable workspace for improving one task family.
-
-For example, one harness unit could focus on spatial scene construction in Blender. Another could focus on generating accurate SVG illustrations. A third could improve how an agent investigates browser bugs. Each unit develops independently and keeps its own environment map, experiments, evidence, regression cases, and promoted versions.
+A **harness unit** is a portable workspace for improving one task family. Each unit develops independently and keeps its own target definition, environment map, harness material, experiments, evidence, regression cases, and promoted versions.
 
 A new unit begins with this structure:
 
