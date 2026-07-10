@@ -105,7 +105,29 @@ The default `thin` package contains the promoted knowledge and contracts needed 
 
 Finished runs are immutable. Candidate evidence is checked when attached and checked again at promotion, so deleted runs, missing artifacts, or missing evidence files cannot support a release.
 
-See the [vertical process diagram](docs/framework-process.md) for the complete loop.
+```mermaid
+flowchart TB
+    subgraph OBSERVE["1. Observe"]
+        direction LR
+        G["Goal + environment"] --> A["Attempt real task"] --> I["Capture + inspect evidence"]
+    end
+
+    subgraph IMPROVE["2. Improve"]
+        direction LR
+        D["Trace likely failure"] --> C["Create candidate"] --> T["Retest + regressions"]
+    end
+
+    subgraph PROMOTE["3. Decide"]
+        direction LR
+        Q{"Improvement proven?"} -->|Yes| P["Promote version"] --> X["Continue, export, or package"]
+        Q -->|No| R["Revise candidate<br/>and repeat"]
+    end
+
+    I --> D
+    T --> Q
+```
+
+See the [detailed process diagram](docs/framework-process.md) for capability gaps, human input, waiting, stopping, and the complete artifact-aware loop. A standalone copy of this smaller graph is available in [the compact lifecycle document](docs/framework-process-compact.md).
 
 ## What Makes It Different?
 

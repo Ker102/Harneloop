@@ -1,0 +1,19 @@
+flowchart TB
+    subgraph OBSERVE["1. Observe"]
+        direction LR
+        G["Goal + environment"] --> A["Attempt real task"] --> I["Capture + inspect evidence"]
+    end
+
+    subgraph IMPROVE["2. Improve"]
+        direction LR
+        D["Trace likely failure"] --> C["Create candidate"] --> T["Retest + regressions"]
+    end
+
+    subgraph PROMOTE["3. Decide"]
+        direction LR
+        Q{"Improvement proven?"} -->|Yes| P["Promote version"] --> X["Continue, export, or package"]
+        Q -->|No| R["Revise candidate<br/>and repeat"]
+    end
+
+    I --> D
+    T --> Q

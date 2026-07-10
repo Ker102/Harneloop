@@ -2,6 +2,8 @@
 
 EvoRig gives an operating agent a persistent, evidence-gated loop for improving the harness around a target agent. The operating agent still chooses how to work: EvoRig records the evolving environment, artifacts, candidate changes, and promotion history without reducing the process to a fixed test script.
 
+For a smaller three-stage version suitable for README placement or a roughly 4:3 graphic, see the [compact lifecycle](framework-process-compact.md).
+
 ```mermaid
 flowchart TD
     U["User goal and context"] --> M["Operational map<br/>tools, environment, evidence, assumptions"]
