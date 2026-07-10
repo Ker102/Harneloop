@@ -111,6 +111,8 @@ def add_artifact(
 
     with file_lock(harness_lock_path(unit_root, f"run-{run_id}")):
         run_record = read_run(unit_root, run_id)
+        if run_record.get("status") != "running":
+            raise EvoRigError(f"Run is already finished and cannot accept artifacts: {run_id}")
         existing_artifacts = run_record.get("artifacts") or []
         artifact_id = f"artifact-{len(existing_artifacts) + 1:04d}"
         target_name = name or source.name
@@ -143,6 +145,8 @@ def finish_run(unit_root: Path, run_id: str, status: str, summary: str | None = 
     unit_root = unit_root.resolve()
     with file_lock(harness_lock_path(unit_root, f"run-{run_id}")):
         run_record = read_run(unit_root, run_id)
+        if run_record.get("status") != "running":
+            raise EvoRigError(f"Run is already finished and cannot be finished again: {run_id}")
         run_record["status"] = status
         run_record["summary"] = summary
         run_record["finished_at"] = now_iso()

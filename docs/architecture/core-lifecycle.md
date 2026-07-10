@@ -52,6 +52,12 @@ Candidate changes are applied through the framework. Candidate overlays cannot e
 
 Promotion applies a candidate overlay to the harness unit, creates a restorable snapshot under `versions/`, updates provenance, and clears the active candidate.
 
+Evidence references are integrity-checked when they are attached and again at promotion. A declared run and artifact must exist, the artifact's stored file must still be present, and any directly referenced evidence file must exist. Narrative evidence may omit these references.
+
+## Run Integrity
+
+A run is mutable only while its status is `running`. Artifacts can be attached during that phase. The first successful `run finish` transition is terminal: later artifact additions and repeated finish attempts are rejected so the original result cannot be silently rewritten.
+
 ## Rollback
 
 Rollback restores a prior promoted snapshot. It should be a framework action with provenance, not a manual copy.
@@ -63,3 +69,5 @@ The runtime lifecycle supports explicit waiting and stopping.
 Waiting covers delayed artifacts, human review, queued jobs, cooldowns, and infrastructure rebuilds.
 
 Stopping covers sufficient evidence, plateau, capability frontier concerns, permission needs, or cases where the next useful step depends on a human or external system.
+
+See [How EvoRig Works](../framework-process.md) for the full artifact-aware evolution loop.

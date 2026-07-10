@@ -223,10 +223,34 @@ class CoreLifecycleTests(unittest.TestCase):
             self.assertEqual(finished["status"], "succeeded")
             self.assertEqual(finished["summary"], "Artifact captured")
 
+    def test_finished_run_rejects_artifacts_and_second_finish(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            unit = init_unit(root / "unit", "demo", "Demo Unit")
+            run_root = start_run(unit, task="Create a simple artifact")
+            finish_run(unit, "run-0001", status="succeeded", summary="Original result")
+
+            artifact_source = root / "late-artifact.txt"
+            artifact_source.write_text("late artifact\n", encoding="utf-8")
+            with self.assertRaisesRegex(EvoRigError, "already finished"):
+                add_artifact(unit, "run-0001", artifact_source, kind="text")
+            with self.assertRaisesRegex(EvoRigError, "already finished"):
+                finish_run(unit, "run-0001", status="failed", summary="Overwritten result")
+
+            run_record = read_yaml(run_root / "run.yaml")
+            self.assertEqual(run_record["status"], "succeeded")
+            self.assertEqual(run_record["summary"], "Original result")
+            self.assertEqual(run_record["artifacts"], [])
+
     def test_candidate_evidence_records_are_created(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
-            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            root = Path(temp_dir)
+            unit = init_unit(root / "unit", "demo", "Demo Unit")
             create_candidate(unit, "Add evidence-backed change")
+            start_run(unit, task="Render the artifact")
+            artifact_source = root / "render.png"
+            artifact_source.write_bytes(b"rendered artifact")
+            add_artifact(unit, "run-0001", artifact_source, kind="image")
 
             evidence = add_evidence(
                 unit,
@@ -243,6 +267,77 @@ class CoreLifecycleTests(unittest.TestCase):
             records = list_evidence(unit, "cand-0001")
             self.assertEqual(len(records), 1)
             self.assertEqual(records[0]["summary"], "Rendered artifact matches the task.")
+
+    def test_candidate_evidence_rejects_missing_references(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            unit = init_unit(root / "unit", "demo", "Demo Unit")
+            create_candidate(unit, "Add evidence-backed change")
+
+            with self.assertRaisesRegex(EvoRigError, "Run does not exist"):
+                add_evidence(
+                    unit,
+                    "cand-0001",
+                    kind="artifact_review",
+                    summary="References a missing run.",
+                    run_id="run-9999",
+                )
+            with self.assertRaisesRegex(EvoRigError, "requires a run_id"):
+                add_evidence(
+                    unit,
+                    "cand-0001",
+                    kind="artifact_review",
+                    summary="Artifact has no owning run.",
+                    artifact_id="artifact-0001",
+                )
+
+            start_run(unit, task="Render the artifact")
+            with self.assertRaisesRegex(EvoRigError, "Artifact does not exist"):
+                add_evidence(
+                    unit,
+                    "cand-0001",
+                    kind="artifact_review",
+                    summary="References a missing artifact.",
+                    run_id="run-0001",
+                    artifact_id="artifact-9999",
+                )
+            with self.assertRaisesRegex(EvoRigError, "Evidence file does not exist"):
+                add_evidence(
+                    unit,
+                    "cand-0001",
+                    kind="report",
+                    summary="References a missing report.",
+                    path=root / "missing-report.md",
+                )
+
+            self.assertEqual(list_evidence(unit, "cand-0001"), [])
+
+    def test_promotion_revalidates_evidence_references(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            unit = init_unit(root / "unit", "demo", "Demo Unit")
+            candidate = create_candidate(unit, "Add evidence-backed change")
+            change = candidate / "changes" / "agent-facing" / "principles.md"
+            change.parent.mkdir(parents=True, exist_ok=True)
+            change.write_text("inspect artifacts\n", encoding="utf-8")
+
+            start_run(unit, task="Render the artifact")
+            artifact_source = root / "render.png"
+            artifact_source.write_bytes(b"rendered artifact")
+            artifact = add_artifact(unit, "run-0001", artifact_source, kind="image")
+            add_evidence(
+                unit,
+                "cand-0001",
+                kind="artifact_review",
+                summary="The render supports this change.",
+                run_id="run-0001",
+                artifact_id=artifact["id"],
+            )
+            (unit / artifact["stored_path"]).unlink()
+
+            with self.assertRaisesRegex(EvoRigError, "stored file does not exist"):
+                promote_candidate(unit, "cand-0001", "0.1.0")
+            self.assertFalse((unit / "versions" / "0.1.0").exists())
 
     def test_promotion_requires_evidence_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

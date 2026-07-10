@@ -6,6 +6,12 @@ EvoRig is a protocol-first framework for building self-evolving agent harnesses.
 
 The name may change before public launch. The architecture should not depend on the name.
 
+## Process At A Glance
+
+The operating agent maps the target environment, performs real tasks, captures and inspects artifacts, traces weak results, and proposes concrete harness candidates. EvoRig then verifies the evidence references and promotes only supported candidates into restorable versions.
+
+See [How EvoRig Works](docs/framework-process.md) for the rendered process diagram and the responsibilities of the operating agent, harness unit, and framework engine.
+
 ## Current Core
 
 This repository starts with the generic lifecycle engine:
