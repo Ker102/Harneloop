@@ -1,134 +1,333 @@
 # EvoRig
 
-Temporary working name.
+EvoRig helps an AI agent improve the harness around itself for a specific kind of work.
 
-EvoRig is a protocol-first framework for building self-evolving agent harnesses. The first goal is not to build another eval dashboard. The goal is to give agents a structured way to attempt artifact-producing tasks, inspect what actually happened, trace failures, propose candidate harness changes, test those changes, and promote only evidence-backed improvements.
+In plain language: the agent tries a real task, looks at what it actually produced, traces what went wrong, changes its instructions, tools, context, validators, or environment, and tests again. EvoRig keeps that process organized and prevents an untested change from silently becoming the new harness.
 
-The name may change before public launch. The architecture should not depend on the name.
+It is built for tasks where a normal pass/fail test is not enough. A Blender scene may need to be rendered and visually inspected. An SVG may need to be opened in a browser. A coding agent may need to examine runtime behavior, screenshots, traces, and generated files together.
 
-## Process At A Glance
+> EvoRig is not another agent runtime or evaluation dashboard. It is the artifact-aware development and versioning layer used by an agent to build a better harness.
 
-The operating agent maps the target environment, performs real tasks, captures and inspects artifacts, traces weak results, and proposes concrete harness candidates. EvoRig then verifies the evidence references and promotes only supported candidates into restorable versions.
+**Project status:** private alpha. The core lifecycle works, but commands and file formats may still change before the first public release.
 
-See [How EvoRig Works](docs/framework-process.md) for the rendered process diagram and the responsibilities of the operating agent, harness unit, and framework engine.
+## Start Here
 
-## Current Core
+- **Using EvoRig through an agent:** [Agent Quick Start](#agent-quick-start)
+- **Installing it yourself:** [Install And Start](#install-and-start)
+- **Understanding harness units:** [What Is A Harness Unit?](#what-is-a-harness-unit)
+- **Understanding the loop:** [The Lifecycle, Made Simple](#the-lifecycle-made-simple)
+- **Connecting a real environment:** [Environment Setup](#environment-setup)
+- **Changing defaults:** [Configuration](#configuration)
+- **Technical architecture:** [Core lifecycle](docs/architecture/core-lifecycle.md), [runtime layers](docs/architecture/runtime-layers.md), and [concurrency](docs/architecture/concurrency.md)
+- **Full agent instructions:** [Agent onboarding](docs/agent-onboarding.md)
+- **Visual process:** [How EvoRig works](docs/framework-process.md)
 
-This repository starts with the generic lifecycle engine:
+## Why EvoRig Exists
 
-- create portable harness units;
-- create candidate harness patches;
-- keep agents inside candidate sandboxes;
-- protect framework-owned control files;
-- promote candidates into restorable version snapshots;
-- roll back to prior snapshots;
-- package thin units;
-- record explicit wait, stop, and resume state.
+Models often repeat the same failures because the useful lessons from one attempt never become a tested part of their working environment. Adding a larger prompt or collecting an evaluation score does not solve the whole problem.
 
-The first demo may use Blender, but the framework core must stay task-family-neutral.
+EvoRig gives the operating agent a controlled improvement loop:
 
-## Development Status
+- work on the real task rather than only a synthetic benchmark;
+- capture renders, screenshots, files, traces, logs, structured state, or other artifacts;
+- inspect those artifacts visually, structurally, or behaviorally;
+- trace weak results back to instructions, tools, context, retrieval, environment, or model limits;
+- develop improvements as isolated candidate patches;
+- test candidates against new attempts and regression cases;
+- promote only changes supported by valid evidence;
+- preserve restorable versions and package the resulting harness for reuse.
 
-Private prototype. API and file formats are expected to change.
+The agent is free to reason and experiment inside the harness workspace. EvoRig controls the integrity-sensitive boundaries: records, protected state, evidence, promotion, snapshots, rollback, and packaging.
 
-## Quick Start
+## What Is A Harness Unit?
 
-From this repository:
+A **harness unit** is a portable workspace for improving one task family.
+
+For example, one harness unit could focus on spatial scene construction in Blender. Another could focus on generating accurate SVG illustrations. A third could improve how an agent investigates browser bugs. Each unit develops independently and keeps its own environment map, experiments, evidence, regression cases, and promoted versions.
+
+A new unit begins with this structure:
+
+```text
+my-harness-unit/
+  unit.yaml                 identity and current version
+  UNIT_AGENT.md             instructions for agents entering the unit
+  operational-map.md        current understanding of tools, artifacts, and workflow
+  target/                   task goal and suggested first tests
+  environment/              contract for commands, MCP tools, apps, and artifact paths
+  agent-facing/             promoted instructions and context
+  tools/                    unit-specific helper tools
+  observers/                ways to inspect outputs
+  validators/               deterministic or agent-driven checks
+  regression-cases/         failures that future candidates should not repeat
+  candidates/               isolated proposed harness changes
+  runtime/                  local runs and captured artifacts
+  versions/                 restorable promoted snapshots
+  provenance/               human-readable change history
+```
+
+This is not a restrictive template. Agents can add research, scripts, retrieval data, infrastructure declarations, memory, custom observers, or entirely new folders. The framework protects only the files and lifecycle rules needed to keep the unit understandable and recoverable.
+
+### Portable Unit Versus Local Working Data
+
+The reusable harness material belongs in the portable unit. Raw traces, temporary experiments, caches, secrets, unpromoted candidates, and every historical render do not.
+
+The default `thin` package contains the promoted knowledge and contracts needed to rebuild or integrate the harness. Runtime evidence remains local unless a future package profile explicitly includes it.
+
+## The Lifecycle, Made Simple
+
+1. **Describe the goal.** The user explains what the agent should become better at.
+2. **Map the environment.** The operating agent discovers how the real task is performed and where useful evidence comes from.
+3. **Run a baseline.** The agent attempts the task before changing the harness.
+4. **Inspect the result.** It examines real artifacts and records concrete findings.
+5. **Create a candidate.** Instructions, tools, retrieval, validators, examples, or infrastructure are changed in an isolated workspace.
+6. **Test the candidate.** The agent runs relevant and regression tasks and attaches evidence.
+7. **Promote, revise, wait, or stop.** Supported improvements become a version. Weak candidates are revised or rejected. Delayed evidence and model limits are recorded rather than hidden.
+8. **Export or package.** The promoted harness can be applied to a coding agent, application agent, or another compatible environment.
+
+Finished runs are immutable. Candidate evidence is checked when attached and checked again at promotion, so deleted runs, missing artifacts, or missing evidence files cannot support a release.
+
+See the [vertical process diagram](docs/framework-process.md) for the complete loop.
+
+## What Makes It Different?
+
+### Artifact-aware
+
+EvoRig treats the produced thing as evidence. The agent can inspect an image, scene, UI, document, generated repository, runtime trace, database state, or any other useful output instead of trusting its own textual report.
+
+### Harness-building, not only scoring
+
+The purpose is not merely to report that an agent failed. The operating agent diagnoses the failure and develops a concrete harness change that may include prompts, principles, examples, retrieval, tools, observers, validators, regression cases, or environment automation.
+
+### Evidence-gated self-improvement
+
+The active agent cannot freely rewrite the promoted harness. It creates a candidate, tests it, attaches evidence, and promotes it through the framework. Every promoted version can be inspected and restored.
+
+### Environment-agnostic
+
+The core does not depend on Blender, SVGs, Python agents, or a specific model provider. A unit can use terminal commands, MCP servers, browser automation, desktop apps, APIs, manual steps, or a custom tool interface.
+
+### Reasoning remains open-ended
+
+EvoRig structures the lifecycle without turning the operating agent into a fixed script. The agent still chooses the appropriate tests, artifacts, evaluation strategy, tools, and stopping point for the task.
+
+## Agent Quick Start
+
+EvoRig is designed to be used primarily by talking to an agent with filesystem and terminal access.
+
+Give the agent the repository and a prompt like this:
+
+```text
+Read this repository's README.md and docs/agent-onboarding.md.
+Use EvoRig to create a harness unit that improves an agent at: [describe the task].
+
+Inspect my existing environment before deciding how to test it. Ask only for context
+that is genuinely missing. Run a baseline, capture and inspect real artifacts when
+they provide useful evidence, and develop improvements through EvoRig candidates.
+Do not promote a candidate without evidence.
+```
+
+The agent should then:
+
+1. Install the local package if needed and run `evorig doctor`.
+2. Read `evorig onboard --format json` or [the onboarding guide](docs/agent-onboarding.md).
+3. Ask the minimum setup questions.
+4. Create or continue a harness unit.
+5. Inspect the actual workspace, tools, and testing environment.
+6. Update `operational-map.md` with its current understanding.
+7. Connect the environment and perform a baseline before proposing improvements.
+
+### Instructions For Agents Reading This Repository
+
+If you are the operating agent:
+
+- Do not assume every task has a test command.
+- Do not assume EvoRig discovers endpoints, tools, screenshots, or artifact paths for you.
+- Read `UNIT_AGENT.md`, `operational-map.md`, `CURRENT_STATE.md`, and `NEXT_ACTION.md` when entering a unit.
+- Inspect the real environment and map it into `target/` and `environment/`.
+- Prefer real artifact inspection when deterministic checks cannot establish quality.
+- Separate your own capabilities from tools being designed for the target agent.
+- Put proposed harness changes in a candidate workspace.
+- Use EvoRig commands for runs, artifacts, evidence, promotion, rollback, wait, stop, and resume.
+- Ask before adding credentials, paid services, external access, security-sensitive tools, or expensive infrastructure.
+- Update the operational map when assumptions, artifact paths, tools, or automation change.
+
+Machine-readable onboarding is available through:
+
+```bash
+evorig onboard --format json
+```
+
+## Install And Start
+
+EvoRig currently installs from the repository.
+
+### Windows PowerShell
 
 ```powershell
+git clone https://github.com/Ker102/EvoRig.git
+cd EvoRig
 python -m venv .venv
 .\.venv\Scripts\python -m pip install -e .
 .\.venv\Scripts\evorig doctor
+.\.venv\Scripts\evorig setup
 ```
 
-On macOS or Linux:
+### macOS Or Linux
 
 ```bash
+git clone https://github.com/Ker102/EvoRig.git
+cd EvoRig
 python3 -m venv .venv
 ./.venv/bin/python -m pip install -e .
 ./.venv/bin/evorig doctor
+./.venv/bin/evorig setup
 ```
 
-You can also run without installing by setting `PYTHONPATH=src` or using your agent's equivalent environment setup.
+`evorig setup` opens the guided human-facing CLI. Running `evorig` without a command opens the broader interactive menu in a terminal. Agents can use the explicit non-interactive commands directly.
 
-For the guided human-facing CLI:
+Useful first commands:
 
-```powershell
-evorig setup
-```
-
-For harness unit and preference management:
-
-```powershell
+```bash
+evorig onboard
+evorig template list
 evorig units list
 evorig settings show
 ```
 
-If you are an agent starting a new harness, run the onboarding checklist first:
+## What The Agent Asks You
 
-```powershell
-evorig onboard
+New-unit onboarding is intentionally short. The agent should collect five pieces of context:
+
+1. What should this harness help an agent become better at?
+2. Where will the harness be used?
+3. Should you define success, should the agent propose it, or should it be decided after a baseline?
+4. Should validation prioritize quality, visual evidence, balance, or resource efficiency?
+5. Does a testing environment already exist, partly exist, or need to be built?
+
+You do not need to know the perfect tests or artifacts in advance. When appropriate, the agent should propose them after inspecting the task and environment. It may ask about constraints, protected areas, cost limits, or human review only when those details matter.
+
+## Environment Setup
+
+EvoRig records an environment mapping; the operating agent creates that mapping.
+
+The CLI cannot magically know which MCP tool controls an application, where a render is saved, how a browser flow is reset, or what database state proves success. The agent must inspect the real workspace and connect those details to the harness unit.
+
+Three setup modes are supported:
+
+| Mode | Use it when | Agent behavior |
+|---|---|---|
+| `existing` | The task environment already works | Connect and document it; do not rebuild it without reason |
+| `assisted` | Some pieces exist | Identify and add the smallest missing setup needed for a baseline |
+| `managed` | The environment must be created | Build it explicitly and document infrastructure changes |
+
+An environment can be command-driven, MCP-driven, manual, or fully custom. For example, a Blender harness may use an existing MCP server with no single run command. The agent can call tools, render the scene, capture screenshots and structured scene state, then attach those outputs to an EvoRig run.
+
+Read [environment onboarding](docs/environment-onboarding.md) for detailed examples.
+
+## Configuration
+
+Most users should begin with the defaults. The first useful configuration is usually inside the harness unit, not in global settings.
+
+### Harness-unit Configuration
+
+| File or area | Change it when |
+|---|---|
+| `operational-map.md` | Tools, artifact locations, assumptions, constraints, or the workflow changes |
+| `target/brief.yaml` | The task family, success definition, expected artifacts, or known risks change |
+| `environment/contract.yaml` | Commands, MCP tools, setup mode, interaction mode, or output paths change |
+| `agent-facing/` | A tested candidate promotes new instructions or reusable context |
+| `observers/` and `validators/` | The unit needs better artifact inspection or deterministic checks |
+| `regression-cases/` | A discovered failure should be tested in future iterations |
+| `tools/` and `infrastructure/` | Better performance requires unit-specific capabilities or services |
+
+Do not manually edit framework-owned `.evolve/`, `versions/`, `provenance/`, `runtime/`, or candidate metadata. Use the CLI lifecycle commands.
+
+### Global Preferences
+
+View preferences with `evorig settings show` and change one with:
+
+```bash
+evorig settings set validation.prefer_visual_artifacts true
+evorig settings set agent_behavior.autonomy_level balanced
+evorig settings set runtime.token_efficiency_mode false
 ```
 
-Before editable install:
+Important preference groups are:
 
-```powershell
-python -m evorig onboard
+- `agent_behavior`: autonomy, risky-action confirmation, and promotion strictness;
+- `validation`: agent-decided validation, visual-artifact preference, and resource mode;
+- `export`: default target adapter and package profile;
+- `runtime`: telemetry detail, token-efficiency mode, and local unit registry behavior.
+
+In the alpha, preferences are durable defaults and guidance for the CLI and operating agent. Not every preference is enforced automatically by every engine command yet. Evidence-required promotion is enforced unless the explicit development override is used.
+
+## Example Use Cases
+
+- Improve spatial reasoning and scene construction for a Blender or CAD agent.
+- Improve SVG, image, slide, document, or UI generation through rendered artifact review.
+- Build a coding-agent harness for a repository with recurring implementation or debugging failures.
+- Improve browser automation using screenshots, DOM state, traces, and task outcomes.
+- Develop better tool selection and recovery behavior for an MCP-based agent.
+- Evolve retrieval, examples, validators, and context for a research or data-processing workflow.
+- Build a reusable internal harness, then export it for Codex, Cursor, or a custom application agent.
+
+EvoRig is most useful when the task is repeated, outputs can be inspected, and failures can become durable improvements. It is unnecessary for a one-off task where no learning will be reused.
+
+## Core CLI Lifecycle
+
+The explicit commands are intended for agents, automation, and technical users:
+
+```bash
+evorig init-unit ./my-unit --id my-unit --name "My Harness Unit" --template artifact-review
+evorig target set ./my-unit --task "..." --success "..."
+evorig environment connect ./my-unit --name "..." --mode existing --description "..."
+evorig attempt plan ./my-unit --goal "..." --method "..."
+evorig run start ./my-unit --task "Baseline attempt"
+evorig artifact add ./my-unit run-0001 ./output.png --kind image
+evorig run finish ./my-unit run-0001 --status succeeded --summary "Baseline captured"
+evorig candidate create ./my-unit --summary "Improve artifact construction"
+evorig run start ./my-unit --task "Test candidate improvement" --candidate-id cand-0001
+evorig artifact add ./my-unit run-0002 ./improved-output.png --kind image
+evorig run finish ./my-unit run-0002 --status succeeded --summary "Candidate result captured"
+evorig candidate evidence add ./my-unit cand-0001 --kind artifact_review --summary "..." --run-id run-0002 --artifact-id artifact-0001
+evorig promote ./my-unit cand-0001 --version 0.1.0
+evorig export ./my-unit --adapter codex
+evorig package ./my-unit --output ./my-unit-0.1.0.tar.gz
 ```
 
-The onboarding flow asks five setup questions, lists the context being collected, and maps the answers into `target`, `environment`, `attempt`, run/artifact, and evidence records. Success criteria and artifact choices are guided options; the user does not need to design validation up front. See [docs/agent-onboarding.md](docs/agent-onboarding.md).
+This sequence is illustrative, not a fixed recipe. Tool-driven agents may perform many actions between `run start` and `run finish`, capture several artifacts, create multiple attempts, or wait for external results.
 
-EvoRig records environment mappings; it does not discover test endpoints, MCP tools, commands, screenshot locations, render outputs, or artifact paths by itself. The onboarding agent must inspect the real project/environment and write that mapping into the harness.
+## Safety And Integrity
 
-Every new harness unit includes `operational-map.md`. This file is the agent's current orientation for the unit: what is being improved, which tools and systems are involved, which artifacts or evidence are useful, how the environment can usually be run or reset, what is fragile, which assumptions need re-checking, and where prior evidence lives. It should be updated as the agent learns. It is not a fixed checklist.
+- YAML and JSON control files are written atomically.
+- Concurrent ID allocation and read-modify-write operations use harness-local locks.
+- Finished runs cannot be changed or finished again.
+- Candidate overlays cannot modify protected framework state.
+- Evidence references must exist when attached and at promotion time.
+- Promoted versions are stored as restorable snapshots.
+- Rollback is a recorded framework action.
+- Thin packages exclude runtime data, candidates, caches, and common secret files.
 
-The map also tracks capability gaps. EvoRig separates operating-agent capabilities, such as terminal, filesystem, browser, MCPs, package managers, visual inspection, and database access, from unit/target-agent tools designed into the harness unit. Missing capabilities should be justified by observed bottlenecks, failed attempts, missing artifacts, or clear expected improvement before adding tools or asking the user for permission.
+## Documentation
 
-```powershell
-python -m evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit"
-python -m evorig candidate create .\demo-unit --summary "Add first task principle"
-python -m evorig status .\demo-unit
-```
+- [How EvoRig works](docs/framework-process.md)
+- [Agent onboarding](docs/agent-onboarding.md)
+- [Environment onboarding](docs/environment-onboarding.md)
+- [Core lifecycle](docs/architecture/core-lifecycle.md)
+- [Runtime layers and future Rust boundary](docs/architecture/runtime-layers.md)
+- [Concurrency and file safety](docs/architecture/concurrency.md)
+- [Product principles](docs/product-principles.md)
+- [Local demo](docs/demo-first-test.md)
+- [Development notes](docs/development.md)
 
-List available templates:
+## Development
 
-```powershell
-evorig template list
-```
+Run the test suite from the repository:
 
-## Local Lifecycle Smoke Test
-
-```powershell
-evorig init-unit .\demo-unit --id demo-unit --name "Demo Unit" --template artifact-review
-evorig target set .\demo-unit --task "Create and capture a simple text artifact" --success "The artifact is captured and usable as evidence." --artifact-kind text --risk "artifact is not captured"
-evorig environment connect .\demo-unit --name "Local text artifact environment" --mode existing --description "Uses local shell commands for the demo." --run-command "Set-Content artifact.txt artifact output" --artifact-path artifact.txt
-evorig attempt plan .\demo-unit --goal "Create and capture a text artifact" --method "Use local tools to generate the artifact and record it." --expected-artifact text --success-check "Artifact is captured in runtime artifacts."
-evorig candidate create .\demo-unit --summary "Add first task principle"
-New-Item -ItemType Directory -Force .\demo-unit\candidates\cand-0001\changes\agent-facing
-Set-Content .\demo-unit\candidates\cand-0001\changes\agent-facing\principles.md "Inspect real artifacts before promotion."
-evorig validate .\demo-unit
-evorig candidate evidence add .\demo-unit cand-0001 --kind manual_review --summary "Initial smoke evidence supports promotion."
-evorig promote .\demo-unit cand-0001 --version 0.1.0
-evorig run start .\demo-unit --task "Create and inspect first artifact"
-Set-Content .\artifact.txt "artifact output"
-evorig artifact add .\demo-unit run-0001 .\artifact.txt --kind text --description "Smoke-test artifact"
-evorig run finish .\demo-unit run-0001 --status succeeded --summary "Artifact captured"
-evorig export .\demo-unit --adapter codex
-evorig state wait .\demo-unit --reason delayed_artifact --next-action inspect_artifact --resume-condition "artifact exists"
-evorig package .\demo-unit --output .\demo-unit-0.1.0.tar.gz
-evorig status .\demo-unit
-```
-
-The generated harness unit will include `operational-map.md`, `.evolve/allowed-edits.yaml`, `CURRENT_STATE.md`, and `NEXT_ACTION.md` so a coding agent can see the current unit orientation, lifecycle phase, and edit boundaries.
-Run records and copied artifacts live under `runtime/`, which is intentionally excluded from portable packages by default.
-
-For a fuller first local demo, see [docs/demo-first-test.md](docs/demo-first-test.md).
-
-For existing tool-driven environments such as a Blender MCP server, use `evorig environment connect --interaction-mode mcp` and declare the tools/artifact paths instead of forcing a single run command.
-For custom work, use `evorig attempt plan` to record how the agent will use its own capabilities and tools to produce relevant artifacts.
-
-Run tests:
-
-```powershell
+```bash
 python -m unittest discover -s tests
 ```
+
+The project currently uses Python 3.11 or newer. A future Rust runtime may own stronger protected lifecycle, packaging, file-watching, or desktop-distribution responsibilities after the product surface stabilizes.
+
+The EvoRig name should be treated as the current product identity during the alpha. If it changes, the decision should be made before broad public adoption so documentation, package names, commands, and user expectations can move together once rather than fragment over time.
