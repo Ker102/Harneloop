@@ -12,7 +12,7 @@ EvoRig is optimized for setup and operation by AI agents. Give a capable agent t
 
 > EvoRig is not another agent runtime or evaluation dashboard. It is the artifact-aware development and versioning layer an agent uses to build a better harness without replacing the working version before an improvement is proven.
 
-**Project status:** private alpha. The core lifecycle works, but commands and file formats may still change before the first public release.
+**Project status:** [v0.0.1 private alpha](https://github.com/Ker102/EvoRig/releases/tag/v0.0.1). The core lifecycle works, but commands and file formats may still change before the first public release.
 
 ## Start Here
 
@@ -30,6 +30,10 @@ EvoRig is optimized for setup and operation by AI agents. Give a capable agent t
 
 Models often repeat the same failures because the useful lessons from one attempt never become a tested part of their working environment. Adding a larger prompt or collecting an evaluation score does not solve the whole problem.
 
+The model is only one part of an agent's performance. The harness around it determines what context it sees, which tools it can use, how it interacts with the environment, what it remembers, how results are inspected, and whether mistakes become durable improvements. For many task-specific problems, this makes the harness the highest-leverage improvement surface available: it can produce significant gains without retraining the model, and every change remains inspectable, testable, reversible, and portable.
+
+EvoRig makes that work structured and efficient. Instead of accumulating one-off prompt edits, it lets an agent develop multiple independent harness units, test changes through real attempts, preserve evidence and history, and continue or export each successful harness as a coherent package.
+
 EvoRig gives the operating agent a controlled improvement loop:
 
 - work on the real task rather than only a synthetic benchmark;
@@ -42,6 +46,19 @@ EvoRig gives the operating agent a controlled improvement loop:
 - preserve restorable versions and package the resulting harness for reuse.
 
 The agent is free to reason and experiment inside the harness workspace. EvoRig controls the integrity-sensitive boundaries: records, protected state, evidence, promotion, snapshots, rollback, and packaging.
+
+### Why Improve The Harness Before The Weights?
+
+Research across agent interfaces, retrieval, tools, and iterative feedback shows that changing the system around a model can substantially improve task performance without changing the model's weights. EvoRig grew from practical problems encountered while building agent harnesses; the following work independently supports its harness-first direction:
+
+- [Self-Harness](https://arxiv.org/abs/2606.09498) found that agents could mine weaknesses from execution traces, propose harness changes, validate them with regression tests, and improve held-out pass rates across three model families.
+- [SWE-agent](https://arxiv.org/abs/2405.15793) showed that a purpose-built agent-computer interface substantially improved how language models navigated repositories, edited code, and executed tests.
+- [Reflexion](https://arxiv.org/abs/2303.11366) improved agents through trial-and-error, linguistic feedback, and episodic memory rather than weight updates.
+- [Self-Refine](https://arxiv.org/abs/2303.17651) reported an average absolute improvement of roughly 20 percentage points across seven evaluated tasks using iterative feedback and refinement without additional training.
+- [Fine-Tuning or Retrieval?](https://aclanthology.org/2024.emnlp-main.15/) found that RAG consistently outperformed unsupervised fine-tuning on the knowledge-injection tasks it evaluated, including both existing and new knowledge.
+- [Does Fine-Tuning LLMs on New Knowledge Encourage Hallucinations?](https://arxiv.org/abs/2405.05904) found that models struggled to acquire new factual knowledge through supervised fine-tuning and became more likely to hallucinate as that new knowledge was learned.
+
+These results do not establish that a harness will always outperform every possible fine-tuning method. Fine-tuning can still be valuable for behavior, style, latency, specialized representations, or capabilities that cannot be supplied effectively at inference time. EvoRig's position is practical: **optimize the harness first, measure the result, and modify model weights only when evidence shows that the harness has reached its useful limit.** A strong harness and a well-chosen fine-tune can also complement each other.
 
 ## What Is A Harness Unit?
 
