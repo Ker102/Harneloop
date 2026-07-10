@@ -14,6 +14,10 @@ EvoRig is optimized for setup and operation by AI agents. Give a capable agent t
 
 **Project status:** [v0.0.1 private alpha](https://github.com/Ker102/EvoRig/releases/tag/v0.0.1). The core lifecycle works, but commands and file formats may still change before the first public release.
 
+## Lifecycle At A Glance
+
+![EvoRig lifecycle: observe the real task and evidence, improve the harness through a candidate, then promote only when improvement is proven](docs/assets/evorig-lifecycle.jpeg)
+
 ## Start Here
 
 - **Using EvoRig through an agent:** [Agent Quick Start](#agent-quick-start)
@@ -24,7 +28,7 @@ EvoRig is optimized for setup and operation by AI agents. Give a capable agent t
 - **Changing defaults:** [Configuration](#configuration)
 - **Technical architecture:** [Core lifecycle](docs/architecture/core-lifecycle.md), [runtime layers](docs/architecture/runtime-layers.md), and [concurrency](docs/architecture/concurrency.md)
 - **Full agent instructions:** [Agent onboarding](docs/agent-onboarding.md)
-- **Visual process:** [How EvoRig works](docs/framework-process.md)
+- **Visual process:** [Lifecycle at a glance](#lifecycle-at-a-glance), [editable compact diagram](docs/framework-process-compact.md), and [detailed framework diagram](docs/framework-process.md)
 
 ## Why EvoRig Exists
 
@@ -105,29 +109,7 @@ The default `thin` package contains the promoted knowledge and contracts needed 
 
 Finished runs are immutable. Candidate evidence is checked when attached and checked again at promotion, so deleted runs, missing artifacts, or missing evidence files cannot support a release.
 
-```mermaid
-flowchart TB
-    subgraph OBSERVE["1. Observe"]
-        direction LR
-        G["Goal + environment"] --> A["Attempt real task"] --> I["Capture + inspect evidence"]
-    end
-
-    subgraph IMPROVE["2. Improve"]
-        direction LR
-        D["Trace likely failure"] --> C["Create candidate"] --> T["Retest + regressions"]
-    end
-
-    subgraph PROMOTE["3. Decide"]
-        direction LR
-        Q{"Improvement proven?"} -->|Yes| P["Promote version"] --> X["Continue, export, or package"]
-        Q -->|No| R["Revise candidate<br/>and repeat"]
-    end
-
-    I --> D
-    T --> Q
-```
-
-See the [detailed process diagram](docs/framework-process.md) for capability gaps, human input, waiting, stopping, and the complete artifact-aware loop. A standalone copy of this smaller graph is available in [the compact lifecycle document](docs/framework-process-compact.md).
+The image near the top of this README shows this loop at a glance. The [compact lifecycle document](docs/framework-process-compact.md) contains its editable Mermaid source. See the [detailed process diagram](docs/framework-process.md) for capability gaps, human input, waiting, stopping, and the complete artifact-aware loop.
 
 ## What Makes It Different?
 
