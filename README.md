@@ -1,14 +1,12 @@
 # EvoRig
 
-EvoRig is an agent-first framework for building and improving task-specific AI agent harnesses through evidence-backed trial and error.
+EvoRig is an agent-first framework for building self-improving, task-specific AI agent harnesses through verifiable trial and error.
 
-The agent first tries its best to produce the desired result in the real environment. EvoRig records the attempt and its evidence: generated artifacts, visual outputs, files, logs, traces, structured state, and other signals that help explain what happened. The agent inspects the result, compares it with the intended outcome, and follows the recorded evidence back through the run to identify where a likely mistake was introduced.
+The agent attempts a real task, captures the resulting artifacts, logs, traces, and state, compares the result with the desired outcome, and traces likely mistakes back through the recorded run. It can then propose a candidate change to its instructions, context, tools, retrieval, validators, or environment and test again. The working harness stays unchanged until evidence shows that the candidate improves the target without unacceptable regressions.
 
-The agent can then propose a candidate change to its instructions, context, tools, retrieval, validators, or environment and test the task again. The active harness does not change merely because a candidate was created. EvoRig promotes the candidate only after the new evidence supports an improvement and the change passes the unit's relevant checks.
+Each task-specific development environment is a portable **harness unit** containing its goal, environment map, harness material, experiments, evidence, regression cases, and restorable versions. Agents can reason freely and add what they need inside candidate workspaces; EvoRig structures the lifecycle and protects promotion rather than forcing every task through a fixed script. Units can be paused, moved, continued by another compatible agent or machine, and exported into their target environment.
 
-Each task-specific development environment is called a **harness unit**. A harness unit keeps the goal, environment map, harness material, experiments, evidence, regression cases, and restorable versions together in a portable directory. It is designed to be paused, moved, continued by another compatible agent or machine, and exported into the environment where the improved harness will be used.
-
-EvoRig is optimized for setup and operation by AI agents. Give a capable agent the repository link and describe what you want the harness to improve. The agent can install EvoRig, onboard itself, inspect or build the testing environment, and create the first harness unit. It may ask a few questions when important context or permission is missing. A guided manual setup and full CLI are also available.
+Setup is agent-first: give a capable agent the repository link and describe what you want to improve. It can install EvoRig, onboard itself, inspect or build the testing environment, and create the first harness unit, asking only when important context or permission is missing. A guided manual setup and full CLI are also available.
 
 > EvoRig is not another agent runtime or evaluation dashboard. It is the artifact-aware development and versioning layer an agent uses to build a better harness without replacing the working version before an improvement is proven.
 
@@ -18,12 +16,23 @@ EvoRig is optimized for setup and operation by AI agents. Give a capable agent t
 
 ![EvoRig lifecycle: observe the real task and evidence, improve the harness through a candidate, then promote only when improvement is proven](docs/assets/evorig-lifecycle.jpeg)
 
+## Evidence From A Real Case Study
+
+EvoRig was used to develop the custom ViperMesh harness unit for Blender spatial-reasoning and scene-construction tasks. The comparison kept the acting model fixed at **GPT-5.5 High** and tested the evolved ViperMesh harness against the **Anthropic x Blender MCP server baseline**, isolating the harness as the main changed system layer.
+
+- ViperMesh was faster on **6 of 7** comparable live tasks, with a **2.534x mean speedup**.
+- Preliminary neutral LLM visual evaluation improved by **8.19 points** across seven live render pairs.
+- Local acting-agent token usage was **90.91% lower** on the documented comparable token pair.
+
+EvoRig did not generate the scenes itself. It structured the evidence loop that exposed weaknesses, guided candidate tool and harness changes, and verified whether those changes improved the benchmark. Read the methodology, limitations, and complete results in the [ViperMesh case study](https://www.kristoferjussmann.me/case-studies/vipermesh).
+
 ## Start Here
 
 - **Using EvoRig through an agent:** [Agent Quick Start](#agent-quick-start)
 - **Installing it yourself:** [Install And Start](#install-and-start)
 - **Understanding harness units:** [What Is A Harness Unit?](#what-is-a-harness-unit)
 - **Understanding the loop:** [The Lifecycle, Made Simple](#the-lifecycle-made-simple)
+- **Measured proof:** [ViperMesh case study](https://www.kristoferjussmann.me/case-studies/vipermesh)
 - **Connecting a real environment:** [Environment Setup](#environment-setup)
 - **Changing defaults:** [Configuration](#configuration)
 - **Technical architecture:** [Core lifecycle](docs/architecture/core-lifecycle.md), [runtime layers](docs/architecture/runtime-layers.md), and [concurrency](docs/architecture/concurrency.md)
