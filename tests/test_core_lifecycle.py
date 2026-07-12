@@ -136,6 +136,9 @@ class CoreLifecycleTests(unittest.TestCase):
             self.assertIn("Requested or enabled tools", content)
             self.assertIn("Fallbacks if the user declines", content)
             self.assertIn("Capability additions should be justified", content)
+            self.assertIn("Existing Work And Reuse", content)
+            self.assertIn("best verified result, not a from-scratch implementation", content)
+            self.assertIn("License, attribution, compatibility, security, cost, and permission notes", content)
             self.assertIn("Known Constraints, Fragile Spots, And Open Questions", content)
             self.assertIn("Current Assumptions To Re-Check", content)
             self.assertIn("Prior Runs, Evidence, And Decisions", content)
@@ -501,6 +504,8 @@ class CoreLifecycleTests(unittest.TestCase):
         self.assertIn("Operating-agent capabilities", markdown)
         self.assertIn("Unit/target-agent tools", markdown)
         self.assertIn("Capability additions should be justified", markdown)
+        self.assertIn("best verified result, not a from-scratch implementation", markdown)
+        self.assertIn("Record the source, relevant version, purpose", markdown)
 
 
 if __name__ == "__main__":

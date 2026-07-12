@@ -178,6 +178,7 @@ If you are the operating agent:
 - Inspect the real environment and map it into `target/` and `environment/`.
 - Prefer real artifact inspection when deterministic checks cannot establish quality.
 - Separate your own capabilities from tools being designed for the target agent.
+- Optimize for the best verified result rather than rebuilding everything: research and reuse suitable tools, skills, libraries, examples, and prior work while recording provenance and respecting license, security, cost, and permission boundaries.
 - Put proposed harness changes in a candidate workspace.
 - Use Harneloop commands for runs, artifacts, evidence, promotion, rollback, wait, stop, and resume.
 - Ask before adding credentials, paid services, external access, security-sensitive tools, or expensive infrastructure.

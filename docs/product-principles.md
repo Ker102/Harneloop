@@ -13,6 +13,7 @@ The framework should help agents:
 - trace failures back to runs;
 - maintain a unit-local operational map of workflow, evidence, environment assumptions, and open questions;
 - identify operating-agent capability gaps separately from unit/target-agent tools;
+- research and reuse suitable existing tools, skills, libraries, datasets, examples, and prior work;
 - propose candidate harness patches;
 - test candidate patches;
 - promote only evidence-backed improvements;
@@ -39,3 +40,5 @@ The rule:
 `operational-map.md` exists to preserve the agent's current working understanding of a harness unit without turning that understanding into a fixed script. The agent should use it to orient itself, update it as evidence changes, and still reason from the current task and artifacts.
 
 The framework should not assume the agent building a harness unit is all-powerful. Missing operating-agent capabilities should be identified, justified by evidence or clear expected improvement, and handled with an appropriate permission boundary before adding tools, dependencies, credentials, paid services, or broader external access.
+
+Harneloop optimizes for the best verified task performance, not for rebuilding every capability from scratch. The operating agent should inspect existing solutions and may adopt, adapt, combine, or learn from them when they improve the harness. Reuse must remain inspectable: record what was used and why, verify compatibility and observed value, respect licenses and attribution, and apply the normal permission gates for security, credentials, external access, cost, or material infrastructure changes.

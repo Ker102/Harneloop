@@ -39,6 +39,8 @@ The agent should try to remove repeated manual work from the loop. If restarting
 
 Capability additions should be evidence-backed. Low-risk local tooling can be installed, enabled, or built when the environment allows it. Larger dependencies, credentials, paid APIs, external access, user-owned accounts, network expansion, or security-impacting changes should be proposed first.
 
+Do not interpret managed or assisted setup as a requirement to build every component from scratch. Search the existing project and, when useful, external documentation, open-source tools, agent skills, libraries, validators, datasets, examples, and prior harness work. Prefer a suitable maintained solution when it improves the expected result or removes unnecessary implementation work. Record its source, relevant version, purpose, licensing or attribution requirements, compatibility assumptions, and measured contribution to the harness. Review third-party executable material and use the normal permission boundary for risk, cost, credentials, external access, or security changes.
+
 Existing environments can be command-driven or tool-driven.
 
 Command-driven means there is a direct command to run. Tool-driven means the agent performs the task through tools such as an MCP server, browser automation, a design tool plugin, or a Blender addon API.

@@ -106,6 +106,8 @@ def render_onboarding_json() -> dict[str, Any]:
             "Unit/target-agent tools are tools designed into the harness unit or provided to the target agent; keep them separate from the operating agent's own capabilities.",
             "When a capability is missing, state what is missing, why it matters, what tool or dependency would help, and what risk, cost, auth, or security change it introduces.",
             "Capability additions should be justified by observed bottlenecks, failed attempts, missing artifacts, or clear expected improvement, not added speculatively.",
+            "Optimize for the best verified result, not a from-scratch implementation; inspect and reuse suitable project-native or external tools, open-source libraries, agent skills, MCP servers, validators, datasets, examples, documentation, research, and prior harness work.",
+            "Record the source, relevant version, purpose, license or attribution obligations, compatibility assumptions, and evidence of value for reused material; review executable third-party material before trusting it.",
             "Low-risk local capabilities can be installed, enabled, or built when the environment allows it; larger dependencies, auth, secrets, external access, paid services, or security-impacting changes should be proposed first.",
             "Aim to run repeated testing/improvement loops without requiring the user to restart apps, reinstall addons, reset services, or collect files; if automating the environment is reasonable, implement or document it.",
             "Ask the user before environment automation when the automation is risky, unclear, or too expensive/time-consuming.",

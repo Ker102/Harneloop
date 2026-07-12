@@ -59,6 +59,12 @@ Low-risk local capabilities can be installed, enabled, or built when the environ
 
 Capability additions should be justified by observed bottlenecks, failed attempts, missing artifacts, or clear expected improvement, not added speculatively.
 
+## Reuse Existing Work
+
+The goal is the best verified harness, not a from-scratch implementation. Before building a missing capability, inspect what already exists: project-native tools, open-source libraries, agent skills, MCP servers, validators, datasets, examples, documentation, research, and reusable harness material. The agent may install, adapt, combine, or learn from suitable existing work when doing so is likely to improve results or reduce unnecessary effort.
+
+Do not reuse blindly. Record the source, version or revision when relevant, purpose, license or attribution obligations, compatibility assumptions, and evidence that the addition helped. Review executable third-party material before trusting it. Ask first when reuse introduces credentials, paid services, external access, material downloads, restrictive licenses, security-sensitive execution, or a meaningful change to the environment. If an existing solution is unsuitable, document why before building a replacement.
+
 Suggested success answers:
 
 - Let the agent propose success criteria.

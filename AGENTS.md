@@ -30,6 +30,8 @@ Track capability gaps in `operational-map.md`. Operating-agent capabilities are 
 
 If the operating agent is missing a useful capability, state what is missing, why it matters, what tool or dependency would help, and what risk, cost, auth, or security change it introduces. Low-risk local capabilities can be installed, enabled, or built when the environment allows it. Larger dependencies, credentials, external access, paid services, or security-impacting changes should be proposed first. Capability additions should be justified by observed bottlenecks, failed attempts, missing artifacts, or clear expected improvement.
 
+Optimize for the best verified result, not a from-scratch implementation. Inspect and reuse suitable project-native or external tools, open-source libraries, agent skills, MCP servers, validators, datasets, examples, documentation, research, and prior harness work. Record source, relevant version, purpose, licensing or attribution obligations, compatibility assumptions, and evidence of value. Review executable third-party material before trusting it, and ask first when reuse changes security posture, requires credentials or paid services, expands external access, introduces a restrictive license, or materially changes the environment.
+
 Agents should aim to run repeated testing and improvement loops without requiring the user to manually restart apps, reinstall addons, reset services, or collect files. If automating the environment is reasonable, implement or document it. If automation is risky, unclear, or too expensive/time-consuming, ask the user before proceeding.
 
 For human-guided setup, use:
