@@ -17,7 +17,15 @@ from harneloop.intake import acknowledge_intake, read_intake, render_intake_mark
 from harneloop.onboarding import render_onboarding_json, render_onboarding_markdown
 from harneloop.packaging import package_unit
 from harneloop.runs import add_artifact, finish_run, start_run
-from harneloop.state import mark_active, mark_stopped, mark_waiting, read_state, render_state_markdown
+from harneloop.state import (
+    build_session_brief_data,
+    mark_active,
+    mark_stopped,
+    mark_waiting,
+    read_state,
+    render_session_brief_markdown,
+    render_state_markdown,
+)
 from harneloop.target import set_target_brief
 from harneloop.templates import list_templates
 from harneloop.unit import init_unit
@@ -180,6 +188,16 @@ class CoreLifecycleTests(unittest.TestCase):
             self.assertIn("Current Assumptions To Re-Check", content)
             self.assertIn("Prior Runs, Evidence, And Decisions", content)
             self.assertFalse(validate_unit(unit))
+
+            scoped_rules = (unit / "AGENTS.md").read_text(encoding="utf-8")
+            self.assertIn("When work concerns this harness unit", scoped_rules)
+            self.assertIn("SESSION_BRIEF.md", scoped_rules)
+            self.assertNotIn("entire agent session", scoped_rules)
+
+            session_brief = (unit / ".evolve" / "SESSION_BRIEF.md").read_text(encoding="utf-8")
+            self.assertIn("Harneloop Unit Brief", session_brief)
+            self.assertIn("When working on this unit", session_brief)
+            self.assertIn("Intake: `pending`", session_brief)
 
             forbidden_phrases = [
                 "Always evaluate success by these exact criteria",
@@ -601,6 +619,11 @@ class CoreLifecycleTests(unittest.TestCase):
             self.assertEqual(conclusion["missing_expected_artifacts"], [])
             self.assertEqual(read_state(unit)["state"], "satisfied")
             self.assertIsNone(read_state(unit)["active_candidate"])
+            brief_data = build_session_brief_data(unit)
+            brief_markdown = render_session_brief_markdown(brief_data)
+            self.assertEqual(brief_data["latest_conclusion"]["decision"], "accept")
+            self.assertIn("No candidate is needed", brief_markdown)
+            self.assertIn("Generate a useful result", brief_markdown)
 
     def test_agent_onboarding_collects_minimal_context(self) -> None:
         data = render_onboarding_json()

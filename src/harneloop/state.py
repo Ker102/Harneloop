@@ -9,6 +9,7 @@ from typing import Any
 
 from .locking import file_lock, harness_lock_path
 from .yamlio import write_yaml
+from .yamlio import read_yaml
 
 
 def now_iso() -> str:
@@ -80,6 +81,91 @@ def write_state_markdown(unit_root: Path, state: dict[str, Any]) -> None:
     next_action = state_dir(unit_root) / "NEXT_ACTION.md"
     current.write_text(render_state_markdown(state), encoding="utf-8", newline="\n")
     next_action.write_text(render_next_action_markdown(state), encoding="utf-8", newline="\n")
+    (state_dir(unit_root) / "SESSION_BRIEF.md").write_text(
+        render_session_brief_markdown(build_session_brief_data(unit_root, state)),
+        encoding="utf-8",
+        newline="\n",
+    )
+
+
+def _read_optional_yaml(path: Path) -> dict[str, Any]:
+    return read_yaml(path) if path.exists() else {}
+
+
+def _latest_attempt(unit_root: Path) -> dict[str, Any]:
+    attempts_root = unit_root / "attempts"
+    if not attempts_root.exists():
+        return {}
+    for attempt_root in sorted(attempts_root.glob("attempt-*"), reverse=True):
+        attempt = _read_optional_yaml(attempt_root / "attempt.yaml")
+        if attempt:
+            return attempt
+    return {}
+
+
+def build_session_brief_data(unit_root: Path, state: dict[str, Any] | None = None) -> dict[str, Any]:
+    unit_root = unit_root.resolve()
+    unit = _read_optional_yaml(unit_root / "unit.yaml")
+    target = _read_optional_yaml(unit_root / "target" / "brief.yaml")
+    intake = _read_optional_yaml(unit_root / ".evolve" / "intake.yaml")
+    current_state = state or read_state(unit_root)
+    latest_attempt = _latest_attempt(unit_root)
+    conclusions = latest_attempt.get("conclusions") or []
+    unresolved = [
+        field
+        for field, record in (intake.get("fields") or {}).items()
+        if record.get("status") in {"unknown", "inferred"}
+    ]
+    return {
+        "scope": "When working on this unit, use Harneloop to improve the harness; unrelated work in the same agent session is outside this brief.",
+        "unit_id": unit.get("id") or current_state.get("unit_id"),
+        "unit_name": unit.get("name") or "Unknown harness unit",
+        "target_task": target.get("task") or latest_attempt.get("goal"),
+        "success": target.get("success"),
+        "state": current_state.get("state", "unknown"),
+        "current_version": current_state.get("current_version"),
+        "active_candidate": current_state.get("active_candidate"),
+        "active_run": current_state.get("active_run"),
+        "intake_status": intake.get("status", "missing"),
+        "unresolved_intake": unresolved,
+        "latest_conclusion": conclusions[-1] if conclusions else None,
+        "next_action": current_state.get("next_action"),
+        "updated_at": current_state.get("updated_at"),
+    }
+
+
+def render_session_brief_markdown(data: dict[str, Any]) -> str:
+    lines = [
+        "# Harneloop Unit Brief",
+        "",
+        data["scope"],
+        "",
+        f"- Harness unit: `{data.get('unit_name')}` (`{data.get('unit_id')}`)",
+        f"- Target: {data.get('target_task') or 'not mapped yet'}",
+        f"- State: `{data.get('state')}`",
+        f"- Intake: `{data.get('intake_status')}`",
+        f"- Current version: `{data.get('current_version') or 'none'}`",
+        f"- Active candidate: `{data.get('active_candidate') or 'none'}`",
+        f"- Active run: `{data.get('active_run') or 'none'}`",
+    ]
+    unresolved = data.get("unresolved_intake") or []
+    if unresolved:
+        lines.append(f"- Unresolved or inferred context: `{', '.join(unresolved)}`")
+    conclusion = data.get("latest_conclusion")
+    if conclusion:
+        lines.extend(
+            [
+                "",
+                "## Latest Evaluation Decision",
+                "",
+                f"- Outcome: `{conclusion.get('outcome')}`",
+                f"- Decision: `{conclusion.get('decision')}`",
+                f"- Confidence: `{conclusion.get('confidence')}`",
+                f"- Summary: {conclusion.get('summary')}",
+            ]
+        )
+    lines.extend(["", "## Next Action", "", data.get("next_action") or "Inspect the unit and choose the next lifecycle action.", ""])
+    return "\n".join(lines)
 
 
 def render_state_markdown(state: dict[str, Any]) -> str:

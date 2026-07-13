@@ -77,6 +77,29 @@ def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> P
         newline="\n",
     )
 
+    (unit_root / "AGENTS.md").write_text(
+        "\n".join(
+            [
+                f"# Harneloop Unit: {name}",
+                "",
+                "When work concerns this harness unit, treat the target task as the test surface for improving the harness, not as permission to forget the Harneloop lifecycle.",
+                "",
+                "Before substantial unit work or after context loss, read:",
+                "",
+                "1. `.evolve/SESSION_BRIEF.md`",
+                "2. `UNIT_AGENT.md`",
+                "3. `operational-map.md`",
+                "",
+                "Finish every run by evaluating its artifacts and recording an explicit attempt conclusion. A good first result may be accepted with no candidate; incomplete evidence should lead to a rerun or concrete request for input.",
+                "",
+                "These instructions are scoped to work involving this harness unit. Other project work in the same conversation remains outside this unit unless explicitly connected.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
     write_initial_operational_map(unit_root, unit_id, name)
     initialize_intake(unit_root)
 

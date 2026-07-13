@@ -15,11 +15,13 @@ class ValidationIssue:
 REQUIRED_PATHS = [
     "unit.yaml",
     "UNIT_AGENT.md",
+    "AGENTS.md",
     "operational-map.md",
     "candidates",
     "versions",
     "provenance",
     ".evolve/allowed-edits.yaml",
+    ".evolve/SESSION_BRIEF.md",
 ]
 
 

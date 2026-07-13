@@ -38,8 +38,8 @@ from .preferences import (
     update_preference,
 )
 from .runs import add_artifact, finish_run, start_run
-from .state import mark_active, mark_stopped, mark_waiting, read_state
-from .state import render_state_markdown
+from .state import build_session_brief_data, mark_active, mark_stopped, mark_waiting, read_state
+from .state import render_session_brief_markdown, render_state_markdown
 from .target import set_target_brief
 from .templates import list_templates
 from .unit import init_unit
@@ -202,6 +202,10 @@ def build_parser() -> argparse.ArgumentParser:
     status_parser = subparsers.add_parser("status", help="Print harness unit lifecycle state")
     status_parser.add_argument("unit", type=Path)
     status_parser.add_argument("--format", choices=["json", "markdown"], default="json")
+
+    brief_parser = subparsers.add_parser("brief", help="Recover compact context for one harness unit")
+    brief_parser.add_argument("unit", type=Path)
+    brief_parser.add_argument("--format", choices=["markdown", "json"], default="markdown")
 
     doctor_parser = subparsers.add_parser("doctor", help="Check local Harneloop runtime prerequisites")
     doctor_parser.add_argument("--json", action="store_true", dest="json_output")
@@ -480,6 +484,14 @@ def main(argv: list[str] | None = None) -> int:
                 print(render_state_markdown(state), end="")
             else:
                 print(json.dumps(state, indent=2))
+            return 0
+
+        if args.command == "brief":
+            data = build_session_brief_data(args.unit)
+            if args.format == "json":
+                print(json.dumps(data, indent=2))
+            else:
+                print(render_session_brief_markdown(data), end="")
             return 0
 
         if args.command == "doctor":
