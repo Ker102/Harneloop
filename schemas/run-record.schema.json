@@ -14,6 +14,8 @@
     "harness_version": { "type": ["string", "null"] },
     "candidate_id": { "type": ["string", "null"] },
     "attempt_id": { "type": ["string", "null"] },
+    "evaluation_status": { "type": "string", "enum": ["pending", "completed"] },
+    "evaluation_outcome": { "type": ["string", "null"], "enum": ["pass", "partial", "fail", "inconclusive", null] },
     "summary": { "type": ["string", "null"] },
     "artifacts": {
       "type": "array",

@@ -20,7 +20,14 @@ from .intake import (
     resolve_intake_field,
 )
 from .adapters import SUPPORTED_ADAPTERS, export_unit
-from .attempts import add_attempt_observation, create_attempt_plan
+from .attempts import (
+    VALID_CONCLUSION_DECISIONS,
+    VALID_CONCLUSION_OUTCOMES,
+    VALID_CONFIDENCE,
+    add_attempt_observation,
+    conclude_attempt,
+    create_attempt_plan,
+)
 from .onboarding import render_onboarding_json, render_onboarding_markdown
 from .packaging import package_unit
 from .preferences import (
@@ -138,6 +145,16 @@ def build_parser() -> argparse.ArgumentParser:
     attempt_observe.add_argument("--outcome", default="unknown")
     attempt_observe.add_argument("--run-id")
     attempt_observe.add_argument("--finding", action="append", default=[])
+
+    attempt_conclude = attempt_subparsers.add_parser("conclude", help="Evaluate an attempt and choose its next lifecycle action")
+    attempt_conclude.add_argument("unit", type=Path)
+    attempt_conclude.add_argument("attempt_id")
+    attempt_conclude.add_argument("--run-id", required=True)
+    attempt_conclude.add_argument("--outcome", required=True, choices=sorted(VALID_CONCLUSION_OUTCOMES))
+    attempt_conclude.add_argument("--decision", required=True, choices=sorted(VALID_CONCLUSION_DECISIONS))
+    attempt_conclude.add_argument("--summary", required=True)
+    attempt_conclude.add_argument("--confidence", required=True, choices=sorted(VALID_CONFIDENCE))
+    attempt_conclude.add_argument("--question")
 
     candidate_parser = subparsers.add_parser("candidate", help="Manage candidates")
     candidate_subparsers = candidate_parser.add_subparsers(dest="candidate_command", required=True)
@@ -392,6 +409,19 @@ def main(argv: list[str] | None = None) -> int:
                     finding=args.finding,
                 )
                 print(json.dumps(observation, indent=2))
+                return 0
+            if args.attempt_command == "conclude":
+                conclusion = conclude_attempt(
+                    args.unit,
+                    args.attempt_id,
+                    run_id=args.run_id,
+                    outcome=args.outcome,
+                    decision=args.decision,
+                    summary=args.summary,
+                    confidence=args.confidence,
+                    question=args.question,
+                )
+                print(json.dumps(conclusion, indent=2))
                 return 0
 
         if args.command == "candidate" and args.candidate_command == "evidence":

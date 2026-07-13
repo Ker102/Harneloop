@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 from harneloop.adapters import export_unit
-from harneloop.attempts import add_attempt_observation, create_attempt_plan
+from harneloop.attempts import add_attempt_observation, conclude_attempt, create_attempt_plan
 from harneloop.candidate import create_candidate
 from harneloop.diagnostics import run_doctor
 from harneloop.environment import connect_environment, render_environment_status
@@ -524,6 +524,83 @@ class CoreLifecycleTests(unittest.TestCase):
             run_root = start_run(unit, task="Generate a task artifact", attempt_id="attempt-0001")
             run_record = read_yaml(run_root / "run.yaml")
             self.assertEqual(run_record["attempt_id"], "attempt-0001")
+
+    def test_finished_attempt_requires_evaluation_before_next_decision(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            unit = init_unit(root / "unit", "demo", "Demo Unit")
+            self._acknowledge_test_intake(unit)
+            create_attempt_plan(
+                unit,
+                goal="Reproduce a reference interface",
+                method="Render and compare the result.",
+                expected_artifact=["reference_screenshot", "candidate_screenshot", "visual_review_notes"],
+            )
+            start_run(unit, task="Baseline", attempt_id="attempt-0001")
+            for name, kind in [("reference.png", "reference_screenshot"), ("candidate.png", "candidate_screenshot")]:
+                artifact = root / name
+                artifact.write_bytes(name.encode("utf-8"))
+                add_artifact(unit, "run-0001", artifact, kind=kind)
+            finish_run(unit, "run-0001", status="succeeded", summary="Execution completed")
+
+            self.assertEqual(read_state(unit)["state"], "awaiting_evaluation")
+            with self.assertRaisesRegex(HarneloopError, "missing expected artifacts"):
+                conclude_attempt(
+                    unit,
+                    "attempt-0001",
+                    run_id="run-0001",
+                    outcome="pass",
+                    decision="accept",
+                    summary="Looks good enough.",
+                    confidence="high",
+                )
+
+            conclusion = conclude_attempt(
+                unit,
+                "attempt-0001",
+                run_id="run-0001",
+                outcome="partial",
+                decision="request_input",
+                summary="Desktop evidence is good, but responsive references are missing.",
+                confidence="medium",
+                question="Please provide the tablet and mobile reference images.",
+            )
+            self.assertEqual(conclusion["missing_expected_artifacts"], ["visual_review_notes"])
+            self.assertEqual(read_state(unit)["state"], "waiting")
+            self.assertIn("tablet and mobile", read_state(unit)["next_action"])
+
+    def test_good_first_attempt_can_be_accepted_without_candidate(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            unit = init_unit(root / "unit", "demo", "Demo Unit")
+            self._acknowledge_test_intake(unit)
+            create_attempt_plan(
+                unit,
+                goal="Generate a useful result",
+                method="Produce and inspect the result.",
+                expected_artifact=["result", "review"],
+            )
+            start_run(unit, task="Baseline", attempt_id="attempt-0001")
+            for name, kind in [("result.txt", "result"), ("review.txt", "review")]:
+                artifact = root / name
+                artifact.write_text(name, encoding="utf-8")
+                add_artifact(unit, "run-0001", artifact, kind=kind)
+            finish_run(unit, "run-0001", status="succeeded", summary="Execution completed")
+
+            conclusion = conclude_attempt(
+                unit,
+                "attempt-0001",
+                run_id="run-0001",
+                outcome="pass",
+                decision="accept",
+                summary="The current harness is effective enough for this test; no change is justified.",
+                confidence="high",
+            )
+
+            self.assertEqual(conclusion["decision"], "accept")
+            self.assertEqual(conclusion["missing_expected_artifacts"], [])
+            self.assertEqual(read_state(unit)["state"], "satisfied")
+            self.assertIsNone(read_state(unit)["active_candidate"])
 
     def test_agent_onboarding_collects_minimal_context(self) -> None:
         data = render_onboarding_json()

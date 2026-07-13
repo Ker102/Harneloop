@@ -5,6 +5,7 @@ from typing import Any
 
 from .errors import HarneloopError
 from .locking import file_lock, harness_lock_path
+from .runs import read_run, write_run
 from .state import now_iso, update_state
 from .versioning import ensure_unit
 from .yamlio import read_yaml, write_yaml
@@ -78,6 +79,7 @@ def create_attempt_plan(
             "success_checks": normalize_list(success_check),
             "notes": normalize_list(note),
             "observations": [],
+            "conclusions": [],
             "created_at": now_iso(),
         }
         write_attempt(unit_root, attempt_id, data)
@@ -119,6 +121,110 @@ def add_attempt_observation(
         next_action="Use observations to create evidence, candidate changes, or another attempt plan.",
     )
     return observation
+
+
+VALID_CONCLUSION_OUTCOMES = {"pass", "partial", "fail", "inconclusive"}
+VALID_CONCLUSION_DECISIONS = {"accept", "create_candidate", "rerun", "request_input", "stop"}
+VALID_CONFIDENCE = {"low", "medium", "high"}
+
+
+def conclude_attempt(
+    unit_root: Path,
+    attempt_id: str,
+    *,
+    run_id: str,
+    outcome: str,
+    decision: str,
+    summary: str,
+    confidence: str,
+    question: str | None = None,
+) -> dict[str, Any]:
+    if outcome not in VALID_CONCLUSION_OUTCOMES:
+        raise HarneloopError(f"Invalid attempt outcome: {outcome}")
+    if decision not in VALID_CONCLUSION_DECISIONS:
+        raise HarneloopError(f"Invalid attempt decision: {decision}")
+    if confidence not in VALID_CONFIDENCE:
+        raise HarneloopError(f"Invalid conclusion confidence: {confidence}")
+    if not summary.strip():
+        raise HarneloopError("Attempt conclusion summary cannot be empty")
+    if decision == "request_input" and not (question or "").strip():
+        raise HarneloopError("The `request_input` decision requires a concrete question")
+    if decision == "accept" and outcome != "pass":
+        raise HarneloopError("Only a passing attempt can be accepted without further work")
+
+    unit_root = unit_root.resolve()
+    run = read_run(unit_root, run_id)
+    if run.get("status") == "running":
+        raise HarneloopError(f"Run must be finished before evaluation: {run_id}")
+    if run.get("attempt_id") != attempt_id:
+        raise HarneloopError(f"Run `{run_id}` is not linked to attempt `{attempt_id}`")
+
+    with file_lock(harness_lock_path(unit_root, f"attempt-{attempt_id}")):
+        data = read_attempt(unit_root, attempt_id)
+        expected = data.get("expected_artifacts") or []
+        captured = {artifact.get("kind") for artifact in (run.get("artifacts") or [])}
+        missing = [kind for kind in expected if kind not in captured]
+        if outcome == "pass" and missing:
+            missing_text = ", ".join(missing)
+            raise HarneloopError(f"Passing conclusion is missing expected artifacts: {missing_text}")
+
+        conclusions = data.get("conclusions") or []
+        conclusion = {
+            "id": f"conclusion-{len(conclusions) + 1:04d}",
+            "run_id": run_id,
+            "outcome": outcome,
+            "decision": decision,
+            "summary": summary.strip(),
+            "confidence": confidence,
+            "captured_artifact_kinds": sorted(kind for kind in captured if kind),
+            "missing_expected_artifacts": missing,
+            "question": (question or "").strip() or None,
+            "created_at": now_iso(),
+        }
+        data["conclusions"] = [*conclusions, conclusion]
+        write_attempt(unit_root, attempt_id, data)
+
+    run["evaluation_status"] = "completed"
+    run["evaluation_outcome"] = outcome
+    write_run(unit_root, run_id, run)
+
+    if decision == "accept":
+        update_state(
+            unit_root,
+            state="satisfied",
+            reason="current_harness_accepted",
+            next_action="No candidate is needed for the current evidence. Resume only for broader tests or a changed goal.",
+        )
+    elif decision == "create_candidate":
+        update_state(
+            unit_root,
+            state="active",
+            reason="candidate_change_needed",
+            next_action=f"Create a candidate from conclusion `{conclusion['id']}` and retest it.",
+        )
+    elif decision == "rerun":
+        update_state(
+            unit_root,
+            state="active",
+            reason="attempt_rerun_needed",
+            next_action="Revise the attempt or evidence plan and run it again before changing the harness.",
+        )
+    elif decision == "request_input":
+        update_state(
+            unit_root,
+            state="waiting",
+            reason="user_input_required",
+            next_action=question.strip(),
+            resume_condition="The user provides or delegates the requested context or evidence.",
+        )
+    else:
+        update_state(
+            unit_root,
+            state="stopped",
+            reason="attempt_conclusion_stopped",
+            next_action="Resume only when the documented stopping reason changes.",
+        )
+    return conclusion
 
 
 def write_observations_markdown(unit_root: Path, attempt_id: str, data: dict[str, Any]) -> None:

@@ -84,6 +84,8 @@ def start_run(
                 "harness_version": unit_meta.get("current_version"),
                 "candidate_id": candidate_id,
                 "attempt_id": attempt_id,
+                "evaluation_status": "pending",
+                "evaluation_outcome": None,
                 "summary": None,
                 "artifacts": [],
             },
@@ -155,9 +157,12 @@ def finish_run(unit_root: Path, run_id: str, status: str, summary: str | None = 
         write_run(unit_root, run_id, run_record)
     update_state(
         unit_root,
-        state="active",
+        state="awaiting_evaluation",
         active_run=None,
-        reason="run_finished",
-        next_action="Inspect run artifacts, create a candidate, or stop if evidence is sufficient.",
+        reason="run_execution_finished",
+        next_action=(
+            f"Evaluate the artifacts from `{run_id}` and conclude the linked attempt. "
+            "Do not treat execution success as result quality."
+        ),
     )
     return run_record

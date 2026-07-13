@@ -29,6 +29,10 @@
       "type": "array",
       "items": { "type": "object" }
     },
+    "conclusions": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
     "created_at": { "type": "string" }
   },
   "additionalProperties": true
