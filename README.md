@@ -1,6 +1,6 @@
 # Harneloop
 
-Harneloop is an agent-first framework for building self-improving, task-specific AI agent harnesses through verifiable trial and error.
+Harneloop is an open-source, agent-first framework for building and evolving task-specific AI agent harnesses through artifact-aware testing, trace-backed diagnosis, and evidence-gated promotion.
 
 The agent attempts a real task, captures the resulting artifacts, logs, traces, and state, compares the result with the desired outcome, and traces likely mistakes back through the recorded run. It can then propose a candidate change to its instructions, context, tools, retrieval, validators, or environment and test again. The working harness stays unchanged until evidence shows that the candidate improves the target without unacceptable regressions.
 
@@ -10,7 +10,7 @@ Setup is agent-first: give a capable agent the repository link and describe what
 
 > Harneloop is not another agent runtime or evaluation dashboard. It is the artifact-aware development and versioning layer an agent uses to build a better harness without replacing the working version before an improvement is proven.
 
-**Project status:** [v0.0.1 private alpha](https://github.com/Ker102/Harneloop/releases/tag/v0.0.1). The core lifecycle works, but commands and file formats may still change before the first public release.
+**Project status:** [v0.0.1 public alpha](https://github.com/Ker102/Harneloop/releases/tag/v0.0.1). The core lifecycle works, but commands and file formats may still change before a stable release.
 
 ## Lifecycle At A Glance
 
@@ -376,3 +376,7 @@ python -m unittest discover -s tests
 The project currently uses Python 3.11 or newer. A future Rust runtime may own stronger protected lifecycle, packaging, file-watching, or desktop-distribution responsibilities after the product surface stabilizes.
 
 Harneloop is the selected product identity for the alpha and public-launch path. The package, CLI, harness-unit metadata, documentation, and repository use the same name.
+
+## License
+
+Harneloop is available under the [Apache License 2.0](LICENSE).

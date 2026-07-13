@@ -21,8 +21,8 @@ runtime/
 *.tar.gz
 *.zip
 units/
-.evorig/
-.evorig-*/
+.harneloop/
+.harneloop-*/
 
 # OS/editor
 .DS_Store

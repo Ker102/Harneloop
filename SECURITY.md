@@ -4,7 +4,7 @@ Harneloop is a local-first framework for agent-built harness units. Security bou
 
 ## Current Status
 
-This is a private pre-alpha prototype. Do not treat it as a hardened sandbox.
+This is an early public alpha. Do not treat Harneloop or a harness unit as a hardened sandbox or security boundary.
 
 ## Rules
 
@@ -16,4 +16,4 @@ This is a private pre-alpha prototype. Do not treat it as a hardened sandbox.
 
 ## Reporting
 
-For now, report issues directly to the repository owner. A public security policy can be added before open-source release.
+Do not disclose suspected vulnerabilities in a public issue. Use GitHub's private vulnerability reporting form when it is available for this repository. Otherwise, contact the repository owner privately through the linked GitHub profile and include reproduction details, affected versions, and potential impact.

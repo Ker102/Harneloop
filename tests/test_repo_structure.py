@@ -17,6 +17,7 @@ class RepoStructureTests(unittest.TestCase):
             ".gitignore",
             "AGENTS.md",
             "CONTRIBUTING.md",
+            "LICENSE",
             "README.md",
             "SECURITY.md",
             "docs/agent-onboarding.md",
@@ -26,6 +27,7 @@ class RepoStructureTests(unittest.TestCase):
             "schemas/attempt-plan.schema.json",
             "schemas/artifact-manifest.schema.json",
             "schemas/candidate-evidence.schema.json",
+            "schemas/candidate-record.schema.json",
             "schemas/run-record.schema.json",
         ]
         missing = [path for path in required_paths if not (REPO_ROOT / path).exists()]

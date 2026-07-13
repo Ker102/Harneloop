@@ -1,6 +1,6 @@
 # Contributing
 
-Harneloop is currently a private prototype. The contribution process is intentionally lightweight until the public API stabilizes.
+Harneloop is currently a public alpha. Focused issues and contributions are welcome while the public API and harness-unit formats stabilize.
 
 ## Development Setup
 
@@ -22,6 +22,8 @@ python3 -m venv .venv
 
 Keep pull requests scoped to one behavior or architectural slice.
 
+Open an issue before substantial architectural work so the problem and compatibility impact can be agreed on first. Include tests for lifecycle changes and update agent-facing documentation when behavior changes.
+
 For now, do not request automated CodeRabbit review. If a PR is created while CodeRabbit is configured, add the repository's CodeRabbit-ignore label or tag before requesting review.
 
 ## Standards
@@ -31,3 +33,5 @@ For now, do not request automated CodeRabbit review. If a PR is created while Co
 - Add or update tests for lifecycle behavior.
 - Keep agent-facing files readable in Markdown, YAML, or JSON.
 - Do not commit secrets, local runtime artifacts, virtual environments, or generated packages.
+
+By contributing, you agree that your contribution is licensed under the repository's [Apache License 2.0](LICENSE).

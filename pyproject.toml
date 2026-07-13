@@ -5,14 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "harneloop"
 version = "0.0.1"
-description = "Protocol-first framework for self-evolving agent harness units."
+description = "Artifact-aware framework for building self-evolving AI agent harnesses."
 readme = "README.md"
+license = "Apache-2.0"
 requires-python = ">=3.11"
 dependencies = ["PyYAML", "rich"]
 authors = [{ name = "Kristofer Jussmann" }]
-keywords = ["agents", "harness", "artifacts", "evaluation", "automation"]
+keywords = ["ai-agents", "agent-harness", "artifact-evaluation", "llm", "self-improving-agents"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
