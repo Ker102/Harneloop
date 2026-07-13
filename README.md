@@ -161,7 +161,7 @@ a candidate is needed. Do not promote a candidate without evidence.
 
 The agent should then:
 
-1. Install the local package if needed and run `harneloop doctor`.
+1. Install the Harneloop tool if needed and run `harneloop doctor`.
 2. Read `harneloop onboard --format json` or [the onboarding guide](docs/agent-onboarding.md).
 3. Create or continue a provisional harness unit and inspect the actual environment.
 4. Reconcile confirmed, delegated, inferred, and unknown context through the adaptive intake checkpoint.
@@ -196,29 +196,15 @@ harneloop onboard --format json
 
 ## Install And Start
 
-Harneloop currently installs from the repository.
-
-### Windows PowerShell
-
-```powershell
-git clone https://github.com/Ker102/Harneloop.git
-cd Harneloop
-python -m venv .venv
-.\.venv\Scripts\python -m pip install -e .
-.\.venv\Scripts\harneloop doctor
-.\.venv\Scripts\harneloop setup
-```
-
-### macOS Or Linux
+Harneloop currently installs from GitHub as an isolated, user-level tool through [uv](https://docs.astral.sh/uv/getting-started/installation/). The resulting `harneloop` command works from any directory on Windows, macOS, and Linux.
 
 ```bash
-git clone https://github.com/Ker102/Harneloop.git
-cd Harneloop
-python3 -m venv .venv
-./.venv/bin/python -m pip install -e .
-./.venv/bin/harneloop doctor
-./.venv/bin/harneloop setup
+uv tool install git+https://github.com/Ker102/Harneloop.git
+harneloop doctor
+harneloop setup
 ```
+
+If `uv` reports that its tool directory is not on `PATH`, run `uv tool update-shell` and open a new terminal. Contributors working from a clone can install the live checkout with `uv tool install --editable .`; see [development setup](docs/development.md).
 
 `harneloop setup` opens the guided human-facing CLI. Running `harneloop` without a command opens the broader interactive menu in a terminal. Agents can use the explicit non-interactive commands directly.
 
@@ -229,6 +215,20 @@ harneloop onboard
 harneloop template list
 harneloop units list
 harneloop settings show
+```
+
+Harness units created by `harneloop setup` or `harneloop init-unit` are registered automatically. Existing units can be added once with:
+
+```bash
+harneloop units register /path/to/my-unit
+```
+
+After registration, use the unit ID or name from any directory instead of a relative path:
+
+```bash
+harneloop units list
+harneloop status my-unit --format markdown
+harneloop environment status my-unit
 ```
 
 ## What The Agent Asks You
@@ -316,20 +316,20 @@ The explicit commands are intended for agents, automation, and technical users:
 
 ```bash
 harneloop init-unit ./my-unit --id my-unit --name "My Harness Unit" --template artifact-review
-harneloop target set ./my-unit --task "..." --success "..."
-harneloop environment connect ./my-unit --name "..." --mode existing --description "..."
-harneloop attempt plan ./my-unit --goal "..." --method "..."
-harneloop run start ./my-unit --task "Baseline attempt"
-harneloop artifact add ./my-unit run-0001 ./output.png --kind image
-harneloop run finish ./my-unit run-0001 --status succeeded --summary "Baseline captured"
-harneloop candidate create ./my-unit --summary "Improve artifact construction"
-harneloop run start ./my-unit --task "Test candidate improvement" --candidate-id cand-0001
-harneloop artifact add ./my-unit run-0002 ./improved-output.png --kind image
-harneloop run finish ./my-unit run-0002 --status succeeded --summary "Candidate result captured"
-harneloop candidate evidence add ./my-unit cand-0001 --kind artifact_review --summary "..." --run-id run-0002 --artifact-id artifact-0001
-harneloop promote ./my-unit cand-0001 --version 0.1.0
-harneloop export ./my-unit --adapter codex
-harneloop package ./my-unit --output ./my-unit-0.1.0.tar.gz
+harneloop target set my-unit --task "..." --success "..."
+harneloop environment connect my-unit --name "..." --mode existing --description "..."
+harneloop attempt plan my-unit --goal "..." --method "..."
+harneloop run start my-unit --task "Baseline attempt"
+harneloop artifact add my-unit run-0001 ./output.png --kind image
+harneloop run finish my-unit run-0001 --status succeeded --summary "Baseline captured"
+harneloop candidate create my-unit --summary "Improve artifact construction"
+harneloop run start my-unit --task "Test candidate improvement" --candidate-id cand-0001
+harneloop artifact add my-unit run-0002 ./improved-output.png --kind image
+harneloop run finish my-unit run-0002 --status succeeded --summary "Candidate result captured"
+harneloop candidate evidence add my-unit cand-0001 --kind artifact_review --summary "..." --run-id run-0002 --artifact-id artifact-0001
+harneloop promote my-unit cand-0001 --version 0.1.0
+harneloop export my-unit --adapter codex
+harneloop package my-unit --output ./my-unit-0.1.0.tar.gz
 ```
 
 This sequence is illustrative, not a fixed recipe. Tool-driven agents may perform many actions between `run start` and `run finish`, capture several artifacts, create multiple attempts, or wait for external results.

@@ -17,7 +17,7 @@ harneloop onboard
 If Harneloop is not installed yet, use:
 
 ```powershell
-python -m harneloop onboard
+uv run harneloop onboard
 ```
 
 Use the five onboarding questions to collect only the minimum context needed for the first baseline attempt: harness goal, usage context, success strategy, validation preference, and environment status. Treat success criteria and artifact choices as guided options. The user does not need to know validation design up front.
@@ -40,7 +40,7 @@ For human-guided setup, use:
 harneloop setup
 ```
 
-For manual harness unit and preference management, use `harneloop units` and `harneloop settings`.
+For manual harness unit and preference management, use `harneloop units` and `harneloop settings`. CLI-created units are registered automatically; a registered unit ID or name can be used from any directory.
 
 ## Product Principles
 

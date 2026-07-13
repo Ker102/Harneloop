@@ -5,9 +5,8 @@ This demo uses the generic artifact-review template. It does not require Blender
 ## Setup
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python -m pip install -e .
-.\.venv\Scripts\harneloop doctor
+uv tool install --editable .
+harneloop doctor
 ```
 
 ## Run The Demo
@@ -16,24 +15,24 @@ python -m venv .venv
 $unit = Join-Path $PWD "demo-artifact-unit"
 $artifact = Join-Path $PWD "demo-artifact.txt"
 
-.\.venv\Scripts\harneloop init-unit $unit --id demo-artifact --name "Demo Artifact Unit" --template artifact-review
-.\.venv\Scripts\harneloop target set $unit --task "Create and capture a simple text artifact" --success "The artifact exists, is copied into runtime artifacts, and can be used as promotion evidence." --artifact-kind text --risk "artifact is not captured"
-.\.venv\Scripts\harneloop environment connect $unit --name "Local text artifact smoke environment" --mode existing --description "Uses local PowerShell commands to create a text artifact." --run-command "Set-Content demo-artifact.txt artifact output" --artifact-path "demo-artifact.txt" --note "This demo uses an existing local shell environment."
-.\.venv\Scripts\harneloop attempt plan $unit --goal "Create and capture a simple text artifact" --method "Use local shell commands to create an artifact, then capture it into Harneloop." --action "Write a text file." --action "Add it as a run artifact." --expected-artifact text --success-check "The artifact is present in runtime artifacts."
-.\.venv\Scripts\harneloop run start $unit --task "Create and capture a simple text artifact" --attempt-id attempt-0001
+harneloop init-unit $unit --id demo-artifact --name "Demo Artifact Unit" --template artifact-review
+harneloop target set demo-artifact --task "Create and capture a simple text artifact" --success "The artifact exists, is copied into runtime artifacts, and can be used as promotion evidence." --artifact-kind text --risk "artifact is not captured"
+harneloop environment connect demo-artifact --name "Local text artifact smoke environment" --mode existing --description "Uses local PowerShell commands to create a text artifact." --run-command "Set-Content demo-artifact.txt artifact output" --artifact-path "demo-artifact.txt" --note "This demo uses an existing local shell environment."
+harneloop attempt plan demo-artifact --goal "Create and capture a simple text artifact" --method "Use local shell commands to create an artifact, then capture it into Harneloop." --action "Write a text file." --action "Add it as a run artifact." --expected-artifact text --success-check "The artifact is present in runtime artifacts."
+harneloop run start demo-artifact --task "Create and capture a simple text artifact" --attempt-id attempt-0001
 Set-Content -Path $artifact -Value "artifact output"
-.\.venv\Scripts\harneloop artifact add $unit run-0001 $artifact --kind text --description "Demo text artifact"
-.\.venv\Scripts\harneloop run finish $unit run-0001 --status succeeded --summary "Artifact captured"
-.\.venv\Scripts\harneloop attempt observe $unit attempt-0001 --run-id run-0001 --outcome succeeded --summary "The expected text artifact was captured." --finding "Artifact capture path is working."
+harneloop artifact add demo-artifact run-0001 $artifact --kind text --description "Demo text artifact"
+harneloop run finish demo-artifact run-0001 --status succeeded --summary "Artifact captured"
+harneloop attempt observe demo-artifact attempt-0001 --run-id run-0001 --outcome succeeded --summary "The expected text artifact was captured." --finding "Artifact capture path is working."
 
-.\.venv\Scripts\harneloop candidate create $unit --summary "Add artifact inspection principle"
+harneloop candidate create demo-artifact --summary "Add artifact inspection principle"
 New-Item -ItemType Directory -Force (Join-Path $unit "candidates\cand-0001\changes\agent-facing") | Out-Null
 Set-Content -Path (Join-Path $unit "candidates\cand-0001\changes\agent-facing\demo-principle.md") -Value "Always inspect captured artifacts before deciding success."
-.\.venv\Scripts\harneloop candidate evidence add $unit cand-0001 --kind artifact_review --summary "The run captured the expected text artifact." --run-id run-0001 --artifact-id artifact-0001
-.\.venv\Scripts\harneloop promote $unit cand-0001 --version 0.1.0
+harneloop candidate evidence add demo-artifact cand-0001 --kind artifact_review --summary "The run captured the expected text artifact." --run-id run-0001 --artifact-id artifact-0001
+harneloop promote demo-artifact cand-0001 --version 0.1.0
 
-.\.venv\Scripts\harneloop export $unit --adapter codex
-.\.venv\Scripts\harneloop status $unit --format markdown
+harneloop export demo-artifact --adapter codex
+harneloop status demo-artifact --format markdown
 ```
 
 Expected result:
@@ -55,7 +54,7 @@ Some environments do not have a single run command. For example, a Blender agent
 Use `--interaction-mode mcp` and declare the tools:
 
 ```powershell
-.\.venv\Scripts\harneloop environment connect $unit `
+harneloop environment connect demo-artifact `
   --name "Existing Blender MCP environment" `
   --mode existing `
   --interaction-mode mcp `
@@ -73,7 +72,7 @@ This generates `environment/GETTING_STARTED.md`, which tells the agent to run a 
 For a Blender MCP attempt, create an attempt plan instead of looking for a single test command:
 
 ```powershell
-.\.venv\Scripts\harneloop attempt plan $unit `
+harneloop attempt plan demo-artifact `
   --goal "Build a Blender scene with a cube on a table and a visible camera view." `
   --method "Use Blender MCP tools to create objects, render, and export scene summary." `
   --action "Create table, cube, camera, and light with MCP tools." `

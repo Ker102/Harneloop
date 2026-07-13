@@ -35,6 +35,7 @@ from .preferences import (
     load_preferences,
     register_unit,
     remove_registered_unit,
+    resolve_unit_reference,
     update_preference,
 )
 from .runs import add_artifact, finish_run, start_run
@@ -45,6 +46,10 @@ from .templates import list_templates
 from .unit import init_unit, upgrade_unit_protocol
 from .validation import validate_unit
 from .versioning import promote_candidate, rollback_unit
+
+
+def add_unit_reference(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("unit", type=Path, help="Harness unit path, registered ID, or registered name")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -62,7 +67,7 @@ def build_parser() -> argparse.ArgumentParser:
     units_list = units_subparsers.add_parser("list", help="List registered harness units")
     units_list.add_argument("--home", type=Path)
     units_register = units_subparsers.add_parser("register", help="Register an existing harness unit")
-    units_register.add_argument("unit", type=Path)
+    units_register.add_argument("unit", type=Path, help="Path to an existing harness unit")
     units_register.add_argument("--home", type=Path)
     units_remove = units_subparsers.add_parser("remove", help="Remove a harness unit from the local registry")
     units_remove.add_argument("unit_id_or_path")
@@ -78,27 +83,29 @@ def build_parser() -> argparse.ArgumentParser:
     settings_set.add_argument("--home", type=Path)
 
     init_parser = subparsers.add_parser("init-unit", help="Create a new harness unit")
-    init_parser.add_argument("path", type=Path)
+    init_parser.add_argument("path", type=Path, help="Directory in which to create the harness unit")
     init_parser.add_argument("--id", required=True)
     init_parser.add_argument("--name", required=True)
     init_parser.add_argument("--template", default="blank", choices=list_templates())
+    init_parser.add_argument("--home", type=Path, help="Override the Harneloop home used for registration")
+    init_parser.add_argument("--no-register", action="store_true", help="Create the unit without registering it")
 
     upgrade_parser = subparsers.add_parser("upgrade-unit", help="Add missing current protocol files to an existing unit")
-    upgrade_parser.add_argument("unit", type=Path)
+    add_unit_reference(upgrade_parser)
 
     intake_parser = subparsers.add_parser("intake", help="Review and resolve adaptive onboarding context")
     intake_subparsers = intake_parser.add_subparsers(dest="intake_command", required=True)
     intake_status = intake_subparsers.add_parser("status", help="Show confirmed, inferred, and unresolved context")
-    intake_status.add_argument("unit", type=Path)
+    add_unit_reference(intake_status)
     intake_status.add_argument("--format", choices=["markdown", "json"], default="markdown")
     intake_resolve = intake_subparsers.add_parser("resolve", help="Record one onboarding context field")
-    intake_resolve.add_argument("unit", type=Path)
+    add_unit_reference(intake_resolve)
     intake_resolve.add_argument("--field", required=True, choices=sorted(INTAKE_FIELDS))
     intake_resolve.add_argument("--value", required=True)
     intake_resolve.add_argument("--status", required=True, choices=sorted(FIELD_STATUSES - {"unknown"}))
     intake_resolve.add_argument("--source", required=True)
     intake_acknowledge = intake_subparsers.add_parser("acknowledge", help="Record user confirmation or delegation")
-    intake_acknowledge.add_argument("unit", type=Path)
+    add_unit_reference(intake_acknowledge)
     intake_acknowledge.add_argument("--basis", required=True, choices=sorted(ACKNOWLEDGEMENT_BASES))
     intake_acknowledge.add_argument("--note", required=True)
 
@@ -109,7 +116,7 @@ def build_parser() -> argparse.ArgumentParser:
     target_parser = subparsers.add_parser("target", help="Describe the target task for a harness unit")
     target_subparsers = target_parser.add_subparsers(dest="target_command", required=True)
     target_set = target_subparsers.add_parser("set", help="Set the target task brief")
-    target_set.add_argument("unit", type=Path)
+    add_unit_reference(target_set)
     target_set.add_argument("--task", required=True)
     target_set.add_argument("--success", required=True)
     target_set.add_argument("--artifact-kind", action="append", default=[])
@@ -118,7 +125,7 @@ def build_parser() -> argparse.ArgumentParser:
     environment_parser = subparsers.add_parser("environment", help="Connect a unit to a testing environment")
     environment_subparsers = environment_parser.add_subparsers(dest="environment_command", required=True)
     environment_connect = environment_subparsers.add_parser("connect", help="Create an environment contract")
-    environment_connect.add_argument("unit", type=Path)
+    add_unit_reference(environment_connect)
     environment_connect.add_argument("--name", required=True)
     environment_connect.add_argument("--mode", choices=sorted(ENVIRONMENT_MODES), required=True)
     environment_connect.add_argument("--description", required=True)
@@ -128,12 +135,12 @@ def build_parser() -> argparse.ArgumentParser:
     environment_connect.add_argument("--tool", action="append", default=[])
     environment_connect.add_argument("--note", action="append", default=[])
     environment_status = environment_subparsers.add_parser("status", help="Print the environment contract")
-    environment_status.add_argument("unit", type=Path)
+    add_unit_reference(environment_status)
 
     attempt_parser = subparsers.add_parser("attempt", help="Plan and observe agent attempts")
     attempt_subparsers = attempt_parser.add_subparsers(dest="attempt_command", required=True)
     attempt_plan = attempt_subparsers.add_parser("plan", help="Create an agent-authored attempt plan")
-    attempt_plan.add_argument("unit", type=Path)
+    add_unit_reference(attempt_plan)
     attempt_plan.add_argument("--goal", required=True)
     attempt_plan.add_argument("--method", required=True)
     attempt_plan.add_argument("--action", action="append", default=[])
@@ -142,7 +149,7 @@ def build_parser() -> argparse.ArgumentParser:
     attempt_plan.add_argument("--note", action="append", default=[])
 
     attempt_observe = attempt_subparsers.add_parser("observe", help="Add an observation to an attempt")
-    attempt_observe.add_argument("unit", type=Path)
+    add_unit_reference(attempt_observe)
     attempt_observe.add_argument("attempt_id")
     attempt_observe.add_argument("--summary", required=True)
     attempt_observe.add_argument("--outcome", default="unknown")
@@ -150,7 +157,7 @@ def build_parser() -> argparse.ArgumentParser:
     attempt_observe.add_argument("--finding", action="append", default=[])
 
     attempt_conclude = attempt_subparsers.add_parser("conclude", help="Evaluate an attempt and choose its next lifecycle action")
-    attempt_conclude.add_argument("unit", type=Path)
+    add_unit_reference(attempt_conclude)
     attempt_conclude.add_argument("attempt_id")
     attempt_conclude.add_argument("--run-id", required=True)
     attempt_conclude.add_argument("--outcome", required=True, choices=sorted(VALID_CONCLUSION_OUTCOMES))
@@ -162,13 +169,13 @@ def build_parser() -> argparse.ArgumentParser:
     candidate_parser = subparsers.add_parser("candidate", help="Manage candidates")
     candidate_subparsers = candidate_parser.add_subparsers(dest="candidate_command", required=True)
     candidate_create = candidate_subparsers.add_parser("create", help="Create a candidate patch workspace")
-    candidate_create.add_argument("unit", type=Path)
+    add_unit_reference(candidate_create)
     candidate_create.add_argument("--summary", required=True)
     candidate_create.add_argument("--kind", default="mixed")
     candidate_evidence = candidate_subparsers.add_parser("evidence", help="Manage candidate evidence")
     candidate_evidence_subparsers = candidate_evidence.add_subparsers(dest="evidence_command", required=True)
     candidate_evidence_add = candidate_evidence_subparsers.add_parser("add", help="Add evidence to a candidate")
-    candidate_evidence_add.add_argument("unit", type=Path)
+    add_unit_reference(candidate_evidence_add)
     candidate_evidence_add.add_argument("candidate_id")
     candidate_evidence_add.add_argument("--kind", required=True)
     candidate_evidence_add.add_argument("--summary", required=True)
@@ -178,36 +185,36 @@ def build_parser() -> argparse.ArgumentParser:
     candidate_evidence_add.add_argument("--path", type=Path)
 
     promote_parser = subparsers.add_parser("promote", help="Promote a candidate into a version snapshot")
-    promote_parser.add_argument("unit", type=Path)
+    add_unit_reference(promote_parser)
     promote_parser.add_argument("candidate_id")
     promote_parser.add_argument("--version", required=True)
     promote_parser.add_argument("--summary")
     promote_parser.add_argument("--allow-missing-evidence", action="store_true")
 
     rollback_parser = subparsers.add_parser("rollback", help="Restore a promoted version snapshot")
-    rollback_parser.add_argument("unit", type=Path)
+    add_unit_reference(rollback_parser)
     rollback_parser.add_argument("--to", required=True, dest="version")
 
     package_parser = subparsers.add_parser("package", help="Create a portable package from a promoted version")
-    package_parser.add_argument("unit", type=Path)
+    add_unit_reference(package_parser)
     package_parser.add_argument("--output", type=Path, required=True)
     package_parser.add_argument("--profile", default="thin")
     package_parser.add_argument("--version")
 
     export_parser = subparsers.add_parser("export", help="Export a harness unit for a target agent")
-    export_parser.add_argument("unit", type=Path)
+    add_unit_reference(export_parser)
     export_parser.add_argument("--adapter", required=True, choices=sorted(SUPPORTED_ADAPTERS))
     export_parser.add_argument("--output", type=Path)
 
     validate_parser = subparsers.add_parser("validate", help="Validate a harness unit")
-    validate_parser.add_argument("unit", type=Path)
+    add_unit_reference(validate_parser)
 
     status_parser = subparsers.add_parser("status", help="Print harness unit lifecycle state")
-    status_parser.add_argument("unit", type=Path)
+    add_unit_reference(status_parser)
     status_parser.add_argument("--format", choices=["json", "markdown"], default="json")
 
     brief_parser = subparsers.add_parser("brief", help="Recover compact context for one harness unit")
-    brief_parser.add_argument("unit", type=Path)
+    add_unit_reference(brief_parser)
     brief_parser.add_argument("--format", choices=["markdown", "json"], default="markdown")
 
     doctor_parser = subparsers.add_parser("doctor", help="Check local Harneloop runtime prerequisites")
@@ -218,13 +225,13 @@ def build_parser() -> argparse.ArgumentParser:
     run_subparsers = run_parser.add_subparsers(dest="run_command", required=True)
 
     run_start = run_subparsers.add_parser("start", help="Start a run record")
-    run_start.add_argument("unit", type=Path)
+    add_unit_reference(run_start)
     run_start.add_argument("--task", required=True)
     run_start.add_argument("--candidate-id")
     run_start.add_argument("--attempt-id")
 
     run_finish = run_subparsers.add_parser("finish", help="Finish a run record")
-    run_finish.add_argument("unit", type=Path)
+    add_unit_reference(run_finish)
     run_finish.add_argument("run_id")
     run_finish.add_argument("--status", required=True, choices=["succeeded", "failed", "stopped"])
     run_finish.add_argument("--summary")
@@ -232,7 +239,7 @@ def build_parser() -> argparse.ArgumentParser:
     artifact_parser = subparsers.add_parser("artifact", help="Manage run artifacts")
     artifact_subparsers = artifact_parser.add_subparsers(dest="artifact_command", required=True)
     artifact_add = artifact_subparsers.add_parser("add", help="Attach an artifact to a run")
-    artifact_add.add_argument("unit", type=Path)
+    add_unit_reference(artifact_add)
     artifact_add.add_argument("run_id")
     artifact_add.add_argument("source", type=Path)
     artifact_add.add_argument("--kind", required=True)
@@ -243,19 +250,19 @@ def build_parser() -> argparse.ArgumentParser:
     state_subparsers = state_parser.add_subparsers(dest="state_command", required=True)
 
     wait_parser = state_subparsers.add_parser("wait", help="Mark a unit as waiting")
-    wait_parser.add_argument("unit", type=Path)
+    add_unit_reference(wait_parser)
     wait_parser.add_argument("--reason", required=True)
     wait_parser.add_argument("--next-action", required=True)
     wait_parser.add_argument("--resume-after")
     wait_parser.add_argument("--resume-condition")
 
     stop_parser = state_subparsers.add_parser("stop", help="Mark a unit as stopped")
-    stop_parser.add_argument("unit", type=Path)
+    add_unit_reference(stop_parser)
     stop_parser.add_argument("--reason", required=True)
     stop_parser.add_argument("--next-action")
 
     resume_parser = state_subparsers.add_parser("resume", help="Return a unit to active state")
-    resume_parser.add_argument("unit", type=Path)
+    add_unit_reference(resume_parser)
     resume_parser.add_argument("--reason", default="manual_resume")
     resume_parser.add_argument("--next-action")
 
@@ -283,6 +290,9 @@ def main(argv: list[str] | None = None) -> int:
             from .interactive import run_interactive_menu
 
             return run_interactive_menu()
+
+        if hasattr(args, "unit") and args.command != "units":
+            args.unit = resolve_unit_reference(args.unit)
 
         if args.command == "onboard":
             if args.format == "json":
@@ -351,6 +361,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "init-unit":
             path = init_unit(args.path, args.id, args.name, args.template)
             print(f"Created harness unit: {path}")
+            if not args.no_register:
+                record = register_unit(args.home, path)
+                print(f"Registered harness unit: {record['name']} ({record['id']})")
             return 0
 
         if args.command == "upgrade-unit":

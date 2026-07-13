@@ -12,10 +12,18 @@ schemas/         Language-neutral data contracts
 
 ## Local Verification
 
+Install the checkout as an editable user-level tool once:
+
 ```powershell
-.\.venv\Scripts\python -m compileall src tests
-.\.venv\Scripts\python -m unittest discover -s tests
-.\.venv\Scripts\harneloop doctor
+uv tool install --editable .
+```
+
+The `harneloop` command then remains available outside the repository while reflecting source changes. Run verification with:
+
+```powershell
+uv run python -m compileall src tests
+uv run python -m unittest discover -s tests
+harneloop doctor
 ```
 
 ## DevOps Baseline

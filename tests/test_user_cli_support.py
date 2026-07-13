@@ -1,17 +1,22 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 from harneloop.cli import main
+from harneloop.environment import connect_environment
+from harneloop.errors import HarneloopError
 from harneloop.preferences import (
     DEFAULT_PREFERENCES,
     list_registered_units,
     load_preferences,
     register_unit,
+    resolve_unit_reference,
     update_preference,
 )
 from harneloop.setup_flow import (
@@ -130,6 +135,73 @@ class UserCliSupportTests(unittest.TestCase):
             self.assertEqual(list_result, 0)
             self.assertIn("Demo Unit", output.getvalue())
             self.assertIn(str(unit), output.getvalue())
+
+    def test_init_unit_registers_unit_unless_disabled(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            home = root / "harneloop-home"
+
+            with redirect_stdout(StringIO()):
+                result = main(
+                    [
+                        "init-unit",
+                        str(root / "demo-unit"),
+                        "--id",
+                        "demo-unit",
+                        "--name",
+                        "Demo Unit",
+                        "--home",
+                        str(home),
+                    ]
+                )
+
+            self.assertEqual(result, 0)
+            self.assertEqual([unit["id"] for unit in list_registered_units(home)], ["demo-unit"])
+
+    def test_registered_unit_id_works_outside_unit_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            home = root / "harneloop-home"
+            elsewhere = root / "elsewhere"
+            elsewhere.mkdir()
+            unit = init_unit(root / "demo-unit", "demo-unit", "Demo Unit")
+            connect_environment(
+                unit,
+                name="Existing environment",
+                mode="existing",
+                description="A mapped test environment.",
+                interaction_mode="custom",
+            )
+            register_unit(home, unit)
+
+            original_cwd = Path.cwd()
+            try:
+                os.chdir(elsewhere)
+                with patch.dict(os.environ, {"HARNELOOP_HOME": str(home)}):
+                    status_output = StringIO()
+                    with redirect_stdout(status_output):
+                        status_result = main(["status", "demo-unit", "--format", "markdown"])
+                    environment_output = StringIO()
+                    with redirect_stdout(environment_output):
+                        environment_result = main(["environment", "status", "Demo Unit"])
+            finally:
+                os.chdir(original_cwd)
+
+            self.assertEqual(status_result, 0)
+            self.assertEqual(environment_result, 0)
+            self.assertIn("Current State", status_output.getvalue())
+            self.assertIn("Existing environment", environment_output.getvalue())
+
+    def test_resolve_unit_reference_reports_stale_registry_entry(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            home = root / "harneloop-home"
+            unit = init_unit(root / "demo-unit", "demo-unit", "Demo Unit")
+            register_unit(home, unit)
+            unit.rename(root / "moved-unit")
+
+            with self.assertRaisesRegex(HarneloopError, "registered path no longer exists"):
+                resolve_unit_reference("demo-unit", home)
 
 
 if __name__ == "__main__":

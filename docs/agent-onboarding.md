@@ -14,10 +14,10 @@ For an agent-readable checklist, run:
 harneloop onboard
 ```
 
-or, before editable install:
+or, from a repository clone before a persistent tool install:
 
 ```powershell
-python -m harneloop onboard
+uv run harneloop onboard
 ```
 
 For machine-readable output:
@@ -97,7 +97,7 @@ Optional follow-up:
 - Result quality and the next lifecycle decision are recorded with `harneloop attempt conclude`.
 - Harness changes become candidates and require evidence before promotion.
 - User defaults can be managed with `harneloop settings`.
-- Local harness units can be listed or registered with `harneloop units`.
+- Local harness units can be listed or registered with `harneloop units`. Once registered, their ID or name works in unit-scoped commands from any directory.
 
 ## Important Behavior
 
