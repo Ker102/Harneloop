@@ -28,7 +28,7 @@ harneloop onboard --format json
 
 ## Minimal User Questions
 
-Ask these before creating the first harness unit:
+Use these as context fields, not as a mandatory questionnaire. The agent may create the provisional unit and inspect the workspace first, then ask only the questions that still matter:
 
 1. What should this harness help an agent get better at?
 2. Where will the harness be used, such as a coding-agent workflow, an app agent, research, or internal automation?
@@ -36,7 +36,9 @@ Ask these before creating the first harness unit:
 4. How should results be validated?
 5. Does a testing environment already exist, partly exist, need to be built, or is that not clear yet?
 
-Do not turn onboarding into a long intake form. Success criteria and artifact choices are guided options, not required expertise from the user. If an answer is missing but not blocking, record an assumption and create the first baseline attempt.
+Do not turn onboarding into a long intake form. Success criteria and artifact choices are guided options, not required expertise from the user. Run `harneloop intake status <unit>` after inspection and classify important context as confirmed, delegated, inferred, unknown, or not applicable. Do not silently convert an inference into confirmed unit truth.
+
+Before the first real run, resolve the relevant fields and record explicit user confirmation or delegation with `harneloop intake acknowledge`. If a missing reference, target project, credential, or judgment can materially change the test, ask for it directly or enter a wait state rather than only mentioning the gap after setup.
 
 Harneloop records the environment mapping. It does not discover test endpoints, MCP tools, run commands, screenshot locations, render outputs, or artifact paths by itself. The onboarding agent must inspect the actual project/environment, determine how artifacts are produced, and write that mapping into the harness.
 
@@ -90,6 +92,7 @@ Optional follow-up:
 - Existing commands, MCP servers, manual steps, or custom tools become an environment contract: `harneloop environment connect`.
 - The first real workflow becomes an attempt plan: `harneloop attempt plan`.
 - Produced outputs become run artifacts: `harneloop run start`, `harneloop artifact add`, `harneloop run finish`.
+- Result quality and the next lifecycle decision are recorded with `harneloop attempt conclude`.
 - Harness changes become candidates and require evidence before promotion.
 - User defaults can be managed with `harneloop settings`.
 - Local harness units can be listed or registered with `harneloop units`.
@@ -101,3 +104,7 @@ Harneloop does not require every task to have a direct test command. For a tool-
 The agent should aim to run repeated testing and improvement loops without requiring the user to manually restart apps, reinstall addons, reset services, or collect files. If environment automation is reasonable, implement or document it. If it is risky, unclear, or too expensive/time-consuming, ask the user before proceeding.
 
 If a required artifact or human judgment is delayed, use `harneloop state wait`. If the unit appears to hit a capability limit, use `harneloop state stop` with a concrete reason and next action.
+
+Finishing a run records execution status; it does not prove that the produced result is good. Inspect the artifacts and conclude every attempt with one explicit decision: accept the current harness, create a candidate, rerun with a corrected plan, request missing input, or stop. A good first result may be accepted with no candidate. Missing expected evidence cannot support an unqualified pass.
+
+When entering or resuming work on a unit, run `harneloop brief <unit>`. The generated brief is scoped to that harness unit, so unrelated work in the same agent session remains unaffected.

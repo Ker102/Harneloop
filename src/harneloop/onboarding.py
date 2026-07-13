@@ -45,6 +45,11 @@ OPTIONAL_ONBOARDING_FOLLOW_UPS: list[dict[str, str]] = [
 
 CONTEXT_FIELDS: list[dict[str, str]] = [
     {
+        "name": "Adaptive intake",
+        "captures": "which important context is confirmed, delegated, inferred, unknown, or not applicable",
+        "command": "harneloop intake status <harness-unit>; then resolve relevant fields and acknowledge confirmation or delegation",
+    },
+    {
         "name": "Operational map",
         "captures": "the current working understanding of workflow, artifacts, evidence, environment assumptions, reset paths, capability gaps, constraints, and open questions",
         "command": "update operational-map.md after inspecting the real workspace and whenever the unit workflow changes",
@@ -74,17 +79,24 @@ CONTEXT_FIELDS: list[dict[str, str]] = [
         "captures": "why a harness change should or should not be promoted",
         "command": "harneloop candidate evidence add <harness-unit> <candidate-id> --kind ... --summary ...",
     },
+    {
+        "name": "Attempt conclusion",
+        "captures": "result quality, expected-artifact coverage, confidence, and the next lifecycle decision",
+        "command": "harneloop attempt conclude <harness-unit> <attempt-id> --run-id ... --outcome ... --decision ...",
+    },
 ]
 
 
 FIRST_ACTIONS: list[str] = [
     "Run `harneloop doctor` to confirm the local runtime is usable.",
     "Create a harness unit with `harneloop init-unit <path> --id <id> --name <name> --template artifact-review` unless a blank harness unit is intentional.",
+    "Inspect the available workspace, then run `harneloop intake status <harness-unit>` and surface only the questions that still matter.",
+    "Resolve relevant intake fields and acknowledge explicit user confirmation or delegation before the first real run.",
     "Read `operational-map.md` and update it as the current orientation for this harness unit.",
     "Convert the user's answers into a target brief with `harneloop target set`.",
     "Connect or describe the execution environment with `harneloop environment connect`.",
     "Create the first baseline attempt with `harneloop attempt plan` before changing the harness.",
-    "Record runs, artifacts, observations, and candidate evidence before promotion.",
+    "Record runs and artifacts, then use `harneloop attempt conclude` before creating a candidate, accepting the current harness, rerunning, requesting input, or stopping.",
 ]
 
 
@@ -98,6 +110,8 @@ def render_onboarding_json() -> dict[str, Any]:
         "first_actions": FIRST_ACTIONS,
         "agent_rules": [
             "Ask only the minimal questions needed before the first baseline attempt.",
+            "Scaffold and inspect first, then reconcile onboarding context; do not silently convert inferred or unknown context into confirmed unit truth.",
+            "If missing reference inputs or user intent can materially change the test, initiate a concrete follow-up question or wait state instead of only mentioning the gap at the end.",
             "Treat success criteria and artifact choices as guided options; the user does not need to design validation up front.",
             "Use `operational-map.md` as context and navigation, not as a rigid procedure; update it when workflow, evidence needs, or environment assumptions change.",
             "Harneloop does not discover environment endpoints, tools, commands, or artifact paths by itself; the onboarding agent must inspect the workspace and record that mapping.",
@@ -112,6 +126,9 @@ def render_onboarding_json() -> dict[str, Any]:
             "Aim to run repeated testing/improvement loops without requiring the user to restart apps, reinstall addons, reset services, or collect files; if automating the environment is reasonable, implement or document it.",
             "Ask the user before environment automation when the automation is risky, unclear, or too expensive/time-consuming.",
             "Do not promote harness changes without concrete evidence or an explicit override.",
+            "Execution success only means a run completed; inspect the result and use `harneloop attempt conclude` to record quality, artifact coverage, confidence, and the next decision.",
+            "Every finished attempt must end in accept, create_candidate, rerun, request_input, or stop; a good first result may be accepted with no candidate.",
+            "Use `harneloop brief <harness-unit>` when entering a unit or recovering from context loss; apply that brief only to work involving the unit.",
             "Use wait and stop states when artifacts, human feedback, or external systems are delayed.",
         ],
     }

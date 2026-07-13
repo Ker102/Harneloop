@@ -109,12 +109,13 @@ The default `thin` package contains the promoted knowledge and contracts needed 
 
 1. **Describe the goal.** The user explains what the agent should become better at.
 2. **Map the environment.** The operating agent discovers how the real task is performed and where useful evidence comes from.
-3. **Run a baseline.** The agent attempts the task before changing the harness.
-4. **Inspect the result.** It examines real artifacts and records concrete findings.
-5. **Create a candidate.** Instructions, tools, retrieval, validators, examples, or infrastructure are changed in an isolated workspace.
-6. **Test the candidate.** The agent runs relevant and regression tasks and attaches evidence.
-7. **Promote, revise, wait, or stop.** Supported improvements become a version. Weak candidates are revised or rejected. Delayed evidence and model limits are recorded rather than hidden.
-8. **Export or package.** The promoted harness can be applied to a coding agent, application agent, or another compatible environment.
+3. **Reconcile assumptions.** Important context is confirmed, delegated, or clearly marked as inferred before the first real run.
+4. **Run a baseline.** The agent attempts the task before changing the harness.
+5. **Inspect and conclude.** It evaluates the artifacts and explicitly accepts, changes, reruns, requests input, or stops.
+6. **Create a candidate when needed.** The proposed harness change is developed in an isolated workspace.
+7. **Test the candidate.** The agent runs relevant and regression tasks and attaches evidence.
+8. **Promote, revise, wait, or stop.** Supported improvements become a version. Weak candidates are revised or rejected.
+9. **Export or package.** The promoted harness can be applied to a coding agent, application agent, or another compatible environment.
 
 Finished runs are immutable. Candidate evidence is checked when attached and checked again at promotion, so deleted runs, missing artifacts, or missing evidence files cannot support a release.
 
@@ -153,20 +154,20 @@ Read this repository's README.md and docs/agent-onboarding.md.
 Use Harneloop to create a harness unit that improves an agent at: [describe the task].
 
 Inspect my existing environment before deciding how to test it. Ask only for context
-that is genuinely missing. Run a baseline, capture and inspect real artifacts when
-they provide useful evidence, and develop improvements through Harneloop candidates.
-Do not promote a candidate without evidence.
+that can materially change the work, and do not silently treat assumptions as confirmed.
+Run a baseline, inspect its artifacts, and conclude the attempt before deciding whether
+a candidate is needed. Do not promote a candidate without evidence.
 ```
 
 The agent should then:
 
 1. Install the local package if needed and run `harneloop doctor`.
 2. Read `harneloop onboard --format json` or [the onboarding guide](docs/agent-onboarding.md).
-3. Ask the minimum setup questions.
-4. Create or continue a harness unit.
-5. Inspect the actual workspace, tools, and testing environment.
-6. Update `operational-map.md` with its current understanding.
-7. Connect the environment and perform a baseline before proposing improvements.
+3. Create or continue a provisional harness unit and inspect the actual environment.
+4. Reconcile confirmed, delegated, inferred, and unknown context through the adaptive intake checkpoint.
+5. Update `operational-map.md` with the current understanding.
+6. Perform a baseline and inspect the resulting artifacts.
+7. Conclude the attempt before accepting the current harness or proposing improvements.
 
 ### Instructions For Agents Reading This Repository
 
@@ -174,7 +175,9 @@ If you are the operating agent:
 
 - Do not assume every task has a test command.
 - Do not assume Harneloop discovers endpoints, tools, screenshots, or artifact paths for you.
-- Read `UNIT_AGENT.md`, `operational-map.md`, `CURRENT_STATE.md`, and `NEXT_ACTION.md` when entering a unit.
+- Run `harneloop brief <unit>` and read `AGENTS.md`, `UNIT_AGENT.md`, and `operational-map.md` when entering a unit or recovering from context loss.
+- Apply the unit brief only while working on that harness unit; unrelated project work remains outside its scope.
+- Use `harneloop intake status` to surface only unresolved questions that can materially change the work.
 - Inspect the real environment and map it into `target/` and `environment/`.
 - Prefer real artifact inspection when deterministic checks cannot establish quality.
 - Separate your own capabilities from tools being designed for the target agent.
@@ -183,6 +186,7 @@ If you are the operating agent:
 - Use Harneloop commands for runs, artifacts, evidence, promotion, rollback, wait, stop, and resume.
 - Ask before adding credentials, paid services, external access, security-sensitive tools, or expensive infrastructure.
 - Update the operational map when assumptions, artifact paths, tools, or automation change.
+- Never stop at run completion: inspect the artifacts and record an explicit decision with `harneloop attempt conclude`.
 
 Machine-readable onboarding is available through:
 

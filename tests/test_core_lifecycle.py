@@ -34,6 +34,9 @@ from harneloop.versioning import promote_candidate, rollback_unit
 from harneloop.yamlio import read_yaml
 
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
 class CoreLifecycleTests(unittest.TestCase):
     def _acknowledge_test_intake(self, unit: Path) -> None:
         acknowledge_intake(unit, basis="user_delegated", note="Test delegates setup context.")
@@ -649,6 +652,11 @@ class CoreLifecycleTests(unittest.TestCase):
         self.assertIn("Capability additions should be justified", markdown)
         self.assertIn("best verified result, not a from-scratch implementation", markdown)
         self.assertIn("Record the source, relevant version, purpose", markdown)
+        self.assertIn("harneloop intake status", markdown)
+        self.assertIn("do not silently convert", markdown)
+        self.assertIn("harneloop attempt conclude", markdown)
+        self.assertIn("execution success", markdown.lower())
+        self.assertTrue((REPO_ROOT / "skills" / "harneloop" / "SKILL.md").exists())
 
 
 if __name__ == "__main__":
