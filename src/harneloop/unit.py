@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .errors import HarneloopError
+from .intake import initialize_intake
 from .operational_map import write_initial_operational_map
 from .state import now_iso, write_state
 from .templates import apply_template
@@ -77,6 +78,7 @@ def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> P
     )
 
     write_initial_operational_map(unit_root, unit_id, name)
+    initialize_intake(unit_root)
 
     (unit_root / "provenance" / "changelog.md").write_text(
         f"# Changelog\n\n- {now_iso()}: Created harness unit `{unit_id}`.\n",

@@ -10,6 +10,15 @@ from .diagnostics import run_doctor
 from .environment import ENVIRONMENT_MODES, INTERACTION_MODES, connect_environment, render_environment_status
 from .errors import HarneloopError
 from .evidence import add_evidence
+from .intake import (
+    ACKNOWLEDGEMENT_BASES,
+    FIELD_STATUSES,
+    INTAKE_FIELDS,
+    acknowledge_intake,
+    read_intake,
+    render_intake_markdown,
+    resolve_intake_field,
+)
 from .adapters import SUPPORTED_ADAPTERS, export_unit
 from .attempts import add_attempt_observation, create_attempt_plan
 from .onboarding import render_onboarding_json, render_onboarding_markdown
@@ -66,6 +75,22 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("--id", required=True)
     init_parser.add_argument("--name", required=True)
     init_parser.add_argument("--template", default="blank", choices=list_templates())
+
+    intake_parser = subparsers.add_parser("intake", help="Review and resolve adaptive onboarding context")
+    intake_subparsers = intake_parser.add_subparsers(dest="intake_command", required=True)
+    intake_status = intake_subparsers.add_parser("status", help="Show confirmed, inferred, and unresolved context")
+    intake_status.add_argument("unit", type=Path)
+    intake_status.add_argument("--format", choices=["markdown", "json"], default="markdown")
+    intake_resolve = intake_subparsers.add_parser("resolve", help="Record one onboarding context field")
+    intake_resolve.add_argument("unit", type=Path)
+    intake_resolve.add_argument("--field", required=True, choices=sorted(INTAKE_FIELDS))
+    intake_resolve.add_argument("--value", required=True)
+    intake_resolve.add_argument("--status", required=True, choices=sorted(FIELD_STATUSES - {"unknown"}))
+    intake_resolve.add_argument("--source", required=True)
+    intake_acknowledge = intake_subparsers.add_parser("acknowledge", help="Record user confirmation or delegation")
+    intake_acknowledge.add_argument("unit", type=Path)
+    intake_acknowledge.add_argument("--basis", required=True, choices=sorted(ACKNOWLEDGEMENT_BASES))
+    intake_acknowledge.add_argument("--note", required=True)
 
     template_parser = subparsers.add_parser("template", help="Inspect available unit templates")
     template_subparsers = template_parser.add_subparsers(dest="template_command", required=True)
@@ -241,6 +266,26 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print(render_onboarding_markdown(), end="")
             return 0
+
+        if args.command == "intake":
+            if args.intake_command == "status":
+                data = read_intake(args.unit)
+                print(json.dumps(data, indent=2) if args.format == "json" else render_intake_markdown(data), end="" if args.format == "markdown" else "\n")
+                return 0
+            if args.intake_command == "resolve":
+                data = resolve_intake_field(
+                    args.unit,
+                    args.field,
+                    value=args.value,
+                    status=args.status,
+                    source=args.source,
+                )
+                print(json.dumps(data["fields"][args.field], indent=2))
+                return 0
+            if args.intake_command == "acknowledge":
+                data = acknowledge_intake(args.unit, basis=args.basis, note=args.note)
+                print(json.dumps(data["acknowledgement"], indent=2))
+                return 0
 
         if args.command == "setup":
             if not sys.stdin.isatty():

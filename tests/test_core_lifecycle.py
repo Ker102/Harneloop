@@ -13,6 +13,7 @@ from harneloop.diagnostics import run_doctor
 from harneloop.environment import connect_environment, render_environment_status
 from harneloop.errors import HarneloopError
 from harneloop.evidence import add_evidence, list_evidence
+from harneloop.intake import acknowledge_intake, read_intake, render_intake_markdown, resolve_intake_field
 from harneloop.onboarding import render_onboarding_json, render_onboarding_markdown
 from harneloop.packaging import package_unit
 from harneloop.runs import add_artifact, finish_run, start_run
@@ -26,6 +27,42 @@ from harneloop.yamlio import read_yaml
 
 
 class CoreLifecycleTests(unittest.TestCase):
+    def _acknowledge_test_intake(self, unit: Path) -> None:
+        acknowledge_intake(unit, basis="user_delegated", note="Test delegates setup context.")
+
+    def test_new_unit_requires_adaptive_intake_before_first_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            intake = read_intake(unit)
+
+            self.assertEqual(intake["status"], "pending")
+            self.assertEqual(intake["policy"], "adaptive")
+            self.assertEqual(intake["fields"]["harness_goal"]["status"], "unknown")
+            self.assertIn("questions that still matter", render_intake_markdown(intake))
+            with self.assertRaisesRegex(HarneloopError, "intake checkpoint"):
+                start_run(unit, task="Premature baseline")
+
+    def test_intake_can_record_inference_and_explicit_user_delegation(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            resolve_intake_field(
+                unit,
+                "harness_goal",
+                value="Improve responsive interface reproduction",
+                status="inferred",
+                source="initial user prompt",
+            )
+            ready = acknowledge_intake(
+                unit,
+                basis="user_delegated",
+                note="User asked the agent to propose the remaining validation details.",
+            )
+
+            self.assertEqual(ready["status"], "ready")
+            self.assertEqual(ready["acknowledgement"]["basis"], "user_delegated")
+            self.assertEqual(ready["fields"]["harness_goal"]["status"], "inferred")
+            self.assertEqual(start_run(unit, task="Delegated baseline").name, "run-0001")
+
     def test_create_candidate_promote_snapshot_and_package(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
@@ -203,6 +240,7 @@ class CoreLifecycleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             unit = init_unit(root / "unit", "demo", "Demo Unit")
+            self._acknowledge_test_intake(unit)
             run_root = start_run(unit, task="Create a simple artifact")
             self.assertEqual(run_root.name, "run-0001")
 
@@ -230,6 +268,7 @@ class CoreLifecycleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             unit = init_unit(root / "unit", "demo", "Demo Unit")
+            self._acknowledge_test_intake(unit)
             run_root = start_run(unit, task="Create a simple artifact")
             finish_run(unit, "run-0001", status="succeeded", summary="Original result")
 
@@ -250,6 +289,7 @@ class CoreLifecycleTests(unittest.TestCase):
             root = Path(temp_dir)
             unit = init_unit(root / "unit", "demo", "Demo Unit")
             create_candidate(unit, "Add evidence-backed change")
+            self._acknowledge_test_intake(unit)
             start_run(unit, task="Render the artifact")
             artifact_source = root / "render.png"
             artifact_source.write_bytes(b"rendered artifact")
@@ -294,6 +334,7 @@ class CoreLifecycleTests(unittest.TestCase):
                     artifact_id="artifact-0001",
                 )
 
+            self._acknowledge_test_intake(unit)
             start_run(unit, task="Render the artifact")
             with self.assertRaisesRegex(HarneloopError, "Artifact does not exist"):
                 add_evidence(
@@ -324,6 +365,7 @@ class CoreLifecycleTests(unittest.TestCase):
             change.parent.mkdir(parents=True, exist_ok=True)
             change.write_text("inspect artifacts\n", encoding="utf-8")
 
+            self._acknowledge_test_intake(unit)
             start_run(unit, task="Render the artifact")
             artifact_source = root / "render.png"
             artifact_source.write_bytes(b"rendered artifact")
@@ -478,6 +520,7 @@ class CoreLifecycleTests(unittest.TestCase):
                 method="Use agent tools to create the artifact.",
             )
 
+            self._acknowledge_test_intake(unit)
             run_root = start_run(unit, task="Generate a task artifact", attempt_id="attempt-0001")
             run_record = read_yaml(run_root / "run.yaml")
             self.assertEqual(run_record["attempt_id"], "attempt-0001")

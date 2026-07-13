@@ -14,6 +14,7 @@ from .attempts import create_attempt_plan
 from .diagnostics import run_doctor
 from .environment import INTERACTION_MODES, connect_environment, render_environment_status
 from .errors import HarneloopError
+from .intake import acknowledge_intake, resolve_intake_field
 from .onboarding import render_onboarding_markdown
 from .preferences import list_registered_units, load_preferences, register_unit, remove_registered_unit, update_preference
 from .setup_flow import (
@@ -125,6 +126,20 @@ def _render_doctor(console: Console) -> None:
 
 def _create_unit_from_plan(console: Console, home: Path | None, unit_path: Path, plan: dict[str, object]) -> Path:
     unit = init_unit(unit_path, str(plan["unit_id"]), str(plan["unit_name"]), template="artifact-review")
+    intake_values = {
+        "harness_goal": str(plan["goal"]),
+        "usage_context": str(plan["usage_context"]),
+        "success_strategy": str(plan["success_strategy"]),
+        "validation_preference": str(plan["validation_preference"]),
+        "environment_status": str(plan["environment_mode"]),
+    }
+    for field, value in intake_values.items():
+        resolve_intake_field(unit, field, value=value, status="confirmed", source="guided setup")
+    acknowledge_intake(
+        unit,
+        basis="user_confirmed",
+        note="The user answered the guided Harneloop setup questions.",
+    )
     set_target_brief(
         unit,
         task=str(plan["goal"]),

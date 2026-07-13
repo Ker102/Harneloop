@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from harneloop.runs import add_artifact, read_run, start_run
+from harneloop.intake import acknowledge_intake
 from harneloop.unit import init_unit
 
 
@@ -15,6 +16,7 @@ class ConcurrencyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             harness_unit = init_unit(root / "unit", "demo", "Demo Unit")
+            acknowledge_intake(harness_unit, basis="user_delegated", note="Test delegates setup context.")
             start_run(harness_unit, task="Capture artifacts concurrently")
 
             sources = []

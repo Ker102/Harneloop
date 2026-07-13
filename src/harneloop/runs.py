@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from .errors import HarneloopError
+from .intake import ensure_intake_ready
 from .locking import file_lock, harness_lock_path
 from .state import now_iso, update_state
 from .versioning import ensure_unit, hash_file
@@ -63,6 +64,7 @@ def start_run(
 ) -> Path:
     unit_root = unit_root.resolve()
     ensure_unit(unit_root)
+    ensure_intake_ready(unit_root)
     with file_lock(harness_lock_path(unit_root, "runs")):
         unit_meta = read_yaml(unit_root / "unit.yaml")
         run_id = next_run_id(unit_root)
