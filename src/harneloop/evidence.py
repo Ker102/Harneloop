@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from .candidate import VALIDATION_TIER_RANK, read_candidate, validate_tier
 from .errors import HarneloopError
 from .locking import file_lock, harness_lock_path
 from .runs import read_run
@@ -76,12 +77,17 @@ def add_evidence(
     run_id: str | None = None,
     artifact_id: str | None = None,
     path: Path | None = None,
+    validation_tier: str | None = None,
 ) -> dict[str, Any]:
     ensure_unit(unit_root)
     if not summary.strip():
         raise HarneloopError("Evidence summary cannot be empty")
 
     unit_root = unit_root.resolve()
+    candidate = read_candidate(unit_root, candidate_id)
+    selected_tier = validate_tier(validation_tier or str(candidate.get("validation_tier", "targeted")))
+    if selected_tier in {"representative", "full"} and not run_id:
+        raise HarneloopError(f"{selected_tier.capitalize()} evidence must reference a recorded run")
     with file_lock(harness_lock_path(unit_root, f"candidate-{candidate_id}-evidence")):
         evidence_id = next_evidence_id(unit_root, candidate_id)
         resolved_path = path.resolve() if path else None
@@ -91,6 +97,8 @@ def add_evidence(
             "kind": kind,
             "summary": summary,
             "outcome": outcome,
+            "validation_tier": selected_tier,
+            "candidate_base_version": candidate.get("base_version"),
             "run_id": run_id,
             "artifact_id": artifact_id,
             "path": str(resolved_path) if resolved_path else None,
@@ -102,8 +110,24 @@ def add_evidence(
 
 
 def has_promotion_evidence(unit_root: Path, candidate_id: str) -> bool:
+    return bool(qualifying_promotion_evidence(unit_root, candidate_id))
+
+
+def qualifying_promotion_evidence(unit_root: Path, candidate_id: str) -> list[dict[str, Any]]:
+    candidate = read_candidate(unit_root, candidate_id)
     records = list_evidence(unit_root, candidate_id)
     supporting = [record for record in records if record.get("outcome") in {"supports", "mixed", "neutral"}]
     for record in supporting:
         validate_evidence_references(unit_root.resolve(), record)
-    return bool(supporting)
+    if candidate.get("schema_version") != "0.2":
+        return supporting
+
+    required_tier = str(candidate.get("validation_tier", "targeted"))
+    required_rank = VALIDATION_TIER_RANK[required_tier]
+    base_version = candidate.get("base_version")
+    return [
+        record
+        for record in supporting
+        if record.get("candidate_base_version") == base_version
+        and VALIDATION_TIER_RANK.get(str(record.get("validation_tier", "structural")), -1) >= required_rank
+    ]

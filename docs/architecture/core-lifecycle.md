@@ -32,9 +32,9 @@ memory/
 experiments/
 ```
 
-## Candidate
+## Candidates
 
-A candidate is a concrete patch object. Agents may create files, notes, research, helper tools, observers, validators, and proposed instructions inside the candidate workspace.
+A candidate is a coherent change batch or hypothesis, not one file edit or Git commit. Related setup, tool, instruction, or validator changes may accumulate in one candidate when they should be tested and promoted together. Agents may keep multiple candidates open when they address independent problems, such as a target-harness improvement and a separate evaluation repair.
 
 ```text
 candidates/cand-0001/
@@ -48,9 +48,22 @@ candidates/cand-0001/
 
 Candidate changes are applied through the framework. Candidate overlays cannot edit protected paths such as `unit.yaml`, `versions/`, `provenance/`, `.evolve/`, or `candidates/`.
 
+Each current candidate declares:
+
+- an impact plane: `target_harness`, `evaluation`, `infrastructure`, or `mixed`;
+- a validation tier: `structural`, `targeted`, `representative`, or `full`;
+- a lifecycle stage: `accumulating`, `ready`, `validating`, `needs_rebase`, `promoted`, or `rejected`;
+- the promoted harness version on which it is based.
+
+Validation is proportional to risk. Structural checks fit metadata-only changes. Targeted checks fit isolated infrastructure or evaluator repairs. Representative runs fit behavior-changing harness work. Full regression suites are reserved for broad changes and release checkpoints. An agent can choose a stronger tier, but should not rerun the entire artifact benchmark for every incremental setup edit.
+
+Evaluation changes and target-harness changes should normally remain separate candidates so a changed judge cannot be used as the sole proof that a changed harness improved. A candidate may remain `accumulating` while related work is batched, then move to `ready` once it is coherent enough to validate.
+
 ## Promotion
 
-Promotion applies a candidate overlay to the harness unit, creates a restorable snapshot under `versions/`, updates provenance, and clears the active candidate.
+Promotion applies one ready candidate overlay to the harness unit, creates a restorable snapshot under `versions/`, and updates provenance. Promoted versions remain linear even when candidate work is parallel.
+
+If two open candidates share the same base, promoting one marks the other `needs_rebase`. Its files and history remain intact, but it must be reconciled with the new version and collect fresh evidence before promotion. Previous evidence remains provenance and cannot satisfy the new base-version gate.
 
 Evidence references are integrity-checked when they are attached and again at promotion. A declared run and artifact must exist, the artifact's stored file must still be present, and any directly referenced evidence file must exist. Narrative evidence may omit these references.
 

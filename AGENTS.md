@@ -46,7 +46,10 @@ For manual harness unit and preference management, use `harneloop units` and `ha
 
 - The framework process is protected. Harness unit evolution is sandboxed.
 - Agents can explore freely inside candidates. The engine controls promotion.
-- A candidate patch is a real object with rationale, changes, validation, and evidence.
+- A candidate is a coherent change batch with rationale, changes, validation, and evidence; it is not required for every individual edit or commit.
+- Multiple independent candidates may remain open. Keep target-harness, evaluation, and infrastructure work separate when their evidence or risks differ.
+- Scale validation to impact: structural, targeted, representative, or full. Use full regressions for broad changes and meaningful checkpoints, not every setup edit.
+- Promoting one parallel candidate makes siblings on the old base require rebase and fresh evidence.
 - Promotion requires a restorable version snapshot.
 - Stop, wait, and resume are normal lifecycle states, not error cases.
 - Portable harness units should exclude raw traces, caches, secrets, and unpromoted experiments by default.

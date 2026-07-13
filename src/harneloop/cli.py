@@ -5,7 +5,15 @@ import json
 import sys
 from pathlib import Path
 
-from .candidate import create_candidate
+from .candidate import (
+    CANDIDATE_PLANES,
+    VALIDATION_TIERS,
+    create_candidate,
+    list_candidates,
+    read_candidate,
+    rebase_candidate,
+    set_candidate_status,
+)
 from .diagnostics import run_doctor
 from .environment import ENVIRONMENT_MODES, INTERACTION_MODES, connect_environment, render_environment_status
 from .errors import HarneloopError
@@ -171,7 +179,23 @@ def build_parser() -> argparse.ArgumentParser:
     candidate_create = candidate_subparsers.add_parser("create", help="Create a candidate patch workspace")
     add_unit_reference(candidate_create)
     candidate_create.add_argument("--summary", required=True)
-    candidate_create.add_argument("--kind", default="mixed")
+    candidate_create.add_argument("--kind", default="mixed", help="Legacy candidate classification")
+    candidate_create.add_argument("--plane", choices=sorted(CANDIDATE_PLANES))
+    candidate_create.add_argument("--validation-tier", choices=VALIDATION_TIERS, default="targeted")
+    candidate_list = candidate_subparsers.add_parser("list", help="List candidate change batches")
+    add_unit_reference(candidate_list)
+    candidate_list.add_argument("--format", choices=["table", "json"], default="table")
+    candidate_list.add_argument("--include-closed", action="store_true")
+    candidate_show = candidate_subparsers.add_parser("show", help="Show one candidate record")
+    add_unit_reference(candidate_show)
+    candidate_show.add_argument("candidate_id")
+    candidate_stage = candidate_subparsers.add_parser("stage", help="Change a candidate lifecycle stage")
+    add_unit_reference(candidate_stage)
+    candidate_stage.add_argument("candidate_id")
+    candidate_stage.add_argument("status", choices=["accumulating", "ready", "validating", "rejected"])
+    candidate_rebase = candidate_subparsers.add_parser("rebase", help="Rebase a stale parallel candidate")
+    add_unit_reference(candidate_rebase)
+    candidate_rebase.add_argument("candidate_id")
     candidate_evidence = candidate_subparsers.add_parser("evidence", help="Manage candidate evidence")
     candidate_evidence_subparsers = candidate_evidence.add_subparsers(dest="evidence_command", required=True)
     candidate_evidence_add = candidate_evidence_subparsers.add_parser("add", help="Add evidence to a candidate")
@@ -183,6 +207,7 @@ def build_parser() -> argparse.ArgumentParser:
     candidate_evidence_add.add_argument("--run-id")
     candidate_evidence_add.add_argument("--artifact-id")
     candidate_evidence_add.add_argument("--path", type=Path)
+    candidate_evidence_add.add_argument("--validation-tier", choices=VALIDATION_TIERS)
 
     promote_parser = subparsers.add_parser("promote", help="Promote a candidate into a version snapshot")
     add_unit_reference(promote_parser)
@@ -411,10 +436,41 @@ def main(argv: list[str] | None = None) -> int:
                 print(render_environment_status(args.unit), end="")
                 return 0
 
-        if args.command == "candidate" and args.candidate_command == "create":
-            path = create_candidate(args.unit, args.summary, args.kind)
-            print(f"Created candidate: {path.name}")
-            return 0
+        if args.command == "candidate":
+            if args.candidate_command == "create":
+                path = create_candidate(
+                    args.unit,
+                    args.summary,
+                    args.kind,
+                    plane=args.plane,
+                    validation_tier=args.validation_tier,
+                )
+                print(f"Created candidate: {path.name}")
+                return 0
+            if args.candidate_command == "list":
+                records = list_candidates(args.unit, include_closed=args.include_closed)
+                if args.format == "json":
+                    print(json.dumps(records, indent=2))
+                elif not records:
+                    print("No matching candidates.")
+                else:
+                    for record in records:
+                        print(
+                            f"{record.get('id')}\t{record.get('status')}\t{record.get('plane', record.get('kind'))}\t"
+                            f"{record.get('validation_tier', 'legacy')}\t{record.get('summary')}"
+                        )
+                return 0
+            if args.candidate_command == "show":
+                print(json.dumps(read_candidate(args.unit, args.candidate_id), indent=2))
+                return 0
+            if args.candidate_command == "stage":
+                record = set_candidate_status(args.unit, args.candidate_id, args.status)
+                print(json.dumps(record, indent=2))
+                return 0
+            if args.candidate_command == "rebase":
+                record = rebase_candidate(args.unit, args.candidate_id)
+                print(json.dumps(record, indent=2))
+                return 0
 
         if args.command == "attempt":
             if args.attempt_command == "plan":
@@ -465,6 +521,7 @@ def main(argv: list[str] | None = None) -> int:
                     run_id=args.run_id,
                     artifact_id=args.artifact_id,
                     path=args.path,
+                    validation_tier=args.validation_tier,
                 )
                 print(json.dumps(record, indent=2))
                 return 0

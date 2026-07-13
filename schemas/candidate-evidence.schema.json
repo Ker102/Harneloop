@@ -10,6 +10,11 @@
     "kind": { "type": "string" },
     "summary": { "type": "string", "minLength": 1 },
     "outcome": { "type": "string", "enum": ["supports", "mixed", "neutral", "opposes"] },
+    "validation_tier": {
+      "type": "string",
+      "enum": ["structural", "targeted", "representative", "full"]
+    },
+    "candidate_base_version": { "type": ["string", "null"] },
     "run_id": { "type": ["string", "null"] },
     "artifact_id": { "type": ["string", "null"] },
     "path": { "type": ["string", "null"] },

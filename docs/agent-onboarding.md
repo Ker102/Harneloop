@@ -110,3 +110,25 @@ If a required artifact or human judgment is delayed, use `harneloop state wait`.
 Finishing a run records execution status; it does not prove that the produced result is good. Inspect the artifacts and conclude every attempt with one explicit decision: accept the current harness, create a candidate, rerun with a corrected plan, request missing input, or stop. A good first result may be accepted with no candidate. Missing expected evidence cannot support an unqualified pass.
 
 When entering or resuming work on a unit, run `harneloop brief <unit>`. The generated brief is scoped to that harness unit, so unrelated work in the same agent session remains unaffected.
+
+## Candidate Batching And Parallel Work
+
+A candidate represents one coherent change hypothesis, not every edit or Git commit. Batch related environment setup, tool, instruction, or validator changes when they should be judged together. Keep unrelated problems in separate candidates; several may remain open at once.
+
+Classify each candidate by impact:
+
+- `target_harness`: changes what the target agent receives or can do;
+- `evaluation`: changes how outputs are observed or judged;
+- `infrastructure`: changes setup, execution, reset, or artifact collection;
+- `mixed`: use only when the concern cannot be separated without losing meaning.
+
+Choose validation proportional to the failure risk:
+
+- `structural`: parsing, schemas, static checks, and metadata integrity;
+- `targeted`: focused smoke tests for one tool, evaluator, or infrastructure path;
+- `representative`: real task attempts and relevant regressions for behavioral changes;
+- `full`: broad suites for high-impact changes and release checkpoints.
+
+Do not rerun the complete benchmark for every setup edit. Let a candidate accumulate until it is coherent, mark it `ready`, then collect evidence at its declared tier. Keep target-harness and evaluation candidates separate when possible so a changed evaluator is not the sole judge of a changed harness.
+
+Promoted harness versions remain linear. If one candidate is promoted while others share its old base, Harneloop marks those siblings `needs_rebase`. Reconcile and rebase them, then collect fresh evidence against the new base; their old evidence remains available as provenance.

@@ -25,10 +25,11 @@ harneloop artifact add demo-artifact run-0001 $artifact --kind text --descriptio
 harneloop run finish demo-artifact run-0001 --status succeeded --summary "Artifact captured"
 harneloop attempt observe demo-artifact attempt-0001 --run-id run-0001 --outcome succeeded --summary "The expected text artifact was captured." --finding "Artifact capture path is working."
 
-harneloop candidate create demo-artifact --summary "Add artifact inspection principle"
+harneloop candidate create demo-artifact --summary "Add artifact inspection principle" --plane target_harness --validation-tier targeted
 New-Item -ItemType Directory -Force (Join-Path $unit "candidates\cand-0001\changes\agent-facing") | Out-Null
 Set-Content -Path (Join-Path $unit "candidates\cand-0001\changes\agent-facing\demo-principle.md") -Value "Always inspect captured artifacts before deciding success."
 harneloop candidate evidence add demo-artifact cand-0001 --kind artifact_review --summary "The run captured the expected text artifact." --run-id run-0001 --artifact-id artifact-0001
+harneloop candidate stage demo-artifact cand-0001 ready
 harneloop promote demo-artifact cand-0001 --version 0.1.0
 
 harneloop export demo-artifact --adapter codex

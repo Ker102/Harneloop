@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import tempfile
 import unittest
@@ -202,6 +203,52 @@ class UserCliSupportTests(unittest.TestCase):
 
             with self.assertRaisesRegex(HarneloopError, "registered path no longer exists"):
                 resolve_unit_reference("demo-unit", home)
+
+    def test_candidate_cli_manages_parallel_classified_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "demo-unit", "demo-unit", "Demo Unit")
+
+            with redirect_stdout(StringIO()):
+                first_result = main(
+                    [
+                        "candidate",
+                        "create",
+                        str(unit),
+                        "--summary",
+                        "Accumulate tool improvements",
+                        "--plane",
+                        "target_harness",
+                        "--validation-tier",
+                        "representative",
+                    ]
+                )
+                second_result = main(
+                    [
+                        "candidate",
+                        "create",
+                        str(unit),
+                        "--summary",
+                        "Repair the evaluator",
+                        "--plane",
+                        "evaluation",
+                        "--validation-tier",
+                        "targeted",
+                    ]
+                )
+                stage_result = main(["candidate", "stage", str(unit), "cand-0002", "ready"])
+
+            output = StringIO()
+            with redirect_stdout(output):
+                list_result = main(["candidate", "list", str(unit), "--format", "json"])
+            records = json.loads(output.getvalue())
+
+            self.assertEqual(first_result, 0)
+            self.assertEqual(second_result, 0)
+            self.assertEqual(stage_result, 0)
+            self.assertEqual(list_result, 0)
+            self.assertEqual([record["id"] for record in records], ["cand-0001", "cand-0002"])
+            self.assertEqual(records[0]["plane"], "target_harness")
+            self.assertEqual(records[1]["status"], "ready")
 
 
 if __name__ == "__main__":

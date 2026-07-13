@@ -8,7 +8,7 @@ from pathlib import Path
 
 from harneloop.adapters import export_unit
 from harneloop.attempts import add_attempt_observation, conclude_attempt, create_attempt_plan
-from harneloop.candidate import create_candidate
+from harneloop.candidate import create_candidate, list_candidates, rebase_candidate, set_candidate_status
 from harneloop.diagnostics import run_doctor
 from harneloop.environment import connect_environment, render_environment_status
 from harneloop.errors import HarneloopError
@@ -31,7 +31,7 @@ from harneloop.templates import list_templates
 from harneloop.unit import init_unit, upgrade_unit_protocol
 from harneloop.validation import validate_unit
 from harneloop.versioning import promote_candidate, rollback_unit
-from harneloop.yamlio import read_yaml
+from harneloop.yamlio import read_yaml, write_yaml
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -104,6 +104,7 @@ class CoreLifecycleTests(unittest.TestCase):
             change.parent.mkdir(parents=True, exist_ok=True)
             change.write_text("# Principles\n\nCheck real artifacts before promotion.\n", encoding="utf-8")
             add_evidence(unit, "cand-0001", kind="manual_review", summary="Smoke-test evidence")
+            set_candidate_status(unit, "cand-0001", "ready")
 
             version_root = promote_candidate(unit, "cand-0001", "0.1.0")
 
@@ -126,6 +127,7 @@ class CoreLifecycleTests(unittest.TestCase):
             candidate = create_candidate(unit, "Attempt protected edit")
             (candidate / "changes" / "unit.yaml").write_text("id: changed\n", encoding="utf-8")
             add_evidence(unit, "cand-0001", kind="manual_review", summary="Protected edit test evidence")
+            set_candidate_status(unit, "cand-0001", "ready")
 
             with self.assertRaises(HarneloopError):
                 promote_candidate(unit, "cand-0001", "0.1.0")
@@ -138,6 +140,7 @@ class CoreLifecycleTests(unittest.TestCase):
             first_change.parent.mkdir(parents=True, exist_ok=True)
             first_change.write_text("original\n", encoding="utf-8")
             add_evidence(unit, "cand-0001", kind="manual_review", summary="Original principle evidence")
+            set_candidate_status(unit, "cand-0001", "ready")
             promote_candidate(unit, "cand-0001", "0.1.0")
 
             second = create_candidate(unit, "Revise principle")
@@ -145,6 +148,7 @@ class CoreLifecycleTests(unittest.TestCase):
             second_change.parent.mkdir(parents=True, exist_ok=True)
             second_change.write_text("revised\n", encoding="utf-8")
             add_evidence(unit, "cand-0002", kind="manual_review", summary="Revised principle evidence")
+            set_candidate_status(unit, "cand-0002", "ready")
             promote_candidate(unit, "cand-0002", "0.2.0")
 
             rollback_unit(unit, "0.1.0")
@@ -263,6 +267,177 @@ class CoreLifecycleTests(unittest.TestCase):
             active = read_yaml(allowed_path)
             self.assertEqual(active["active_candidate"], "cand-0001")
             self.assertIn("candidates/cand-0001/**", active["allowed_paths"])
+
+    def test_parallel_candidates_remain_active_and_agent_visible(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+
+            create_candidate(
+                unit,
+                "Accumulate spatial tools",
+                plane="target_harness",
+                validation_tier="representative",
+            )
+            create_candidate(
+                unit,
+                "Repair visual comparison",
+                plane="evaluation",
+                validation_tier="targeted",
+            )
+
+            state = read_state(unit)
+            self.assertEqual(state["active_candidates"], ["cand-0001", "cand-0002"])
+            self.assertEqual(state["active_candidate"], "cand-0002")
+            candidates = list_candidates(unit, include_closed=False)
+            self.assertEqual([item["id"] for item in candidates], ["cand-0001", "cand-0002"])
+            self.assertEqual(candidates[0]["status"], "accumulating")
+            self.assertEqual(candidates[0]["plane"], "target_harness")
+            self.assertEqual(candidates[1]["plane"], "evaluation")
+
+            allowed = read_yaml(unit / ".evolve" / "allowed-edits.yaml")
+            self.assertIn("candidates/cand-0001/**", allowed["allowed_paths"])
+            self.assertIn("candidates/cand-0002/**", allowed["allowed_paths"])
+            brief = render_session_brief_markdown(build_session_brief_data(unit))
+            self.assertIn("cand-0001", brief)
+            self.assertIn("cand-0002", brief)
+            self.assertIn("representative", brief)
+
+    def test_candidate_validation_tier_controls_promotion_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            unit = init_unit(root / "unit", "demo", "Demo Unit")
+            candidate = create_candidate(
+                unit,
+                "Improve environment startup",
+                plane="infrastructure",
+                validation_tier="targeted",
+            )
+            change = candidate / "changes" / "environment" / "startup.md"
+            change.parent.mkdir(parents=True, exist_ok=True)
+            change.write_text("startup contract\n", encoding="utf-8")
+            report = root / "structural-check.txt"
+            report.write_text("schema valid\n", encoding="utf-8")
+            add_evidence(
+                unit,
+                "cand-0001",
+                kind="structural_check",
+                summary="The configuration parses.",
+                path=report,
+                validation_tier="structural",
+            )
+            set_candidate_status(unit, "cand-0001", "ready")
+
+            with self.assertRaisesRegex(HarneloopError, "targeted"):
+                promote_candidate(unit, "cand-0001", "0.1.0")
+
+            self._acknowledge_test_intake(unit)
+            start_run(unit, task="Smoke-test startup", candidate_id="cand-0001")
+            finish_run(unit, "run-0001", status="succeeded", summary="Startup smoke passed")
+            add_evidence(
+                unit,
+                "cand-0001",
+                kind="smoke_test",
+                summary="The environment started successfully.",
+                run_id="run-0001",
+                validation_tier="targeted",
+            )
+
+            version = promote_candidate(unit, "cand-0001", "0.1.0")
+            self.assertTrue(version.exists())
+            version_meta = read_yaml(version / "version.yaml")
+            self.assertEqual(version_meta["plane"], "infrastructure")
+            self.assertEqual(version_meta["validation_tier"], "targeted")
+
+    def test_parallel_candidate_requires_rebase_and_fresh_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            unit = init_unit(root / "unit", "demo", "Demo Unit")
+            first = create_candidate(unit, "First batch", plane="infrastructure", validation_tier="structural")
+            second = create_candidate(unit, "Second batch", plane="evaluation", validation_tier="structural")
+            for candidate, name in [(first, "first.md"), (second, "second.md")]:
+                change = candidate / "changes" / "tools" / name
+                change.parent.mkdir(parents=True, exist_ok=True)
+                change.write_text(name, encoding="utf-8")
+
+            report = root / "check.txt"
+            report.write_text("valid\n", encoding="utf-8")
+            for candidate_id in ["cand-0001", "cand-0002"]:
+                add_evidence(
+                    unit,
+                    candidate_id,
+                    kind="structural_check",
+                    summary="The candidate structure is valid.",
+                    path=report,
+                    validation_tier="structural",
+                )
+                set_candidate_status(unit, candidate_id, "ready")
+
+            promote_candidate(unit, "cand-0001", "0.1.0")
+            second_meta = read_yaml(second / "candidate.yaml")
+            self.assertEqual(second_meta["status"], "needs_rebase")
+            self.assertEqual(read_state(unit)["active_candidates"], ["cand-0002"])
+            self._acknowledge_test_intake(unit)
+            with self.assertRaisesRegex(HarneloopError, "cannot be tested"):
+                start_run(unit, task="Test stale candidate", candidate_id="cand-0002")
+            with self.assertRaisesRegex(HarneloopError, "rebase"):
+                promote_candidate(unit, "cand-0002", "0.2.0")
+
+            rebased = rebase_candidate(unit, "cand-0002")
+            self.assertEqual(rebased["base_version"], "0.1.0")
+            self.assertEqual(rebased["status"], "accumulating")
+            set_candidate_status(unit, "cand-0002", "ready")
+            with self.assertRaisesRegex(HarneloopError, "fresh evidence"):
+                promote_candidate(unit, "cand-0002", "0.2.0")
+
+            add_evidence(
+                unit,
+                "cand-0002",
+                kind="structural_check",
+                summary="The rebased candidate remains valid.",
+                path=report,
+                validation_tier="structural",
+            )
+            promoted = promote_candidate(unit, "cand-0002", "0.2.0")
+            self.assertTrue(promoted.exists())
+            self.assertEqual(read_state(unit)["active_candidates"], [])
+
+    def test_representative_evidence_requires_a_recorded_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            unit = init_unit(root / "unit", "demo", "Demo Unit")
+            create_candidate(unit, "Change tool behavior", plane="target_harness", validation_tier="representative")
+            report = root / "review.md"
+            report.write_text("looks good\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(HarneloopError, "recorded run"):
+                add_evidence(
+                    unit,
+                    "cand-0001",
+                    kind="artifact_review",
+                    summary="Unlinked visual review.",
+                    path=report,
+                    validation_tier="representative",
+                )
+
+    def test_legacy_candidate_retains_original_promotion_behavior(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            candidate = create_candidate(unit, "Legacy change")
+            candidate_meta_path = candidate / "candidate.yaml"
+            candidate_meta = read_yaml(candidate_meta_path)
+            candidate_meta.pop("schema_version")
+            candidate_meta.pop("plane")
+            candidate_meta.pop("validation_tier")
+            candidate_meta["status"] = "draft"
+            write_yaml(candidate_meta_path, candidate_meta)
+
+            change = candidate / "changes" / "agent-facing" / "principles.md"
+            change.parent.mkdir(parents=True, exist_ok=True)
+            change.write_text("legacy guidance\n", encoding="utf-8")
+            add_evidence(unit, "cand-0001", kind="manual_review", summary="Legacy evidence")
+
+            promoted = promote_candidate(unit, "cand-0001", "0.1.0")
+            self.assertTrue(promoted.exists())
 
     def test_doctor_reports_core_checks(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -416,6 +591,7 @@ class CoreLifecycleTests(unittest.TestCase):
                 run_id="run-0001",
                 artifact_id=artifact["id"],
             )
+            set_candidate_status(unit, "cand-0001", "ready")
             (unit / artifact["stored_path"]).unlink()
 
             with self.assertRaisesRegex(HarneloopError, "stored file does not exist"):
@@ -429,6 +605,7 @@ class CoreLifecycleTests(unittest.TestCase):
             change = candidate / "changes" / "agent-facing" / "principles.md"
             change.parent.mkdir(parents=True, exist_ok=True)
             change.write_text("needs evidence\n", encoding="utf-8")
+            set_candidate_status(unit, "cand-0001", "ready")
 
             with self.assertRaises(HarneloopError):
                 promote_candidate(unit, "cand-0001", "0.1.0")
@@ -444,6 +621,7 @@ class CoreLifecycleTests(unittest.TestCase):
             change.parent.mkdir(parents=True, exist_ok=True)
             change.write_text("# Principles\n\nUse evidence gates.\n", encoding="utf-8")
             add_evidence(unit, "cand-0001", kind="manual_review", summary="Export evidence")
+            set_candidate_status(unit, "cand-0001", "ready")
             promote_candidate(unit, "cand-0001", "0.1.0")
 
             codex_export = export_unit(unit, adapter="codex")
@@ -672,6 +850,9 @@ class CoreLifecycleTests(unittest.TestCase):
         self.assertIn("harneloop intake status", markdown)
         self.assertIn("do not silently convert", markdown)
         self.assertIn("harneloop attempt conclude", markdown)
+        self.assertIn("coherent change batch", markdown)
+        self.assertIn("multiple candidates open", markdown)
+        self.assertIn("structural for metadata", markdown)
         self.assertIn("execution success", markdown.lower())
         self.assertTrue((REPO_ROOT / "skills" / "harneloop" / "SKILL.md").exists())
 

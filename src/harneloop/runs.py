@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+from .candidate import OPEN_CANDIDATE_STATUSES, read_candidate
 from .errors import HarneloopError
 from .intake import ensure_intake_ready
 from .locking import file_lock, harness_lock_path
@@ -65,6 +66,12 @@ def start_run(
     unit_root = unit_root.resolve()
     ensure_unit(unit_root)
     ensure_intake_ready(unit_root)
+    candidate: dict[str, Any] | None = None
+    if candidate_id:
+        candidate = read_candidate(unit_root, candidate_id)
+        status = str(candidate.get("status", "draft"))
+        if status not in OPEN_CANDIDATE_STATUSES or status == "needs_rebase":
+            raise HarneloopError(f"Candidate `{candidate_id}` cannot be tested while its status is `{status}`")
     with file_lock(harness_lock_path(unit_root, "runs")):
         unit_meta = read_yaml(unit_root / "unit.yaml")
         run_id = next_run_id(unit_root)
@@ -83,6 +90,8 @@ def start_run(
                 "finished_at": None,
                 "harness_version": unit_meta.get("current_version"),
                 "candidate_id": candidate_id,
+                "candidate_base_version": candidate.get("base_version") if candidate else None,
+                "candidate_validation_tier": candidate.get("validation_tier") if candidate else None,
                 "attempt_id": attempt_id,
                 "evaluation_status": "pending",
                 "evaluation_outcome": None,

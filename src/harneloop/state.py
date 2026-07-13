@@ -103,6 +103,31 @@ def _latest_attempt(unit_root: Path) -> dict[str, Any]:
     return {}
 
 
+def _active_candidate_ids(state: dict[str, Any]) -> list[str]:
+    active = state.get("active_candidates")
+    if isinstance(active, list):
+        return [str(candidate_id) for candidate_id in active if candidate_id]
+    focused = state.get("active_candidate")
+    return [str(focused)] if focused else []
+
+
+def _candidate_summaries(unit_root: Path, candidate_ids: list[str]) -> list[dict[str, Any]]:
+    summaries: list[dict[str, Any]] = []
+    for candidate_id in candidate_ids:
+        record = _read_optional_yaml(unit_root / "candidates" / candidate_id / "candidate.yaml")
+        if record:
+            summaries.append(
+                {
+                    "id": candidate_id,
+                    "summary": record.get("summary"),
+                    "status": record.get("status", "draft"),
+                    "plane": record.get("plane", record.get("kind", "legacy")),
+                    "validation_tier": record.get("validation_tier", "legacy"),
+                }
+            )
+    return summaries
+
+
 def build_session_brief_data(unit_root: Path, state: dict[str, Any] | None = None) -> dict[str, Any]:
     unit_root = unit_root.resolve()
     unit = _read_optional_yaml(unit_root / "unit.yaml")
@@ -125,6 +150,7 @@ def build_session_brief_data(unit_root: Path, state: dict[str, Any] | None = Non
         "state": current_state.get("state", "unknown"),
         "current_version": current_state.get("current_version"),
         "active_candidate": current_state.get("active_candidate"),
+        "active_candidates": _candidate_summaries(unit_root, _active_candidate_ids(current_state)),
         "active_run": current_state.get("active_run"),
         "intake_status": intake.get("status", "missing"),
         "unresolved_intake": unresolved,
@@ -145,9 +171,17 @@ def render_session_brief_markdown(data: dict[str, Any]) -> str:
         f"- State: `{data.get('state')}`",
         f"- Intake: `{data.get('intake_status')}`",
         f"- Current version: `{data.get('current_version') or 'none'}`",
-        f"- Active candidate: `{data.get('active_candidate') or 'none'}`",
+        f"- Focused candidate: `{data.get('active_candidate') or 'none'}`",
         f"- Active run: `{data.get('active_run') or 'none'}`",
     ]
+    active_candidates = data.get("active_candidates") or []
+    if active_candidates:
+        lines.extend(["", "## Open Candidates", ""])
+        for candidate in active_candidates:
+            lines.append(
+                f"- `{candidate.get('id')}`: `{candidate.get('status')}` / `{candidate.get('plane')}` / "
+                f"`{candidate.get('validation_tier')}` - {candidate.get('summary') or 'no summary'}"
+            )
     unresolved = data.get("unresolved_intake") or []
     if unresolved:
         lines.append(f"- Unresolved or inferred context: `{', '.join(unresolved)}`")
@@ -174,7 +208,8 @@ def render_state_markdown(state: dict[str, Any]) -> str:
         "",
         f"- State: `{state.get('state', 'unknown')}`",
         f"- Current version: `{state.get('current_version') or 'none'}`",
-        f"- Active candidate: `{state.get('active_candidate') or 'none'}`",
+        f"- Focused candidate: `{state.get('active_candidate') or 'none'}`",
+        f"- Open candidates: `{', '.join(_active_candidate_ids(state)) or 'none'}`",
         f"- Active run: `{state.get('active_run') or 'none'}`",
         f"- Reason: {state.get('reason') or 'none'}",
         f"- Updated at: `{state.get('updated_at') or 'unknown'}`",
@@ -200,7 +235,7 @@ def render_next_action_markdown(state: dict[str, Any]) -> str:
 
 
 def write_allowed_edits(unit_root: Path, state: dict[str, Any]) -> None:
-    active_candidate = state.get("active_candidate")
+    active_candidates = _active_candidate_ids(state)
     allowed_paths = [
         "experiments/**",
         "tools/**",
@@ -209,14 +244,15 @@ def write_allowed_edits(unit_root: Path, state: dict[str, Any]) -> None:
         "observers/drafts/**",
         "validators/drafts/**",
     ]
-    if active_candidate:
-        allowed_paths.insert(0, f"candidates/{active_candidate}/**")
+    for candidate_id in reversed(active_candidates):
+        allowed_paths.insert(0, f"candidates/{candidate_id}/**")
 
     write_yaml(
         allowed_edits_path(unit_root),
         {
             "mode": "advisory",
-            "active_candidate": active_candidate,
+            "active_candidate": state.get("active_candidate"),
+            "active_candidates": active_candidates,
             "allowed_paths": allowed_paths,
             "protected_paths": [
                 "unit.yaml",
@@ -224,11 +260,11 @@ def write_allowed_edits(unit_root: Path, state: dict[str, Any]) -> None:
                 "provenance/**",
                 ".evolve/**",
                 "runtime/**",
-                "candidates/** except the active candidate path",
+                "candidates/** except open candidate paths",
             ],
             "notes": [
                 "Use framework commands for candidate creation, promotion, rollback, packaging, wait, stop, and resume.",
-                "Develop harness changes inside the active candidate before promotion.",
+                "Develop each coherent harness change batch inside an open candidate before promotion.",
                 "Do not edit framework-owned state, promoted versions, provenance, or unit identity by hand.",
             ],
         },

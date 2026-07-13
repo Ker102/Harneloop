@@ -6,13 +6,35 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from harneloop.candidate import create_candidate, list_candidates
 from harneloop.preferences import list_registered_units, register_unit
 from harneloop.runs import add_artifact, read_run, start_run
 from harneloop.intake import acknowledge_intake
+from harneloop.state import read_state
 from harneloop.unit import init_unit
 
 
 class ConcurrencyTests(unittest.TestCase):
+    def test_parallel_candidate_creation_preserves_every_open_candidate(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            summaries = [f"Independent change {index}" for index in range(12)]
+            start = threading.Event()
+
+            def worker(summary: str) -> str:
+                start.wait(timeout=5)
+                return create_candidate(unit, summary, plane="infrastructure").name
+
+            with ThreadPoolExecutor(max_workers=len(summaries)) as executor:
+                futures = [executor.submit(worker, summary) for summary in summaries]
+                start.set()
+                returned_ids = [future.result(timeout=10) for future in futures]
+
+            candidate_ids = [str(record["id"]) for record in list_candidates(unit, include_closed=False)]
+            self.assertEqual(len(candidate_ids), len(summaries))
+            self.assertEqual(set(candidate_ids), set(returned_ids))
+            self.assertEqual(set(read_state(unit)["active_candidates"]), set(candidate_ids))
+
     def test_parallel_unit_registrations_do_not_lose_entries(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

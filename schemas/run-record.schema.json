@@ -13,6 +13,11 @@
     "finished_at": { "type": ["string", "null"] },
     "harness_version": { "type": ["string", "null"] },
     "candidate_id": { "type": ["string", "null"] },
+    "candidate_base_version": { "type": ["string", "null"] },
+    "candidate_validation_tier": {
+      "type": ["string", "null"],
+      "enum": ["structural", "targeted", "representative", "full", null]
+    },
     "attempt_id": { "type": ["string", "null"] },
     "evaluation_status": { "type": "string", "enum": ["pending", "completed"] },
     "evaluation_outcome": { "type": ["string", "null"], "enum": ["pass", "partial", "fail", "inconclusive", null] },

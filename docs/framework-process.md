@@ -14,14 +14,14 @@ flowchart TD
         X --> A["Capture real artifacts<br/>renders, screenshots, files, traces, state"]
         A --> I["Inspect and reason about the result<br/>visual, structural, behavioral"]
         I --> D{"What limited the result?"}
-        D -->|"Harness or environment"| C["Create a candidate harness patch"]
+        D -->|"Harness or environment"| C["Create or extend a classified candidate batch"]
         D -->|"Missing capability"| G["Enable, build, or request a tool"]
         D -->|"Model frontier or plateau"| S["Record confidence, limits, and stop or wait"]
         G --> P
     end
 
     M --> P
-    C --> T["Test candidate on relevant and regression tasks"]
+    C --> T["Validate in proportion to impact<br/>structural, targeted, representative, or full"]
     T --> E["Attach verified run, artifact, and review evidence"]
     E --> Q{"Evidence gate"}
     Q -->|"Improved and credible"| V["Promote a restorable harness version"]
@@ -56,7 +56,7 @@ flowchart TD
 
 ## What Evolves
 
-A candidate can change more than a prompt. It may add or revise tools, retrieval data, examples, agent instructions, validators, observers, research, infrastructure declarations, or environment automation. Promotion turns the successful candidate into a restorable harness version; unsuccessful experiments remain outside the promoted unit.
+A candidate can change more than a prompt. It may add or revise tools, retrieval data, examples, agent instructions, validators, observers, research, infrastructure declarations, or environment automation. It represents a coherent batch, so related edits can accumulate without forcing a full test after each change. Independent target-harness, evaluation, and infrastructure candidates may coexist. Promotion turns one successful candidate into a restorable harness version; siblings on the old base remain available but require rebase and fresh evidence.
 
 ## What The Diagram Leaves Open
 

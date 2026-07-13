@@ -24,7 +24,7 @@ flowchart TB
     T --> Q
 ```
 
-The promoted harness remains unchanged until the evidence gate confirms an improvement. A rejected candidate returns to diagnosis and revision without replacing the current version.
+The promoted harness remains unchanged until the evidence gate confirms an improvement. A candidate may batch related changes, and independent candidates may coexist. Validation scales with impact; a rejected candidate returns to diagnosis and revision without replacing the current version.
 
 See [How Harneloop Works](framework-process.md) for the full architecture diagram.
 

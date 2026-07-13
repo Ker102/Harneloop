@@ -36,7 +36,11 @@ Never stop immediately after task execution. Record the evaluation and decision 
 
 ## Develop Changes
 
-Keep proposed harness changes inside a candidate. Reuse suitable existing tools and prior work when useful. Test against the target and relevant regressions, attach run-linked evidence, and promote only when improvement is supported.
+Treat a candidate as a coherent change batch, not a wrapper around every file edit. Classify it as `target_harness`, `evaluation`, `infrastructure`, or `mixed`, and choose the least expensive validation tier that can credibly detect its risks: `structural`, `targeted`, `representative`, or `full`.
+
+Several independent candidates may remain open. For example, continue accumulating a tool change while a separate evaluation candidate repairs artifact inspection. Keep evaluator and target-harness changes separate when possible, and do not use a modified evaluator as the only proof for the harness it was developed beside.
+
+Reuse suitable existing tools and prior work. Move a coherent candidate to `ready`, test it at its declared tier, attach evidence, and promote only when improvement is supported. If another promotion marks it `needs_rebase`, reconcile it with the new base and collect fresh evidence rather than discarding its history.
 
 ## Recover From Context Loss
 

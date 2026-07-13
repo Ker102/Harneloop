@@ -75,9 +75,9 @@ CONTEXT_FIELDS: list[dict[str, str]] = [
         "command": "harneloop run start <harness-unit> --task ...; then harneloop artifact add <harness-unit> <run-id> <path> --kind ...",
     },
     {
-        "name": "Candidate evidence",
-        "captures": "why a harness change should or should not be promoted",
-        "command": "harneloop candidate evidence add <harness-unit> <candidate-id> --kind ... --summary ...",
+        "name": "Candidate batches and evidence",
+        "captures": "which independent harness, evaluation, or infrastructure changes are open and what validation supports promotion",
+        "command": "harneloop candidate list <harness-unit>; create classified candidates, mark coherent batches ready, and attach tier-appropriate evidence",
     },
     {
         "name": "Attempt conclusion",
@@ -126,6 +126,10 @@ def render_onboarding_json() -> dict[str, Any]:
             "Aim to run repeated testing/improvement loops without requiring the user to restart apps, reinstall addons, reset services, or collect files; if automating the environment is reasonable, implement or document it.",
             "Ask the user before environment automation when the automation is risky, unclear, or too expensive/time-consuming.",
             "Do not promote harness changes without concrete evidence or an explicit override.",
+            "Treat a candidate as a coherent change batch, not one candidate per file edit or commit; allow related work to accumulate until it is ready to validate.",
+            "Keep multiple candidates open when they solve independent issues, and normally separate target-harness, evaluation, and infrastructure work so their evidence remains interpretable.",
+            "Choose validation effort by impact: structural for metadata, targeted for isolated repairs, representative for behavior changes, and full for broad changes or meaningful checkpoints.",
+            "When promotion makes a parallel candidate stale, rebase it onto the new harness version and collect fresh evidence before promotion.",
             "Execution success only means a run completed; inspect the result and use `harneloop attempt conclude` to record quality, artifact coverage, confidence, and the next decision.",
             "Every finished attempt must end in accept, create_candidate, rerun, request_input, or stop; a good first result may be accepted with no candidate.",
             "Use `harneloop brief <harness-unit>` when entering a unit or recovering from context loss; apply that brief only to work involving the unit.",

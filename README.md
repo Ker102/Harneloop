@@ -24,7 +24,7 @@ Harneloop was used to develop the custom ViperMesh harness unit for Blender spat
 - Preliminary neutral LLM visual evaluation improved by **8.19 points** across seven live render pairs.
 - Local acting-agent token usage was **90.91% lower** on the documented comparable token pair.
 
-Harneloop did not generate the scenes itself. It structured the evidence loop that exposed weaknesses, guided candidate tool and harness changes, and verified whether those changes improved the benchmark. Read the methodology, limitations, and complete results in the [ViperMesh case study](https://www.kristoferjussmann.me/case-studies/vipermesh).
+Harneloop did not generate the scenes itself. It structured the evidence and artifact loop that exposed weaknesses, guided tool and harness development, and verified whether those changes improved the benchmark. Read the methodology, limitations, and complete results in the [ViperMesh case study](https://www.kristoferjussmann.me/case-studies/vipermesh).
 
 ## Start Here
 
@@ -112,12 +112,14 @@ The default `thin` package contains the promoted knowledge and contracts needed 
 3. **Reconcile assumptions.** Important context is confirmed, delegated, or clearly marked as inferred before the first real run.
 4. **Run a baseline.** The agent attempts the task before changing the harness.
 5. **Inspect and conclude.** It evaluates the artifacts and explicitly accepts, changes, reruns, requests input, or stops.
-6. **Create a candidate when needed.** The proposed harness change is developed in an isolated workspace.
-7. **Test the candidate.** The agent runs relevant and regression tasks and attaches evidence.
+6. **Create or extend candidates when needed.** Related changes accumulate in coherent isolated batches; independent issues can have parallel candidates.
+7. **Validate in proportion to risk.** The agent uses structural, targeted, representative, or full checks and attaches evidence.
 8. **Promote, revise, wait, or stop.** Supported improvements become a version. Weak candidates are revised or rejected.
 9. **Export or package.** The promoted harness can be applied to a coding agent, application agent, or another compatible environment.
 
 Finished runs are immutable. Candidate evidence is checked when attached and checked again at promotion, so deleted runs, missing artifacts, or missing evidence files cannot support a release.
+
+Candidates are not one-per-commit wrappers. A setup or tooling candidate can collect several related changes and receive a focused smoke test, while a behavior-changing harness candidate may require real artifact attempts and regressions. Target-harness, evaluation, and infrastructure changes can proceed independently. If one is promoted, parallel candidates based on the old version must rebase and produce fresh evidence before they can follow.
 
 The image near the top of this README shows this loop at a glance. The [compact lifecycle document](docs/framework-process-compact.md) contains its editable Mermaid source. See the [detailed process diagram](docs/framework-process.md) for capability gaps, human input, waiting, stopping, and the complete artifact-aware loop.
 
@@ -178,6 +180,9 @@ If you are the operating agent:
 - Run `harneloop brief <unit>` and read `AGENTS.md`, `UNIT_AGENT.md`, and `operational-map.md` when entering a unit or recovering from context loss.
 - Apply the unit brief only while working on that harness unit; unrelated project work remains outside its scope.
 - Use `harneloop intake status` to surface only unresolved questions that can materially change the work.
+- Use `harneloop candidate list <unit>` to recover all open work; do not assume a harness unit can have only one active candidate.
+- Batch related changes into coherent candidates and scale validation to impact instead of running a full benchmark after every setup edit.
+- Keep evaluator and target-harness changes separate when possible so the evidence remains trustworthy.
 - Inspect the real environment and map it into `target/` and `environment/`.
 - Prefer real artifact inspection when deterministic checks cannot establish quality.
 - Separate your own capabilities from tools being designed for the target agent.
@@ -322,11 +327,12 @@ harneloop attempt plan my-unit --goal "..." --method "..."
 harneloop run start my-unit --task "Baseline attempt"
 harneloop artifact add my-unit run-0001 ./output.png --kind image
 harneloop run finish my-unit run-0001 --status succeeded --summary "Baseline captured"
-harneloop candidate create my-unit --summary "Improve artifact construction"
+harneloop candidate create my-unit --summary "Improve artifact construction" --plane target_harness --validation-tier representative
 harneloop run start my-unit --task "Test candidate improvement" --candidate-id cand-0001
 harneloop artifact add my-unit run-0002 ./improved-output.png --kind image
 harneloop run finish my-unit run-0002 --status succeeded --summary "Candidate result captured"
-harneloop candidate evidence add my-unit cand-0001 --kind artifact_review --summary "..." --run-id run-0002 --artifact-id artifact-0001
+harneloop candidate evidence add my-unit cand-0001 --kind artifact_review --summary "..." --run-id run-0002 --artifact-id artifact-0001 --validation-tier representative
+harneloop candidate stage my-unit cand-0001 ready
 harneloop promote my-unit cand-0001 --version 0.1.0
 harneloop export my-unit --adapter codex
 harneloop package my-unit --output ./my-unit-0.1.0.tar.gz
@@ -341,6 +347,8 @@ This sequence is illustrative, not a fixed recipe. Tool-driven agents may perfor
 - Finished runs cannot be changed or finished again.
 - Candidate overlays cannot modify protected framework state.
 - Evidence references must exist when attached and at promotion time.
+- Candidate evidence must match the candidate's current base version and declared validation tier.
+- Parallel candidates survive another promotion but must rebase and collect fresh evidence before promotion.
 - Promoted versions are stored as restorable snapshots.
 - Rollback is a recorded framework action.
 - Thin packages exclude runtime data, candidates, caches, and common secret files.

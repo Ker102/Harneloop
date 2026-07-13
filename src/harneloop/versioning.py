@@ -7,6 +7,11 @@ import shutil
 import tempfile
 from pathlib import Path
 
+from .candidate import (
+    active_candidate_ids,
+    mark_parallel_candidates_needing_rebase,
+    read_candidate,
+)
 from .errors import HarneloopError
 from .locking import file_lock, harness_lock_path
 from .paths import is_protected_candidate_path, packageable_files, relative_posix
@@ -115,9 +120,18 @@ def write_manifest(unit_root: Path, snapshot_root: Path, version: str) -> dict[s
 
 
 def require_candidate_evidence(unit_root: Path, candidate_id: str) -> None:
-    from .evidence import has_promotion_evidence
+    from .evidence import list_evidence, qualifying_promotion_evidence
 
-    if not has_promotion_evidence(unit_root, candidate_id):
+    if qualifying_promotion_evidence(unit_root, candidate_id):
+        return
+    candidate = read_candidate(unit_root, candidate_id)
+    if candidate.get("schema_version") == "0.2" and list_evidence(unit_root, candidate_id):
+        raise HarneloopError(
+            f"Candidate promotion requires fresh evidence for base version "
+            f"`{candidate.get('base_version') or 'none'}` at validation tier "
+            f"`{candidate.get('validation_tier')}` or higher."
+        )
+    else:
         raise HarneloopError(
             "Candidate promotion requires evidence. Add evidence with "
             "`harneloop candidate evidence add` or pass --allow-missing-evidence for development-only promotion."
@@ -139,6 +153,20 @@ def promote_candidate(
         candidate_meta = read_yaml(candidate_meta_path)
         if candidate_meta.get("status") == "promoted":
             raise HarneloopError(f"Candidate is already promoted: {candidate_id}")
+        unit_meta_path = unit_root / "unit.yaml"
+        unit_meta = read_yaml(unit_meta_path)
+        previous_version = unit_meta.get("current_version")
+        if candidate_meta.get("schema_version") == "0.2":
+            status = candidate_meta.get("status")
+            if status == "needs_rebase" or candidate_meta.get("base_version") != previous_version:
+                raise HarneloopError(
+                    f"Candidate `{candidate_id}` must rebase onto current version "
+                    f"`{previous_version or 'none'}` before promotion."
+                )
+            if status not in {"ready", "validating"}:
+                raise HarneloopError(
+                    f"Candidate `{candidate_id}` is `{status}`; mark it ready before promotion."
+                )
         if require_evidence:
             require_candidate_evidence(unit_root, candidate_id)
 
@@ -148,9 +176,6 @@ def promote_candidate(
 
         applied = apply_candidate_overlay(unit_root, candidate)
 
-        unit_meta_path = unit_root / "unit.yaml"
-        unit_meta = read_yaml(unit_meta_path)
-        previous_version = unit_meta.get("current_version")
         unit_meta["current_version"] = version
         unit_meta["updated_at"] = now_iso()
         write_yaml(unit_meta_path, unit_meta)
@@ -159,6 +184,7 @@ def promote_candidate(
         candidate_meta["promoted_at"] = now_iso()
         candidate_meta["promoted_version"] = version
         write_yaml(candidate_meta_path, candidate_meta)
+        mark_parallel_candidates_needing_rebase(unit_root, candidate_id, version)
 
         version_root.mkdir(parents=True, exist_ok=False)
         snapshot_root = version_root / "snapshot"
@@ -174,6 +200,8 @@ def promote_candidate(
                 "promoted_from": candidate_id,
                 "created_at": now_iso(),
                 "summary": version_summary,
+                "plane": candidate_meta.get("plane", candidate_meta.get("kind", "legacy")),
+                "validation_tier": candidate_meta.get("validation_tier", "legacy"),
                 "applied_files": applied,
                 "manifest": "manifest.json",
             },
@@ -181,16 +209,21 @@ def promote_candidate(
 
         changelog = unit_root / "provenance" / "changelog.md"
         with changelog.open("a", encoding="utf-8", newline="\n") as handle:
-            handle.write(f"- {now_iso()}: Promoted `{candidate_id}` as `{version}`. {version_summary}\n")
-
-    update_state(
-        unit_root,
-        state="active",
-        current_version=version,
-        active_candidate=None,
-        reason="candidate_promoted",
-        next_action="Create another candidate, package the harness unit, or stop if evidence is sufficient.",
-    )
+            handle.write(
+                f"- {now_iso()}: Promoted `{candidate_id}` as `{version}` "
+                f"(`{candidate_meta.get('plane', candidate_meta.get('kind', 'legacy'))}` / "
+                f"`{candidate_meta.get('validation_tier', 'legacy')}`). {version_summary}\n"
+            )
+        active = active_candidate_ids(unit_root)
+        update_state(
+            unit_root,
+            state="active",
+            current_version=version,
+            active_candidates=active,
+            active_candidate=active[-1] if active else None,
+            reason="candidate_promoted",
+            next_action="Create another candidate, package the harness unit, or stop if evidence is sufficient.",
+        )
     return version_root
 
 
@@ -217,13 +250,15 @@ def rollback_unit(unit_root: Path, version: str) -> Path:
         changelog = unit_root / "provenance" / "changelog.md"
         with changelog.open("a", encoding="utf-8", newline="\n") as handle:
             handle.write(f"- {now_iso()}: Rolled back working tree to `{version}`.\n")
-
-    update_state(
-        unit_root,
-        state="active",
-        current_version=version,
-        active_candidate=None,
-        reason="rollback",
-        next_action="Inspect restored harness unit state before creating another candidate.",
-    )
+        mark_parallel_candidates_needing_rebase(unit_root, "", version)
+        active = active_candidate_ids(unit_root)
+        update_state(
+            unit_root,
+            state="active",
+            current_version=version,
+            active_candidates=active,
+            active_candidate=active[-1] if active else None,
+            reason="rollback",
+            next_action="Inspect restored harness unit state before creating another candidate.",
+        )
     return version_root

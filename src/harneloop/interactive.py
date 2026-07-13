@@ -331,7 +331,10 @@ def _show_advanced_reference(console: Console) -> None:
                     "harneloop attempt plan <unit> --goal ... --method ... --expected-artifact ...",
                     "harneloop run start <unit> --task ...",
                     "harneloop artifact add <unit> <run-id> <path> --kind ...",
+                    "harneloop candidate create <unit> --summary ... --plane target_harness --validation-tier representative",
+                    "harneloop candidate list <unit>",
                     "harneloop candidate evidence add <unit> <candidate-id> --kind ... --summary ...",
+                    "harneloop candidate stage <unit> <candidate-id> ready",
                     "harneloop promote <unit> <candidate-id> --version <version>",
                 ]
             ),
