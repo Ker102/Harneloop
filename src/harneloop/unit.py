@@ -5,9 +5,9 @@ from pathlib import Path
 from .errors import HarneloopError
 from .intake import initialize_intake
 from .operational_map import write_initial_operational_map
-from .state import now_iso, write_state
+from .state import now_iso, read_state, write_state
 from .templates import apply_template
-from .yamlio import write_yaml
+from .yamlio import read_yaml, write_yaml
 
 
 RECOMMENDED_DIRS = [
@@ -28,6 +28,51 @@ RECOMMENDED_DIRS = [
     "environment",
     "runtime/artifacts",
 ]
+
+
+def render_unit_agents(name: str) -> str:
+    return (
+        "\n".join(
+            [
+                f"# Harneloop Unit: {name}",
+                "",
+                "When work concerns this harness unit, treat the target task as the test surface for improving the harness, not as permission to forget the Harneloop lifecycle.",
+                "",
+                "Before substantial unit work or after context loss, read:",
+                "",
+                "1. `.evolve/SESSION_BRIEF.md`",
+                "2. `UNIT_AGENT.md`",
+                "3. `operational-map.md`",
+                "",
+                "Finish every run by evaluating its artifacts and recording an explicit attempt conclusion. A good first result may be accepted with no candidate; incomplete evidence should lead to a rerun or concrete request for input.",
+                "",
+                "These instructions are scoped to work involving this harness unit. Other project work in the same conversation remains outside this unit unless explicitly connected.",
+            ]
+        )
+        + "\n"
+    )
+
+
+def upgrade_unit_protocol(unit_root: Path) -> list[str]:
+    unit_root = unit_root.resolve()
+    unit_path = unit_root / "unit.yaml"
+    if not unit_path.exists():
+        raise HarneloopError(f"Not a Harneloop harness unit: {unit_root}")
+    unit = read_yaml(unit_path)
+    created: list[str] = []
+    agents_path = unit_root / "AGENTS.md"
+    if not agents_path.exists():
+        agents_path.write_text(render_unit_agents(str(unit.get("name") or unit.get("id"))), encoding="utf-8", newline="\n")
+        created.append("AGENTS.md")
+    intake = unit_root / ".evolve" / "intake.yaml"
+    if not intake.exists():
+        initialize_intake(unit_root)
+        created.append(".evolve/intake.yaml")
+    brief = unit_root / ".evolve" / "SESSION_BRIEF.md"
+    if not brief.exists():
+        write_state(unit_root, read_state(unit_root))
+        created.append(".evolve/SESSION_BRIEF.md")
+    return created
 
 
 def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> Path:
@@ -77,28 +122,7 @@ def init_unit(path: Path, unit_id: str, name: str, template: str = "blank") -> P
         newline="\n",
     )
 
-    (unit_root / "AGENTS.md").write_text(
-        "\n".join(
-            [
-                f"# Harneloop Unit: {name}",
-                "",
-                "When work concerns this harness unit, treat the target task as the test surface for improving the harness, not as permission to forget the Harneloop lifecycle.",
-                "",
-                "Before substantial unit work or after context loss, read:",
-                "",
-                "1. `.evolve/SESSION_BRIEF.md`",
-                "2. `UNIT_AGENT.md`",
-                "3. `operational-map.md`",
-                "",
-                "Finish every run by evaluating its artifacts and recording an explicit attempt conclusion. A good first result may be accepted with no candidate; incomplete evidence should lead to a rerun or concrete request for input.",
-                "",
-                "These instructions are scoped to work involving this harness unit. Other project work in the same conversation remains outside this unit unless explicitly connected.",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
+    (unit_root / "AGENTS.md").write_text(render_unit_agents(name), encoding="utf-8", newline="\n")
 
     write_initial_operational_map(unit_root, unit_id, name)
     initialize_intake(unit_root)

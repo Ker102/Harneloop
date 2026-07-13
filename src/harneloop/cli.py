@@ -42,7 +42,7 @@ from .state import build_session_brief_data, mark_active, mark_stopped, mark_wai
 from .state import render_session_brief_markdown, render_state_markdown
 from .target import set_target_brief
 from .templates import list_templates
-from .unit import init_unit
+from .unit import init_unit, upgrade_unit_protocol
 from .validation import validate_unit
 from .versioning import promote_candidate, rollback_unit
 
@@ -82,6 +82,9 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("--id", required=True)
     init_parser.add_argument("--name", required=True)
     init_parser.add_argument("--template", default="blank", choices=list_templates())
+
+    upgrade_parser = subparsers.add_parser("upgrade-unit", help="Add missing current protocol files to an existing unit")
+    upgrade_parser.add_argument("unit", type=Path)
 
     intake_parser = subparsers.add_parser("intake", help="Review and resolve adaptive onboarding context")
     intake_subparsers = intake_parser.add_subparsers(dest="intake_command", required=True)
@@ -348,6 +351,16 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "init-unit":
             path = init_unit(args.path, args.id, args.name, args.template)
             print(f"Created harness unit: {path}")
+            return 0
+
+        if args.command == "upgrade-unit":
+            created = upgrade_unit_protocol(args.unit)
+            if created:
+                print("Added protocol files:")
+                for path in created:
+                    print(f"- {path}")
+            else:
+                print("Harness unit already uses the current protocol.")
             return 0
 
         if args.command == "template" and args.template_command == "list":

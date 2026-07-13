@@ -26,6 +26,8 @@ For machine-readable output:
 harneloop onboard --format json
 ```
 
+For a harness unit created by an earlier Harneloop version, run `harneloop upgrade-unit <unit>` once. It adds missing framework protocol files without replacing existing harness material.
+
 ## Minimal User Questions
 
 Use these as context fields, not as a mandatory questionnaire. The agent may create the provisional unit and inspect the workspace first, then ask only the questions that still matter:

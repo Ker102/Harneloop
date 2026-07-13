@@ -28,7 +28,7 @@ from harneloop.state import (
 )
 from harneloop.target import set_target_brief
 from harneloop.templates import list_templates
-from harneloop.unit import init_unit
+from harneloop.unit import init_unit, upgrade_unit_protocol
 from harneloop.validation import validate_unit
 from harneloop.versioning import promote_candidate, rollback_unit
 from harneloop.yamlio import read_yaml
@@ -52,6 +52,23 @@ class CoreLifecycleTests(unittest.TestCase):
             self.assertIn("questions that still matter", render_intake_markdown(intake))
             with self.assertRaisesRegex(HarneloopError, "intake checkpoint"):
                 start_run(unit, task="Premature baseline")
+
+    def test_existing_unit_can_adopt_new_protocol_without_overwriting_material(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unit = init_unit(Path(temp_dir) / "unit", "demo", "Demo Unit")
+            (unit / ".evolve" / "intake.yaml").unlink()
+            (unit / ".evolve" / "SESSION_BRIEF.md").unlink()
+            (unit / "AGENTS.md").unlink()
+            custom = unit / "agent-facing" / "custom.md"
+            custom.write_text("keep me\n", encoding="utf-8")
+
+            created = upgrade_unit_protocol(unit)
+            second_run = upgrade_unit_protocol(unit)
+
+            self.assertEqual(sorted(created), [".evolve/SESSION_BRIEF.md", ".evolve/intake.yaml", "AGENTS.md"])
+            self.assertEqual(second_run, [])
+            self.assertEqual(custom.read_text(encoding="utf-8"), "keep me\n")
+            self.assertEqual(read_intake(unit)["status"], "pending")
 
     def test_intake_can_record_inference_and_explicit_user_delegation(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
