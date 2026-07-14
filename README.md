@@ -4,6 +4,10 @@ Harneloop is an open-source, agent-first framework for building and evolving tas
 
 The agent attempts a real task, captures the resulting artifacts, logs, traces, and state, compares the result with the desired outcome, and traces likely mistakes back through the recorded run. It can then propose a candidate change to its instructions, context, tools, retrieval, validators, or environment and test again. The working harness stays unchanged until evidence shows that the candidate improves the target without unacceptable regressions.
 
+## Lifecycle At A Glance
+
+![Harneloop lifecycle: observe the real task and evidence, improve the harness through a candidate, then promote only when improvement is proven](docs/assets/harneloop-lifecycle.jpeg)
+
 Each task-specific development environment is a portable **harness unit** containing its goal, environment map, harness material, experiments, evidence, regression cases, and restorable versions. Agents can reason freely and add what they need inside candidate workspaces; Harneloop structures the lifecycle and protects promotion rather than forcing every task through a fixed script. Units can be paused, moved, continued by another compatible agent or machine, and exported into their target environment.
 
 Setup is agent-first: give a capable agent the repository link and describe what you want to improve. It can install Harneloop, onboard itself, inspect or build the testing environment, and create the first harness unit, asking only when important context or permission is missing. A guided manual setup and full CLI are also available.
@@ -13,10 +17,6 @@ Setup is agent-first: give a capable agent the repository link and describe what
 **Project status:** [v0.0.1 public alpha](https://github.com/Ker102/Harneloop/releases/tag/v0.0.1). The core lifecycle works, but commands and file formats may still change before a stable release.
 
 **Contributions are welcome.** Early users can help by testing Harneloop on new task families, reporting failures, improving agent integrations, or contributing focused lifecycle and documentation changes. See [Contributing](#contributing).
-
-## Lifecycle At A Glance
-
-![Harneloop lifecycle: observe the real task and evidence, improve the harness through a candidate, then promote only when improvement is proven](docs/assets/harneloop-lifecycle.jpeg)
 
 ## Evidence From A Real Case Study
 
