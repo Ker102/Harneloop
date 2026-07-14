@@ -12,6 +12,8 @@ Setup is agent-first: give a capable agent the repository link and describe what
 
 **Project status:** [v0.0.1 public alpha](https://github.com/Ker102/Harneloop/releases/tag/v0.0.1). The core lifecycle works, but commands and file formats may still change before a stable release.
 
+**Contributions are welcome.** Early users can help by testing Harneloop on new task families, reporting failures, improving agent integrations, or contributing focused lifecycle and documentation changes. See [Contributing](#contributing).
+
 ## Lifecycle At A Glance
 
 ![Harneloop lifecycle: observe the real task and evidence, improve the harness through a candidate, then promote only when improvement is proven](docs/assets/harneloop-lifecycle.jpeg)
@@ -25,6 +27,8 @@ Harneloop was used to develop the custom ViperMesh harness unit for Blender spat
 - Local acting-agent token usage was **90.91% lower** on the documented comparable token pair.
 
 Harneloop did not generate the scenes itself. It structured the evidence and artifact loop that exposed weaknesses, guided tool and harness development, and verified whether those changes improved the benchmark. Read the methodology, limitations, and complete results in the [ViperMesh case study](https://www.kristoferjussmann.me/case-studies/vipermesh).
+
+These results provide direct empirical evidence that Harneloop's process works in a real, artifact-heavy agent environment: the acting model stayed the same while the evolved harness produced measurable gains in speed, visual performance, and token efficiency.
 
 ## Start Here
 
@@ -62,7 +66,7 @@ The agent is free to reason and experiment inside the harness workspace. Harnelo
 
 ### Why Improve The Harness Before The Weights?
 
-Research across agent interfaces, retrieval, tools, and iterative feedback shows that changing the system around a model can substantially improve task performance without changing the model's weights. Harneloop grew from practical problems encountered while building agent harnesses; the following work independently supports its harness-first direction:
+Research across agent interfaces, retrieval, tools, and iterative feedback shows that changing the system around a model can substantially improve task performance without changing the model's weights. In task settings where context, retrieval, tools, feedback, or environment interaction are the main bottlenecks, harness-level methods can outperform fine-tuning, sometimes substantially, while preserving the underlying model's general capabilities. Harneloop grew from practical problems encountered while building agent harnesses; the following work independently supports its harness-first direction:
 
 - [Self-Harness](https://arxiv.org/abs/2606.09498) found that agents could mine weaknesses from execution traces, propose harness changes, validate them with regression tests, and improve held-out pass rates across three model families.
 - [SWE-agent](https://arxiv.org/abs/2405.15793) showed that a purpose-built agent-computer interface substantially improved how language models navigated repositories, edited code, and executed tests.
@@ -71,7 +75,9 @@ Research across agent interfaces, retrieval, tools, and iterative feedback shows
 - [Fine-Tuning or Retrieval?](https://aclanthology.org/2024.emnlp-main.15/) found that RAG consistently outperformed unsupervised fine-tuning on the knowledge-injection tasks it evaluated, including both existing and new knowledge.
 - [Does Fine-Tuning LLMs on New Knowledge Encourage Hallucinations?](https://arxiv.org/abs/2405.05904) found that models struggled to acquire new factual knowledge through supervised fine-tuning and became more likely to hallucinate as that new knowledge was learned.
 
-These results do not establish that a harness will always outperform every possible fine-tuning method. Fine-tuning can still be valuable for behavior, style, latency, specialized representations, or capabilities that cannot be supplied effectively at inference time. Harneloop's position is practical: **optimize the harness first, measure the result, and modify model weights only when evidence shows that the harness has reached its useful limit.** A strong harness and a well-chosen fine-tune can also complement each other.
+Together with the ViperMesh case study, this supports a practical harness-first strategy: **optimize the harness first, measure the result, and modify model weights only when evidence shows that the harness has reached its useful limit.** Harness changes are faster to inspect, reverse, reuse, and validate, and on applicable tasks can deliver larger gains than weight modification without permanently changing the base model.
+
+This does not establish that a harness will always outperform every possible fine-tuning method. Fine-tuning can still be valuable for behavior, style, latency, specialized representations, or capabilities that cannot be supplied effectively at inference time. A strong harness and a well-chosen fine-tune can also complement each other.
 
 ## What Is A Harness Unit?
 
@@ -364,6 +370,17 @@ This sequence is illustrative, not a fixed recipe. Tool-driven agents may perfor
 - [Product principles](docs/product-principles.md)
 - [Local demo](docs/demo-first-test.md)
 - [Development notes](docs/development.md)
+
+## Contributing
+
+Contributions, issue reports, and independent harness-unit case studies are welcome. Particularly useful contributions include:
+
+- testing Harneloop on task families beyond the existing case study;
+- reporting reproducible lifecycle, portability, or agent-onboarding failures;
+- improving target-agent adapters, validators, packaging, and cross-platform behavior;
+- contributing focused documentation, examples, or regression coverage.
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before substantial changes. Open an issue first for architectural work so its scope and compatibility impact can be discussed. Security issues should follow [SECURITY.md](SECURITY.md) rather than a public issue.
 
 ## Development
 
