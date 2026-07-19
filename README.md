@@ -6,7 +6,7 @@ The agent attempts a real task, captures the resulting artifacts, logs, traces, 
 
 ## Lifecycle At A Glance
 
-![Harneloop lifecycle: observe the real task and evidence, improve the harness through a candidate, then promote only when improvement is proven](docs/assets/harneloop-lifecycle.jpeg)
+![Harneloop lifecycle: observe the real task and evidence, improve the harness through a candidate, then promote only when improvement is proven](docs/assets/Harneloopvisual.png)
 
 Each task-specific development environment is a portable **harness unit** containing its goal, environment map, harness material, experiments, evidence, regression cases, and restorable versions. Agents can reason freely and add what they need inside candidate workspaces; Harneloop structures the lifecycle and protects promotion rather than forcing every task through a fixed script. Units can be paused, moved, continued by another compatible agent or machine, and exported into their target environment.
 
