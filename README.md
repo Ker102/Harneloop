@@ -14,7 +14,7 @@ Setup is agent-first: give a capable agent the repository link and describe what
 
 > Harneloop is not another agent runtime or evaluation dashboard. It is the artifact-aware development and versioning layer an agent uses to build a better harness without replacing the working version before an improvement is proven.
 
-**Project status:** [v0.0.1 public alpha](https://github.com/Ker102/Harneloop/releases/tag/v0.0.1). The core lifecycle works, but commands and file formats may still change before a stable release.
+**Project status:** [v0.0.2 public alpha](https://github.com/Ker102/Harneloop/releases/tag/v0.0.2). The core lifecycle works, but commands and file formats may still change before a stable release.
 
 **Contributions are welcome.** Early users can help by testing Harneloop on new task families, reporting failures, improving agent integrations, or contributing focused lifecycle and documentation changes. See [Contributing](#contributing).
 

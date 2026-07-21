@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "harneloop"
-version = "0.0.1"
+version = "0.0.2"
 description = "Artifact-aware framework for building self-evolving AI agent harnesses."
 readme = "README.md"
 license = "Apache-2.0"
@@ -12,6 +12,7 @@ requires-python = ">=3.11"
 dependencies = ["PyYAML", "rich"]
 authors = [{ name = "Kristofer Jussmann" }]
 keywords = ["ai-agents", "agent-harness", "artifact-evaluation", "llm", "self-improving-agents"]
+urls = { Homepage = "https://harneloop.kaelux.dev/", Documentation = "https://github.com/Ker102/Harneloop#readme", Repository = "https://github.com/Ker102/Harneloop", Issues = "https://github.com/Ker102/Harneloop/issues", Changelog = "https://github.com/Ker102/Harneloop/releases" }
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
