@@ -1,22 +1,41 @@
 # Harneloop
 
-Harneloop is an open-source, agent-first framework for building and evolving task-specific AI agent harnesses through artifact-aware testing, trace-backed diagnosis, and evidence-gated promotion.
+**Help an AI agent learn from what went wrong.**
 
-The agent attempts a real task, captures the resulting artifacts, logs, traces, and state, compares the result with the desired outcome, and traces likely mistakes back through the recorded run. It can then propose a candidate change to its instructions, context, tools, retrieval, validators, or environment and test again. The working harness stays unchanged until evidence shows that the candidate improves the target without unacceptable regressions.
+An agent can finish a task, say it succeeded, and still leave behind broken code, a poor render, or a workflow that does not work. Harneloop gives your existing agent a structured way to inspect the result, look back through its actions, find the likely mistake, and test a better approach.
 
-## Lifecycle At A Glance
+The agent improves its **harness**: the instructions, tools, context, and checks around the model. The model itself does not need to be retrained. A proposed change becomes the working version only after a test supports it.
 
-![Harneloop lifecycle: observe the real task and evidence, improve the harness through a candidate, then promote only when improvement is proven](docs/assets/Harneloopvisual.png)
+## What Can You Use It For?
 
-Each task-specific development environment is a portable **harness unit** containing its goal, environment map, harness material, experiments, evidence, regression cases, and restorable versions. Agents can reason freely and add what they need inside candidate workspaces; Harneloop structures the lifecycle and protects promotion rather than forcing every task through a fixed script. Units can be paused, moved, continued by another compatible agent or machine, and exported into their target environment.
+Use Harneloop when an agent keeps making similar mistakes and you can inspect what it produces. Examples include code and tests, browser workflows, generated documents, and visual tasks. The first published case study is Blender scene construction with ViperMesh; other task families remain opportunities for testing and contribution.
 
-Setup is agent-first: give a capable agent the repository link and describe what you want to improve. It can install Harneloop, onboard itself, inspect or build the testing environment, and create the first harness unit, asking only when important context or permission is missing. A guided manual setup and full CLI are also available.
+## How It Works
 
-> Harneloop is not another agent runtime or evaluation dashboard. It is the artifact-aware development and versioning layer an agent uses to build a better harness without replacing the working version before an improvement is proven.
+1. **Try the task.** Keep the output and the steps the agent took.
+2. **Inspect the result.** Check the artifact itself, rather than trusting the agent's completion message.
+3. **Look back.** Connect the problem to a tool call, missing context, instruction, or environment decision.
+4. **Test an improvement.** Let the agent propose a change and rerun the relevant checks.
+5. **Keep what works.** Preserve supported improvements and a version you can restore.
 
-**Project status:** [v0.0.2 public alpha](https://github.com/Ker102/Harneloop/releases/tag/v0.0.2). The core lifecycle works, but commands and file formats may still change before a stable release.
+![Harneloop lifecycle: inspect an attempt, trace a mistake, test a harness change, and keep a verified improvement](docs/assets/Harneloopvisual.png)
 
-**Contributions are welcome.** Early users can help by testing Harneloop on new task families, reporting failures, improving agent integrations, or contributing focused lifecycle and documentation changes. See [Contributing](#contributing).
+Each task family has a **Harness Unit**: a portable workspace that keeps the goal, tools, attempts, evidence, and improvements together. You can pause it and continue later without starting the investigation from scratch.
+
+## Try Harneloop
+
+[Install from PyPI](https://pypi.org/project/harneloop/) using an isolated tool environment:
+
+```bash
+uv tool install harneloop
+harneloop setup
+```
+
+Or use `python -m pip install harneloop` in your Python environment. See [Install And Start](#install-and-start) for requirements and the source-install option.
+
+Then give a capable agent the repository link and the task you want to improve. The [Agent Quick Start](#agent-quick-start) includes a ready-to-use prompt.
+
+**Status:** Public alpha. The core loop works; broader task validation and contributions are welcome. [Report a problem or share a use case](https://github.com/Ker102/Harneloop/issues).
 
 ## Evidence From A Real Case Study
 
@@ -24,11 +43,17 @@ Harneloop was used to develop the custom ViperMesh harness unit for Blender spat
 
 - ViperMesh was faster on **6 of 7** comparable live tasks, with a **2.534x mean speedup**.
 - Preliminary neutral LLM visual evaluation improved by **8.19 points** across seven live render pairs.
-- Local acting-agent token usage was **90.91% lower** on the documented comparable token pair.
+- Aggregate acting-agent token usage was **90.91% lower** across seven comparable benchmarks, approximately **175K versus 1.9M tokens** in total.
 
-Harneloop did not generate the scenes itself. It structured the evidence and artifact loop that exposed weaknesses, guided tool and harness development, and verified whether those changes improved the benchmark. Read the methodology, limitations, and complete results in the [ViperMesh case study](https://www.kristoferjussmann.me/case-studies/vipermesh).
+Harneloop did not generate the scenes itself. It structured the evidence and artifact loop that exposed weaknesses, guided tool and harness development, and verified whether those changes improved the benchmark. Read the methodology, limitations, and complete results in the [ViperMesh case study](https://kristoferjussmann.me/case-studies/vipermesh).
 
 These results provide direct empirical evidence that Harneloop's process works in a real, artifact-heavy agent environment: the acting model stayed the same while the evolved harness produced measurable gains in speed, visual performance, and token efficiency.
+
+### Demonstration: ViperMesh MCP
+
+[Watch Harneloop demonstrated with ViperMesh MCP](https://www.youtube.com/watch?v=bs74QJ6UD5E&t=2s).
+
+Blender scene construction is one concrete use case for inspecting what an agent produced and improving the tools and instructions around it. Read the [Harneloop case study](https://kristoferjussmann.me/case-studies/harneloop/#harneloop-demo) for the framework and the [ViperMesh benchmark study](https://kristoferjussmann.me/case-studies/vipermesh/) for the measured results. The [public Blender connector](https://github.com/Ker102/vipermesh-blender) is available separately from the full studio and benchmarked harness.
 
 ## Start Here
 
@@ -36,12 +61,12 @@ These results provide direct empirical evidence that Harneloop's process works i
 - **Installing it yourself:** [Install And Start](#install-and-start)
 - **Understanding harness units:** [What Is A Harness Unit?](#what-is-a-harness-unit)
 - **Understanding the loop:** [The Lifecycle, Made Simple](#the-lifecycle-made-simple)
-- **Measured proof:** [ViperMesh case study](https://www.kristoferjussmann.me/case-studies/vipermesh)
+- **Measured proof:** [ViperMesh case study](https://kristoferjussmann.me/case-studies/vipermesh)
 - **Connecting a real environment:** [Environment Setup](#environment-setup)
 - **Changing defaults:** [Configuration](#configuration)
 - **Technical architecture:** [Core lifecycle](docs/architecture/core-lifecycle.md), [runtime layers](docs/architecture/runtime-layers.md), and [concurrency](docs/architecture/concurrency.md)
 - **Full agent instructions:** [Agent onboarding](docs/agent-onboarding.md)
-- **Visual process:** [Lifecycle at a glance](#lifecycle-at-a-glance), [editable compact diagram](docs/framework-process-compact.md), and [detailed framework diagram](docs/framework-process.md)
+- **Visual process:** [How it works](#how-it-works), [editable compact diagram](docs/framework-process-compact.md), and [detailed framework diagram](docs/framework-process.md)
 
 ## Why Harneloop Exists
 
@@ -64,6 +89,9 @@ Harneloop gives the operating agent a controlled improvement loop:
 
 The agent is free to reason and experiment inside the harness workspace. Harneloop controls the integrity-sensitive boundaries: records, protected state, evidence, promotion, snapshots, rollback, and packaging.
 
+<details>
+<summary>Research background: why improve the harness before the weights?</summary>
+
 ### Why Improve The Harness Before The Weights?
 
 Research across agent interfaces, retrieval, tools, and iterative feedback shows that changing the system around a model can substantially improve task performance without changing the model's weights. In task settings where context, retrieval, tools, feedback, or environment interaction are the main bottlenecks, harness-level methods can outperform fine-tuning, sometimes substantially, while preserving the underlying model's general capabilities. Harneloop grew from practical problems encountered while building agent harnesses; the following work independently supports its harness-first direction:
@@ -78,6 +106,8 @@ Research across agent interfaces, retrieval, tools, and iterative feedback shows
 Together with the ViperMesh case study, this supports a practical harness-first strategy: **optimize the harness first, measure the result, and modify model weights only when evidence shows that the harness has reached its useful limit.** Harness changes are faster to inspect, reverse, reuse, and validate, and on applicable tasks can deliver larger gains than weight modification without permanently changing the base model.
 
 This does not establish that a harness will always outperform every possible fine-tuning method. Fine-tuning can still be valuable for behavior, style, latency, specialized representations, or capabilities that cannot be supplied effectively at inference time. A strong harness and a well-chosen fine-tune can also complement each other.
+
+</details>
 
 ## What Is A Harness Unit?
 
@@ -207,13 +237,15 @@ harneloop onboard --format json
 
 ## Install And Start
 
-Harneloop currently installs from GitHub as an isolated, user-level tool through [uv](https://docs.astral.sh/uv/getting-started/installation/). The resulting `harneloop` command works from any directory on Windows, macOS, and Linux.
+Harneloop is [published on PyPI](https://pypi.org/project/harneloop/). Install it as an isolated tool through [uv](https://docs.astral.sh/uv/getting-started/installation/), or use `python -m pip install harneloop` in your Python environment. The `harneloop` command is designed for Windows, macOS, and Linux.
 
 ```bash
-uv tool install git+https://github.com/Ker102/Harneloop.git
+uv tool install harneloop
 harneloop doctor
 harneloop setup
 ```
+
+For an unreleased source build, use `uv tool install git+https://github.com/Ker102/Harneloop.git`.
 
 If `uv` reports that its tool directory is not on `PATH`, run `uv tool update-shell` and open a new terminal. Contributors working from a clone can install the live checkout with `uv tool install --editable .`; see [development setup](docs/development.md).
 
