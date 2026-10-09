@@ -1,4 +1,12 @@
-# Harneloop
+<div align="center">
+
+<h1><img src="docs/assets/harneloop-mark.svg" alt="" width="56" height="56" align="absmiddle" /> Harneloop</h1>
+
+<p>Artifact-aware harness evolution for AI agents.</p>
+
+<p><a href="https://harneloop.kaelux.dev/">Website</a> · <a href="#agent-quick-start">Quick start</a> · <a href="#documentation">Documentation</a></p>
+
+</div>
 
 **Help an AI agent learn from what went wrong.**
 
@@ -18,7 +26,13 @@ Use Harneloop when an agent keeps making similar mistakes and you can inspect wh
 4. **Test an improvement.** Let the agent propose a change and rerun the relevant checks.
 5. **Keep what works.** Preserve supported improvements and a version you can restore.
 
-![Harneloop lifecycle: inspect an attempt, trace a mistake, test a harness change, and keep a verified improvement](docs/assets/Harneloopvisual.png)
+<p align="center">
+  <a href="https://harneloop.kaelux.dev/media/harneloop-how-it-works.mp4">
+    <img src="https://harneloop.kaelux.dev/media/harneloop-video-poster.png" alt="Watch how Harneloop works: from a goal to a reusable harness" width="900" />
+  </a>
+</p>
+
+<p align="center"><a href="https://harneloop.kaelux.dev/media/harneloop-how-it-works.mp4"><img src="docs/assets/readme-play.svg" alt="" width="18" height="18" align="absmiddle" /> Watch how Harneloop works — 3:40</a></p>
 
 Each task family has a **Harness Unit**: a portable workspace that keeps the goal, tools, attempts, evidence, and improvements together. You can pause it and continue later without starting the investigation from scratch.
 
@@ -157,19 +171,19 @@ Finished runs are immutable. Candidate evidence is checked when attached and che
 
 Candidates are not one-per-commit wrappers. A setup or tooling candidate can collect several related changes and receive a focused smoke test, while a behavior-changing harness candidate may require real artifact attempts and regressions. Target-harness, evaluation, and infrastructure changes can proceed independently. If one is promoted, parallel candidates based on the old version must rebase and produce fresh evidence before they can follow.
 
-The image near the top of this README shows this loop at a glance. The [compact lifecycle document](docs/framework-process-compact.md) contains its editable Mermaid source. See the [detailed process diagram](docs/framework-process.md) for capability gaps, human input, waiting, stopping, and the complete artifact-aware loop.
+The video near the top of this README explains the loop. The [compact lifecycle document](docs/framework-process-compact.md) contains an editable Mermaid diagram. See the [detailed process diagram](docs/framework-process.md) for capability gaps, human input, waiting, stopping, and the complete artifact-aware loop.
 
 ## What Makes It Different?
 
-### Artifact-aware
+### <img src="docs/assets/readme-observe.svg" alt="" width="18" height="18" align="absmiddle" /> Artifact-aware
 
 Harneloop treats the produced thing as evidence. The agent can inspect an image, scene, UI, document, generated repository, runtime trace, database state, or any other useful output instead of trusting its own textual report.
 
-### Harness-building, not only scoring
+### <img src="docs/assets/readme-improve.svg" alt="" width="18" height="18" align="absmiddle" /> Harness-building, not only scoring
 
 The purpose is not merely to report that an agent failed. The operating agent diagnoses the failure and develops a concrete harness change that may include prompts, principles, examples, retrieval, tools, observers, validators, regression cases, or environment automation.
 
-### Evidence-gated self-improvement
+### <img src="docs/assets/readme-verify.svg" alt="" width="18" height="18" align="absmiddle" /> Evidence-gated self-improvement
 
 The active agent cannot freely rewrite the promoted harness. It creates a candidate, tests it, attaches evidence, and promotes it through the framework. Every promoted version can be inspected and restored.
 

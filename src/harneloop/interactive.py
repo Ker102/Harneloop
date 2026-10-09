@@ -11,6 +11,7 @@ from rich.table import Table
 
 from .adapters import SUPPORTED_ADAPTERS, export_unit
 from .attempts import create_attempt_plan
+from .branding import print_banner
 from .diagnostics import run_doctor
 from .environment import INTERACTION_MODES, connect_environment, render_environment_status
 from .errors import HarneloopError
@@ -346,8 +347,8 @@ def _show_advanced_reference(console: Console) -> None:
 
 def run_interactive_menu(home: Path | None = None, console: Console | None = None) -> int:
     console = console or Console()
+    print_banner(console)
     while True:
-        console.print(Panel.fit("[bold cyan]Harneloop[/bold cyan]\nSelf-evolving harness units for agents.", border_style="cyan"))
         items = HUMAN_MAIN_MENU + [{"id": "quit", "label": "Quit", "description": "Close Harneloop."}]
         try:
             choice = _menu(console, "What do you want to do?", items)
