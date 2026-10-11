@@ -8,6 +8,10 @@
 
 </div>
 
+<!-- i18n-switcher:start -->
+English | [Español](docs/i18n/es/README.md) | [简体中文](docs/i18n/zh-CN/README.md) | [Français](docs/i18n/fr/README.md) | [日本語](docs/i18n/ja/README.md) | [Deutsch](docs/i18n/de/README.md) | [Português (Brasil)](docs/i18n/pt-BR/README.md)
+<!-- i18n-switcher:end -->
+
 **Help an AI agent learn from what went wrong.**
 
 An agent can finish a task, say it succeeded, and still leave behind broken code, a poor render, or a workflow that does not work. Harneloop gives your existing agent a structured way to inspect the result, look back through its actions, find the likely mistake, and test a better approach.

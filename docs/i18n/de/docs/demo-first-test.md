@@ -1,0 +1,99 @@
+<a id="first-local-demo-test"></a>
+# Erster lokaler Demotest
+
+Diese Demo nutzt die allgemeine Vorlage zur Artefaktprüfung. Blender ist nicht erforderlich.
+
+<a id="setup"></a>
+## Einrichtung
+
+```powershell
+uv tool install --editable .
+harneloop doctor
+```
+
+<a id="run-the-demo"></a>
+## Demo ausführen
+
+```powershell
+$unit = Join-Path $PWD "demo-artifact-unit"
+$artifact = Join-Path $PWD "demo-artifact.txt"
+
+harneloop init-unit $unit --id demo-artifact --name "Demo Artifact Unit" --template artifact-review
+harneloop target set demo-artifact --task "Create and capture a simple text artifact" --success "The artifact exists, is copied into runtime artifacts, and can be used as promotion evidence." --artifact-kind text --risk "artifact is not captured"
+harneloop environment connect demo-artifact --name "Local text artifact smoke environment" --mode existing --description "Uses local PowerShell commands to create a text artifact." --run-command "Set-Content demo-artifact.txt artifact output" --artifact-path "demo-artifact.txt" --note "This demo uses an existing local shell environment."
+harneloop attempt plan demo-artifact --goal "Create and capture a simple text artifact" --method "Use local shell commands to create an artifact, then capture it into Harneloop." --action "Write a text file." --action "Add it as a run artifact." --expected-artifact text --success-check "The artifact is present in runtime artifacts."
+harneloop run start demo-artifact --task "Create and capture a simple text artifact" --attempt-id attempt-0001
+Set-Content -Path $artifact -Value "artifact output"
+harneloop artifact add demo-artifact run-0001 $artifact --kind text --description "Demo text artifact"
+harneloop run finish demo-artifact run-0001 --status succeeded --summary "Artifact captured"
+harneloop attempt observe demo-artifact attempt-0001 --run-id run-0001 --outcome succeeded --summary "The expected text artifact was captured." --finding "Artifact capture path is working."
+
+harneloop candidate create demo-artifact --summary "Add artifact inspection principle" --plane target_harness --validation-tier targeted
+New-Item -ItemType Directory -Force (Join-Path $unit "candidates\cand-0001\changes\agent-facing") | Out-Null
+Set-Content -Path (Join-Path $unit "candidates\cand-0001\changes\agent-facing\demo-principle.md") -Value "Always inspect captured artifacts before deciding success."
+harneloop candidate evidence add demo-artifact cand-0001 --kind artifact_review --summary "The run captured the expected text artifact." --run-id run-0001 --artifact-id artifact-0001
+harneloop candidate stage demo-artifact cand-0001 ready
+harneloop promote demo-artifact cand-0001 --version 0.1.0
+
+harneloop export demo-artifact --adapter codex
+harneloop status demo-artifact --format markdown
+```
+
+Erwartetes Ergebnis:
+
+- die Harness-Einheit enthält vorgegebene Artefaktprüfungsprinzipien und Verträge;
+- `operational-map.md` orientiert den Agenten über Workflow, Artefakte, Evidenz, Reset-Pfade, Fähigkeitslücken, Annahmen und offene Fragen;
+- `target/brief.yaml` beschreibt den Zweck des Harness;
+- `environment/contract.yaml` deklariert die Anbindung der Testumgebung;
+- `attempts/attempt-0001/attempt.yaml` dokumentiert den vom Agenten entworfenen Workflow;
+- `runtime/runs/run-0001/run.yaml` dokumentiert die Ausführung;
+- `runtime/artifacts/run-0001/` speichert das kopierte Artefakt;
+- die Promotion gelingt erst nach dem Hinzufügen von Evidenz;
+- `exports/codex/AGENTS.md` enthält die promovierten Harness-Anweisungen.
+
+<a id="tool-driven-environment-example"></a>
+## Beispiel einer werkzeuggesteuerten Umgebung
+
+Manche Umgebungen haben keinen einzelnen Ausführungsbefehl. Ein Blender-Agent kann beispielsweise über einen MCP-Server und Addon-Werkzeuge mit Blender interagieren.
+
+Nutzt `--interaction-mode mcp` und deklariert die Werkzeuge:
+
+```powershell
+harneloop environment connect demo-artifact `
+  --name "Existing Blender MCP environment" `
+  --mode existing `
+  --interaction-mode mcp `
+  --description "Agent interacts with Blender through an MCP server and addon tools." `
+  --tool create_object `
+  --tool render_scene `
+  --tool capture_screenshot `
+  --tool export_scene_summary `
+  --artifact-path "outputs/renders/*.png" `
+  --note "Use MCP tools instead of looking for a single run command."
+```
+
+Das erzeugt `environment/GETTING_STARTED.md`, das den Agenten anweist, eine Baseline über die Werkzeugschnittstelle auszuführen und Artefakte in Harneloop zu erfassen.
+
+Erstellt für einen Blender-MCP-Versuch einen Versuchsplan, statt nach einem einzelnen Testbefehl zu suchen:
+
+```powershell
+harneloop attempt plan demo-artifact `
+  --goal "Build a Blender scene with a cube on a table and a visible camera view." `
+  --method "Use Blender MCP tools to create objects, render, and export scene summary." `
+  --action "Create table, cube, camera, and light with MCP tools." `
+  --action "Render the scene and capture a screenshot." `
+  --action "Export object transforms and camera visibility summary." `
+  --expected-artifact render `
+  --expected-artifact screenshot `
+  --expected-artifact scene_summary `
+  --success-check "Cube rests on table." `
+  --success-check "All required objects are visible to camera."
+```
+
+<a id="clean-up"></a>
+## Aufräumen
+
+```powershell
+Remove-Item -Recurse -Force .\demo-artifact-unit
+Remove-Item -Force .\demo-artifact.txt
+```

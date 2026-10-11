@@ -1,0 +1,659 @@
+{
+  "schema_version": 1,
+  "source_locale": "en",
+  "authoritative_repository": "https://github.com/Ker102/Harneloop",
+  "hash_algorithm": "sha256",
+  "hash_input": "UTF-8 source bytes with CRLF normalized to LF",
+  "reviewed_on": "2026-10-10",
+  "locales": [
+    "es",
+    "zh-CN",
+    "fr",
+    "ja",
+    "de",
+    "pt-BR"
+  ],
+  "scope": {
+    "included": [
+      "README.md",
+      "CONTRIBUTING.md",
+      "SECURITY.md",
+      "docs/*.md",
+      "docs/architecture/*.md"
+    ],
+    "excluded": [
+      {
+        "paths": [
+          "AGENTS.md",
+          "**/AGENTS.md",
+          "**/CLAUDE.md",
+          "task.md",
+          "implementation-plan.md",
+          "**/progress*",
+          "docs/plans/**"
+        ],
+        "reason": "Agent instructions and internal planning/progress; not maintained public guides."
+      },
+      {
+        "paths": [
+          "docs/releases/v0.0.1.md",
+          "docs/releases/v0.0.2.md"
+        ],
+        "reason": "Historical English release notes; not maintained equivalents."
+      },
+      {
+        "paths": [
+          "skills/**",
+          ".github/**"
+        ],
+        "reason": "Executable agent skills and workflow/templates, not public narrative documentation."
+      },
+      {
+        "paths": [
+          "docs/assets/**",
+          "docs/diagrams/**",
+          "LICENSE"
+        ],
+        "reason": "Shared original assets, raw code diagrams, and authoritative legal text; linked without duplication."
+      },
+      {
+        "paths": [
+          "**/runtime/**",
+          "**/.playwright-cli/**",
+          "**/vendor/**"
+        ],
+        "reason": "Generated/private/local evidence or vendor content; excluded from translation."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "README.md",
+      "sha256": "5ee0a3bf641e32af184f297b8248537013f296a6a8aa65d35ce70cf30255aaa1",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/README.md",
+          "status": "complete",
+          "source_sha256": "5ee0a3bf641e32af184f297b8248537013f296a6a8aa65d35ce70cf30255aaa1",
+          "sha256": "25c7b5c5302419967efd531f852e4479090d33a123548b6d35db1a8cba56ee5e"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/README.md",
+          "status": "complete",
+          "source_sha256": "5ee0a3bf641e32af184f297b8248537013f296a6a8aa65d35ce70cf30255aaa1",
+          "sha256": "e6f20b7a411dd84f8b8c4d60a893d61a9c0edc2e0efb6cddf48d3a2d499b14cd"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/README.md",
+          "status": "complete",
+          "source_sha256": "5ee0a3bf641e32af184f297b8248537013f296a6a8aa65d35ce70cf30255aaa1",
+          "sha256": "4247b0f365e1010d9412719dd3d1f498006eb25658285cf2e170dad03643125a"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/README.md",
+          "status": "complete",
+          "source_sha256": "5ee0a3bf641e32af184f297b8248537013f296a6a8aa65d35ce70cf30255aaa1",
+          "sha256": "a462cf6b46cd6b29f9520f6924dd2b34a36620df3c513fd3a7a533bbd2322484"
+        },
+        "de": {
+          "path": "docs/i18n/de/README.md",
+          "status": "complete",
+          "source_sha256": "5ee0a3bf641e32af184f297b8248537013f296a6a8aa65d35ce70cf30255aaa1",
+          "sha256": "937c9c8cc9b9165daa320d2b7ed197fec57b827b273eabe69971c6c3b7220f3b"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/README.md",
+          "status": "complete",
+          "source_sha256": "5ee0a3bf641e32af184f297b8248537013f296a6a8aa65d35ce70cf30255aaa1",
+          "sha256": "2e097830e9d30e8f82dac1ca96a2adb23cf02ba1ae49e2b4a5aa8bd1c6df7088"
+        }
+      }
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "87441722f760ab4c704bdbad37d4fea457cda2b06ab509d17468c75380a5bab8",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/CONTRIBUTING.md",
+          "status": "complete",
+          "source_sha256": "87441722f760ab4c704bdbad37d4fea457cda2b06ab509d17468c75380a5bab8",
+          "sha256": "f6ad704c06b89b7c8e93b09e1f1b1f08e464454bbd232ee81d7f291a2c895012"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/CONTRIBUTING.md",
+          "status": "complete",
+          "source_sha256": "87441722f760ab4c704bdbad37d4fea457cda2b06ab509d17468c75380a5bab8",
+          "sha256": "227a1b326eea24c3a9c5d60916b7ff14071b32c173b3b749af9f5879a527e74f"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/CONTRIBUTING.md",
+          "status": "complete",
+          "source_sha256": "87441722f760ab4c704bdbad37d4fea457cda2b06ab509d17468c75380a5bab8",
+          "sha256": "cf827e6bb6b6803e5ab4f06f9e27bbf924304e35757a0be6889da28bf88b1ab2"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/CONTRIBUTING.md",
+          "status": "complete",
+          "source_sha256": "87441722f760ab4c704bdbad37d4fea457cda2b06ab509d17468c75380a5bab8",
+          "sha256": "0b5dda8218c10202cd776627c1e6287b938c6589265af43812db29d06d47b12f"
+        },
+        "de": {
+          "path": "docs/i18n/de/CONTRIBUTING.md",
+          "status": "complete",
+          "source_sha256": "87441722f760ab4c704bdbad37d4fea457cda2b06ab509d17468c75380a5bab8",
+          "sha256": "5791a2aa5afe3c9c2b176e8538270c5229a5427d308a4596fb52e7d6b902502e"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/CONTRIBUTING.md",
+          "status": "complete",
+          "source_sha256": "87441722f760ab4c704bdbad37d4fea457cda2b06ab509d17468c75380a5bab8",
+          "sha256": "03d9e01d86e6fcfcc860d2868617f68a7f1a0a830a63ed233ecac3797493967e"
+        }
+      }
+    },
+    {
+      "path": "SECURITY.md",
+      "sha256": "6c3a527c4b646d7b29a9345bbbdabe4029bcb7cdcf58068d6d741cd808c95bf4",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/SECURITY.md",
+          "status": "complete",
+          "source_sha256": "6c3a527c4b646d7b29a9345bbbdabe4029bcb7cdcf58068d6d741cd808c95bf4",
+          "sha256": "2fcb12d583d3e0f7d2959be23cc32adc7b1324c8bff78089241c988307fcb033"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/SECURITY.md",
+          "status": "complete",
+          "source_sha256": "6c3a527c4b646d7b29a9345bbbdabe4029bcb7cdcf58068d6d741cd808c95bf4",
+          "sha256": "3e829e3a59e099386196735b4a54788114895192042434144530b61ebae0328e"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/SECURITY.md",
+          "status": "complete",
+          "source_sha256": "6c3a527c4b646d7b29a9345bbbdabe4029bcb7cdcf58068d6d741cd808c95bf4",
+          "sha256": "4f57a1dee66aa660e18443d4c4d0923529bf82931cdfc8c9a3fef0f29b7740b5"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/SECURITY.md",
+          "status": "complete",
+          "source_sha256": "6c3a527c4b646d7b29a9345bbbdabe4029bcb7cdcf58068d6d741cd808c95bf4",
+          "sha256": "d2c23df41175fb8858c7524c56999f2a16739dfa073eaa75b70166c20d5f36a5"
+        },
+        "de": {
+          "path": "docs/i18n/de/SECURITY.md",
+          "status": "complete",
+          "source_sha256": "6c3a527c4b646d7b29a9345bbbdabe4029bcb7cdcf58068d6d741cd808c95bf4",
+          "sha256": "bb127b274de1adb3c82a267351bd20b041f5a3e938c8be354f9174960ea83f32"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/SECURITY.md",
+          "status": "complete",
+          "source_sha256": "6c3a527c4b646d7b29a9345bbbdabe4029bcb7cdcf58068d6d741cd808c95bf4",
+          "sha256": "848e007ba1b3bb656d4508d127cea519ff6f1a3bdbdb8b71d423bf57f463522e"
+        }
+      }
+    },
+    {
+      "path": "docs/agent-onboarding.md",
+      "sha256": "9021cd1436d2bb4adf533a8d20334b8f63cef259e3753a1f858d55f06162513d",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/agent-onboarding.md",
+          "status": "complete",
+          "source_sha256": "9021cd1436d2bb4adf533a8d20334b8f63cef259e3753a1f858d55f06162513d",
+          "sha256": "c41dfb4ee276f535624ac71596b6fcf7ba6b15f26889c7523067d282e70b13e2"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/agent-onboarding.md",
+          "status": "complete",
+          "source_sha256": "9021cd1436d2bb4adf533a8d20334b8f63cef259e3753a1f858d55f06162513d",
+          "sha256": "f84fcb898bc0cbcb0bb1ed5c9f3c26dc52311e91a8f45d1d230c900751956159"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/agent-onboarding.md",
+          "status": "complete",
+          "source_sha256": "9021cd1436d2bb4adf533a8d20334b8f63cef259e3753a1f858d55f06162513d",
+          "sha256": "939f768281774e87fe1c19c0a47c6e4d35773cb718c79b349eb9930f017d589a"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/agent-onboarding.md",
+          "status": "complete",
+          "source_sha256": "9021cd1436d2bb4adf533a8d20334b8f63cef259e3753a1f858d55f06162513d",
+          "sha256": "94b39c914a6a8548a53a8d100e5775d949e41695d1dec41c219fdd5959b02f9c"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/agent-onboarding.md",
+          "status": "complete",
+          "source_sha256": "9021cd1436d2bb4adf533a8d20334b8f63cef259e3753a1f858d55f06162513d",
+          "sha256": "d044a95781c7b98295c20ad639c15c7610c425b1e58d2b8754c378e0968fd2aa"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/agent-onboarding.md",
+          "status": "complete",
+          "source_sha256": "9021cd1436d2bb4adf533a8d20334b8f63cef259e3753a1f858d55f06162513d",
+          "sha256": "7f3678420bacd64529d90cd93634d3afab26b9a369ad2cd5af93ab8ca6ca5047"
+        }
+      }
+    },
+    {
+      "path": "docs/demo-first-test.md",
+      "sha256": "2d4a2fb8b125efb825eebd19840fe1b68fd5cc201d91c9c2efbcd3f85908bfd4",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/demo-first-test.md",
+          "status": "complete",
+          "source_sha256": "2d4a2fb8b125efb825eebd19840fe1b68fd5cc201d91c9c2efbcd3f85908bfd4",
+          "sha256": "1c23f87d79e18a6a6fd94d8aec965416765ceefb85c21f6a5543bbbae1aa9684"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/demo-first-test.md",
+          "status": "complete",
+          "source_sha256": "2d4a2fb8b125efb825eebd19840fe1b68fd5cc201d91c9c2efbcd3f85908bfd4",
+          "sha256": "79a168c36ba963bba791eb987bc105881afef3bee0ab1368a1bf062c9c90bca2"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/demo-first-test.md",
+          "status": "complete",
+          "source_sha256": "2d4a2fb8b125efb825eebd19840fe1b68fd5cc201d91c9c2efbcd3f85908bfd4",
+          "sha256": "997638b6ddde0f646a6f6d7b419743d1678ed27c31959d67bce4e66db0d0ec27"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/demo-first-test.md",
+          "status": "complete",
+          "source_sha256": "2d4a2fb8b125efb825eebd19840fe1b68fd5cc201d91c9c2efbcd3f85908bfd4",
+          "sha256": "b4605f1833409e47a25579446565eee7655a4e518d04e7126c7ba2d98d49ad43"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/demo-first-test.md",
+          "status": "complete",
+          "source_sha256": "2d4a2fb8b125efb825eebd19840fe1b68fd5cc201d91c9c2efbcd3f85908bfd4",
+          "sha256": "7cc8c920ea2c5f63e144e918d70792210245ae86db5f3a15cc76a4496a935b7d"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/demo-first-test.md",
+          "status": "complete",
+          "source_sha256": "2d4a2fb8b125efb825eebd19840fe1b68fd5cc201d91c9c2efbcd3f85908bfd4",
+          "sha256": "7cc876936eee5c82ca07737cfd8e7d52812c27455692bce2e6471de492ffe8a7"
+        }
+      }
+    },
+    {
+      "path": "docs/development.md",
+      "sha256": "f7904a1aa06dd05068361742bcb55fc05c496a8ff87e78211052bf88ec8566ff",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/development.md",
+          "status": "complete",
+          "source_sha256": "f7904a1aa06dd05068361742bcb55fc05c496a8ff87e78211052bf88ec8566ff",
+          "sha256": "3fb27e67a6865c35fae9e0810b4266c3f1ebf60d6b3b24f0c8cf0cb4a7b114a6"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/development.md",
+          "status": "complete",
+          "source_sha256": "f7904a1aa06dd05068361742bcb55fc05c496a8ff87e78211052bf88ec8566ff",
+          "sha256": "c99ca1f295d03cf2f4e7edec97165bb44b9248f50d4f51955a17cfe9b5a5b62e"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/development.md",
+          "status": "complete",
+          "source_sha256": "f7904a1aa06dd05068361742bcb55fc05c496a8ff87e78211052bf88ec8566ff",
+          "sha256": "7c91b51c49cb80257c14e4b1ab407c9964b20b57c433078a4898338401f789ed"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/development.md",
+          "status": "complete",
+          "source_sha256": "f7904a1aa06dd05068361742bcb55fc05c496a8ff87e78211052bf88ec8566ff",
+          "sha256": "53f02df572d2092f3b8b4a00a756aeeb843568cbf195485d6745cbe2e8def602"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/development.md",
+          "status": "complete",
+          "source_sha256": "f7904a1aa06dd05068361742bcb55fc05c496a8ff87e78211052bf88ec8566ff",
+          "sha256": "65f75e3e97700b8c2567b6096934911ff59215799006e3ec5a4f29970733017f"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/development.md",
+          "status": "complete",
+          "source_sha256": "f7904a1aa06dd05068361742bcb55fc05c496a8ff87e78211052bf88ec8566ff",
+          "sha256": "d0343d7e5466a044e6153fcdb6cf084e442bd2e98e1accfda6502df507fed0a9"
+        }
+      }
+    },
+    {
+      "path": "docs/environment-onboarding.md",
+      "sha256": "140b5f52de2a5c70dea23409e60a1f32aff3771065b47d5b0190af3e238b025a",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/environment-onboarding.md",
+          "status": "complete",
+          "source_sha256": "140b5f52de2a5c70dea23409e60a1f32aff3771065b47d5b0190af3e238b025a",
+          "sha256": "c8b504f46581c317b4137c2bd4b0ee0086f60f2d93f42fcac1808f9516187f83"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/environment-onboarding.md",
+          "status": "complete",
+          "source_sha256": "140b5f52de2a5c70dea23409e60a1f32aff3771065b47d5b0190af3e238b025a",
+          "sha256": "611ccbb61eeed538b5b07e7a21a2c97ea3ad0f5bc2c81b67788f8b5afb52d87d"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/environment-onboarding.md",
+          "status": "complete",
+          "source_sha256": "140b5f52de2a5c70dea23409e60a1f32aff3771065b47d5b0190af3e238b025a",
+          "sha256": "c74b1eddf9c88d617f2b151940dd1f8dac493f628e05e0127130cfa3513c7600"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/environment-onboarding.md",
+          "status": "complete",
+          "source_sha256": "140b5f52de2a5c70dea23409e60a1f32aff3771065b47d5b0190af3e238b025a",
+          "sha256": "cbe4f73735d3861093ecbcfc946424c34cd66377b06c70b0b15da0b27a5c916e"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/environment-onboarding.md",
+          "status": "complete",
+          "source_sha256": "140b5f52de2a5c70dea23409e60a1f32aff3771065b47d5b0190af3e238b025a",
+          "sha256": "397e1fdd215bcf231b97e47a115ceb3e0d2084ee8ef6afdf33c31c29e62e5cfd"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/environment-onboarding.md",
+          "status": "complete",
+          "source_sha256": "140b5f52de2a5c70dea23409e60a1f32aff3771065b47d5b0190af3e238b025a",
+          "sha256": "665c31c5447d66caea42f6fcdfb3800185c7e260afbe5d7105f1f14ecd7db291"
+        }
+      }
+    },
+    {
+      "path": "docs/framework-process-compact.md",
+      "sha256": "8981845a72c97f41edfceb1b1b8f3158735673842ca79ad37eae20cc885fdbf1",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/framework-process-compact.md",
+          "status": "complete",
+          "source_sha256": "8981845a72c97f41edfceb1b1b8f3158735673842ca79ad37eae20cc885fdbf1",
+          "sha256": "a6553a1e6a8ce7840b8b2bf18ff07df7cf809b20cdf891c3bfdd61538e8efba3"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/framework-process-compact.md",
+          "status": "complete",
+          "source_sha256": "8981845a72c97f41edfceb1b1b8f3158735673842ca79ad37eae20cc885fdbf1",
+          "sha256": "aa18785696fdc8647b7d4ba625266edcf81f86869aeb6b462def9bd5ac7dcddf"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/framework-process-compact.md",
+          "status": "complete",
+          "source_sha256": "8981845a72c97f41edfceb1b1b8f3158735673842ca79ad37eae20cc885fdbf1",
+          "sha256": "40fcada606028d7249c45e1f4b4d3a6e237ccd762f080ba5a7990f0d3b0b50cf"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/framework-process-compact.md",
+          "status": "complete",
+          "source_sha256": "8981845a72c97f41edfceb1b1b8f3158735673842ca79ad37eae20cc885fdbf1",
+          "sha256": "b8fbe1858872592e45373d08dff89952d7e927dec05449f57d92e4fdfc714662"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/framework-process-compact.md",
+          "status": "complete",
+          "source_sha256": "8981845a72c97f41edfceb1b1b8f3158735673842ca79ad37eae20cc885fdbf1",
+          "sha256": "a10aa2657d86d1d499a73cec61fae55ad6a91ddf41fb876cea6d7cfa38c551ad"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/framework-process-compact.md",
+          "status": "complete",
+          "source_sha256": "8981845a72c97f41edfceb1b1b8f3158735673842ca79ad37eae20cc885fdbf1",
+          "sha256": "e8aaaef6bb28fa94f357617cecf26c0884da04458fd19f28e4e1060e1628cba8"
+        }
+      }
+    },
+    {
+      "path": "docs/framework-process.md",
+      "sha256": "a20b4d850f377c1445797d2dde3e49b3bc6519426627114d284da9f2eb9a431e",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/framework-process.md",
+          "status": "complete",
+          "source_sha256": "a20b4d850f377c1445797d2dde3e49b3bc6519426627114d284da9f2eb9a431e",
+          "sha256": "46a0f4e139449b5e0360b4397e70cd530c5054c45f4b252852c1f396b3dd4203"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/framework-process.md",
+          "status": "complete",
+          "source_sha256": "a20b4d850f377c1445797d2dde3e49b3bc6519426627114d284da9f2eb9a431e",
+          "sha256": "9071253e09e5bf89018bd35973066832f2248aaa261625093e1dfaccdafcc58f"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/framework-process.md",
+          "status": "complete",
+          "source_sha256": "a20b4d850f377c1445797d2dde3e49b3bc6519426627114d284da9f2eb9a431e",
+          "sha256": "39cb1abbed24ed90393323930e565e639d2d8ac519907c05cfe095c07264d92e"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/framework-process.md",
+          "status": "complete",
+          "source_sha256": "a20b4d850f377c1445797d2dde3e49b3bc6519426627114d284da9f2eb9a431e",
+          "sha256": "cd8924b19b90fc3d9a3d7bd0190ba73c712368da8e095eda4d7dcb2581189423"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/framework-process.md",
+          "status": "complete",
+          "source_sha256": "a20b4d850f377c1445797d2dde3e49b3bc6519426627114d284da9f2eb9a431e",
+          "sha256": "8135a1b4f14afd8b622157f4fc76477ff72f4a484aabb0060d1cbf7d16f892c8"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/framework-process.md",
+          "status": "complete",
+          "source_sha256": "a20b4d850f377c1445797d2dde3e49b3bc6519426627114d284da9f2eb9a431e",
+          "sha256": "2f0f5eeca4f0f928528dbebad8bc963672306512f6beae0fffd5791694189c2f"
+        }
+      }
+    },
+    {
+      "path": "docs/product-principles.md",
+      "sha256": "383b2cb0d3e1607d76f05c2a6650982fd373be7a7981650e5997ea87b621fadf",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/product-principles.md",
+          "status": "complete",
+          "source_sha256": "383b2cb0d3e1607d76f05c2a6650982fd373be7a7981650e5997ea87b621fadf",
+          "sha256": "1c946308bf1a60671857b9ddda0113822165ed073b904f7b494dbb29654ef67c"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/product-principles.md",
+          "status": "complete",
+          "source_sha256": "383b2cb0d3e1607d76f05c2a6650982fd373be7a7981650e5997ea87b621fadf",
+          "sha256": "78642940404e8148c434572752b96e2c1a81aaa53e8b8c5b97c6b80a850fcd60"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/product-principles.md",
+          "status": "complete",
+          "source_sha256": "383b2cb0d3e1607d76f05c2a6650982fd373be7a7981650e5997ea87b621fadf",
+          "sha256": "1b476ad265c6e7400bcb6f955882af09db234295f92b592bfd489f0d12d3d9cf"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/product-principles.md",
+          "status": "complete",
+          "source_sha256": "383b2cb0d3e1607d76f05c2a6650982fd373be7a7981650e5997ea87b621fadf",
+          "sha256": "64c01167f9c9290460ad2f2fd2d802666fa6a9e103bed6c348754b39991af01e"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/product-principles.md",
+          "status": "complete",
+          "source_sha256": "383b2cb0d3e1607d76f05c2a6650982fd373be7a7981650e5997ea87b621fadf",
+          "sha256": "eb8381569429e45b3382d53e04b143ef2d80550a2f2fb1417b81427037637170"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/product-principles.md",
+          "status": "complete",
+          "source_sha256": "383b2cb0d3e1607d76f05c2a6650982fd373be7a7981650e5997ea87b621fadf",
+          "sha256": "168f71659fe77be5ef771a15cc68198f615ee527e2cc3a89b95787f71b065a76"
+        }
+      }
+    },
+    {
+      "path": "docs/architecture/concurrency.md",
+      "sha256": "ac1c3b8f3297d4320e343698e9583136d5c48a2c159b04ff2dc59da1bb3a0582",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/architecture/concurrency.md",
+          "status": "complete",
+          "source_sha256": "ac1c3b8f3297d4320e343698e9583136d5c48a2c159b04ff2dc59da1bb3a0582",
+          "sha256": "716a4ddb5ad7a9c2093e71aafb1b545b2f30c7584aed6426e1dff2ff47da254b"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/architecture/concurrency.md",
+          "status": "complete",
+          "source_sha256": "ac1c3b8f3297d4320e343698e9583136d5c48a2c159b04ff2dc59da1bb3a0582",
+          "sha256": "bdcab5689740322196cd8fce20e199dd7cac3120ad3e08fb341b5100bbecbf84"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/architecture/concurrency.md",
+          "status": "complete",
+          "source_sha256": "ac1c3b8f3297d4320e343698e9583136d5c48a2c159b04ff2dc59da1bb3a0582",
+          "sha256": "880b21e4688d1d7ddbf8feae9e27eba4da3f7ea7ba45c5f2fdac5f9bdc815182"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/architecture/concurrency.md",
+          "status": "complete",
+          "source_sha256": "ac1c3b8f3297d4320e343698e9583136d5c48a2c159b04ff2dc59da1bb3a0582",
+          "sha256": "bc43964c233eda2801a66bba27f79f2c9dc0d11df8cdc7ada3f984fc218a94a4"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/architecture/concurrency.md",
+          "status": "complete",
+          "source_sha256": "ac1c3b8f3297d4320e343698e9583136d5c48a2c159b04ff2dc59da1bb3a0582",
+          "sha256": "2283a3003a52f52a8f588f57a17dd58e677a3c4deb3f4d51366ddb563b19a301"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/architecture/concurrency.md",
+          "status": "complete",
+          "source_sha256": "ac1c3b8f3297d4320e343698e9583136d5c48a2c159b04ff2dc59da1bb3a0582",
+          "sha256": "a9e5817e2c2d60723e8c0771984281a817f4513d940196e338851f62d0d81ef6"
+        }
+      }
+    },
+    {
+      "path": "docs/architecture/core-lifecycle.md",
+      "sha256": "0f714828a9c562e6a6b23070eb4b0888834648776aee5db0940ce8ecfcff0e9d",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/architecture/core-lifecycle.md",
+          "status": "complete",
+          "source_sha256": "0f714828a9c562e6a6b23070eb4b0888834648776aee5db0940ce8ecfcff0e9d",
+          "sha256": "5ea1735722ee52ed462c754316cdb0feccd7e819e615bfcad9e29abaa1667a73"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/architecture/core-lifecycle.md",
+          "status": "complete",
+          "source_sha256": "0f714828a9c562e6a6b23070eb4b0888834648776aee5db0940ce8ecfcff0e9d",
+          "sha256": "17b1d77b766a98e96ab087cdab16a1b79df06bff12f673e40462d618d5333b06"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/architecture/core-lifecycle.md",
+          "status": "complete",
+          "source_sha256": "0f714828a9c562e6a6b23070eb4b0888834648776aee5db0940ce8ecfcff0e9d",
+          "sha256": "b950b7b366d1aabf43a681b81518076b96158c18e0cc96a0421aa8eab2bd6e3a"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/architecture/core-lifecycle.md",
+          "status": "complete",
+          "source_sha256": "0f714828a9c562e6a6b23070eb4b0888834648776aee5db0940ce8ecfcff0e9d",
+          "sha256": "199a97a94206c85196a4951ddb5f4a94d5d26d6a8e5f4cc36bf21a9f64906def"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/architecture/core-lifecycle.md",
+          "status": "complete",
+          "source_sha256": "0f714828a9c562e6a6b23070eb4b0888834648776aee5db0940ce8ecfcff0e9d",
+          "sha256": "7c3cab4d76eb3cceed714fc75e22278408b29e183ae580faf34d9cf7c6d08773"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/architecture/core-lifecycle.md",
+          "status": "complete",
+          "source_sha256": "0f714828a9c562e6a6b23070eb4b0888834648776aee5db0940ce8ecfcff0e9d",
+          "sha256": "e0b2b5727a91bda859a0443af54df76b99720d41cb28a0ba3f8351eea3fb5bf0"
+        }
+      }
+    },
+    {
+      "path": "docs/architecture/naming.md",
+      "sha256": "b2517c283fe18eaedf0e2212b67cf6b347c46fb21fa400239b43e7734087f5a5",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/architecture/naming.md",
+          "status": "complete",
+          "source_sha256": "b2517c283fe18eaedf0e2212b67cf6b347c46fb21fa400239b43e7734087f5a5",
+          "sha256": "c1e9f4a0bf3fe4851704ca9de7cbd2055b0ae8b1a5bebcce0650fd53bb4ecf73"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/architecture/naming.md",
+          "status": "complete",
+          "source_sha256": "b2517c283fe18eaedf0e2212b67cf6b347c46fb21fa400239b43e7734087f5a5",
+          "sha256": "728a5e1ac77b9ed88435dca9489e755cf189b29ef828fdefd7c019b431d3bb27"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/architecture/naming.md",
+          "status": "complete",
+          "source_sha256": "b2517c283fe18eaedf0e2212b67cf6b347c46fb21fa400239b43e7734087f5a5",
+          "sha256": "7b650a788b6e9767cb05db1b7a9000f3c07e3e6abc8c1c4d19d72324a8e2e308"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/architecture/naming.md",
+          "status": "complete",
+          "source_sha256": "b2517c283fe18eaedf0e2212b67cf6b347c46fb21fa400239b43e7734087f5a5",
+          "sha256": "a41ba818e74d0fea0f1945bd1aacad3cb1ec0c255593b39d2a6207d1a4b7a231"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/architecture/naming.md",
+          "status": "complete",
+          "source_sha256": "b2517c283fe18eaedf0e2212b67cf6b347c46fb21fa400239b43e7734087f5a5",
+          "sha256": "a0d3ae94583c78830104a2cc69919daa262bb6b51a206d0eeca75f65f6cfb1a8"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/architecture/naming.md",
+          "status": "complete",
+          "source_sha256": "b2517c283fe18eaedf0e2212b67cf6b347c46fb21fa400239b43e7734087f5a5",
+          "sha256": "8278d67447d23bd4b6d7dca21ba624f4db92c23b687554d3e7a23b2accb2fee8"
+        }
+      }
+    },
+    {
+      "path": "docs/architecture/runtime-layers.md",
+      "sha256": "488b7e45ca455d92c27e704ed8ea7b7c7a6024a7c22d28ca190134e5076729cb",
+      "mirrors": {
+        "es": {
+          "path": "docs/i18n/es/docs/architecture/runtime-layers.md",
+          "status": "complete",
+          "source_sha256": "488b7e45ca455d92c27e704ed8ea7b7c7a6024a7c22d28ca190134e5076729cb",
+          "sha256": "d7415e3af1d1799ef7824568293786837d82885d244e65231262f47191b59acc"
+        },
+        "zh-CN": {
+          "path": "docs/i18n/zh-CN/docs/architecture/runtime-layers.md",
+          "status": "complete",
+          "source_sha256": "488b7e45ca455d92c27e704ed8ea7b7c7a6024a7c22d28ca190134e5076729cb",
+          "sha256": "592d2b856771c3eb6b120b5f5f14476d4e2e76d63344b27d60cb151eb20a3cc9"
+        },
+        "fr": {
+          "path": "docs/i18n/fr/docs/architecture/runtime-layers.md",
+          "status": "complete",
+          "source_sha256": "488b7e45ca455d92c27e704ed8ea7b7c7a6024a7c22d28ca190134e5076729cb",
+          "sha256": "3157f6ea1c05fa621cad6866cf8d0a9d1a6aada40e290fe29ce184054002d088"
+        },
+        "ja": {
+          "path": "docs/i18n/ja/docs/architecture/runtime-layers.md",
+          "status": "complete",
+          "source_sha256": "488b7e45ca455d92c27e704ed8ea7b7c7a6024a7c22d28ca190134e5076729cb",
+          "sha256": "9ec57ec49d3c30c357536d0ce14c34376e01c2b8d46f349ac5970e00ee2341b3"
+        },
+        "de": {
+          "path": "docs/i18n/de/docs/architecture/runtime-layers.md",
+          "status": "complete",
+          "source_sha256": "488b7e45ca455d92c27e704ed8ea7b7c7a6024a7c22d28ca190134e5076729cb",
+          "sha256": "daf83a43bdfc7099d2e9ef55afa13dc7d1ccba96df3f0d0e23558bb25d4752ae"
+        },
+        "pt-BR": {
+          "path": "docs/i18n/pt-BR/docs/architecture/runtime-layers.md",
+          "status": "complete",
+          "source_sha256": "488b7e45ca455d92c27e704ed8ea7b7c7a6024a7c22d28ca190134e5076729cb",
+          "sha256": "85a9bb588e7384b00cafe2e2d9fe6f4d0ffde04298f5032f93a93dc29547f125"
+        }
+      }
+    }
+  ]
+}
